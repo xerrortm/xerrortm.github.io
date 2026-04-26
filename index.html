@@ -339,13 +339,10 @@ userBtn.onclick = () => {
         authPopup.classList.remove("hidden");
 
     } else {
-
         profileName.innerText = user;
-
+        loadBadges(user);
         profilePopup.classList.remove("hidden");
-
     }
-
 };
 
 closeAuth.onclick = () => {
@@ -373,9 +370,8 @@ profilePopup.onclick = (e) => {
 };
 
 logoutBtn.onclick = () => {
-
+    if(!confirm("Are you sure you want to log out?")) return;
     localStorage.removeItem("errorinc_user");
-
     location.reload();
 
 };
