@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdn.tailwindcss.com"></script>
+<title>Log In</title>
+</head>
+
+<body class="bg-slate-50 min-h-screen flex items-center justify-center p-6">
+
+<div class="bg-white border rounded-3xl p-8 w-full max-w-md">
+
+    <h1 class="text-3xl font-bold">
+        Log In
+    </h1>
+
+    <p class="text-slate-500 mt-2">
+        Welcome back.
+    </p>
+
+    <div class="mt-6 space-y-4">
+
+        <input id="username"
+        type="text"
+        placeholder="Username"
+        class="w-full border rounded-xl p-3 outline-none">
+
+        <input id="password"
+        type="password"
+        placeholder="Password"
+        class="w-full border rounded-xl p-3 outline-none">
+
+        <button id="loginBtn"
+        class="w-full bg-slate-900 text-white py-3 rounded-xl">
+            Log In
+        </button>
+
+        <div id="msg" class="text-sm text-red-500"></div>
+
+    </div>
+
+</div>
+
+
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+
+import {
+getDatabase,
+ref,
+get
+}
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
+    authDomain: "error-inc.firebaseapp.com",
+    databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
+    projectId: "error-inc",
+    storageBucket: "error-inc.firebasestorage.app",
+    messagingSenderId: "876188868410",
+    appId: "1:876188868410:web:ca7de451707bd9975c7a03"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+document.getElementById("loginBtn").onclick =
+async () => {
+
+    const username =
+    document.getElementById("username").value.trim();
+
+    const password =
+    document.getElementById("password").value;
+
+    const msg =
+    document.getElementById("msg");
+
+    msg.innerText = "";
+
+    const snapshot =
+    await get(ref(db, "err-user/" + username));
+
+    if (!snapshot.exists()) {
+        msg.innerText = "User not found";
+        return;
+    }
+
+    const user = snapshot.val();
+
+    if (user.password !== password) {
+        msg.innerText = "Incorrect password";
+        return;
+    }
+
+    localStorage.setItem(
+        "errorinc_user",
+        username
+    );
+
+    window.location.href = "index.html";
+
+};
+
+</script>
+
+</body>
+</html>
