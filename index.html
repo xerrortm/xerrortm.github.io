@@ -280,7 +280,7 @@ window.loadBadges = async function(username) {
     badgesContainer.innerHTML = "";
 
     const snapshot =
-    await get(ref(db, "users/" + username));
+    await get(ref(db, "err-user/" + username));
 
     if (!snapshot.exists()) return;
 
