@@ -3,229 +3,128 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<link rel="icon" type="image/png" href="media/favicon.png?v=5">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="icon" href="media/favicon.png?v=5">
 <link rel="apple-touch-icon" href="media/favicon.png?v=5">
 <title>ERROR Inc.</title>
-
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-    }
-    body {
-        background: #f8fafc;
-        color: #0f172a;
-    }
-    nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 50px;
-        background: white;
-        border-bottom: 1px solid #e2e8f0;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-    }
-    .logo img {
-        height: 42px;
-    }
-    .links a {
-        margin-left: 18px;
-        text-decoration: none;
-        color: #334155;
-        font-size: 14px;
-    }
-    .links a:hover {
-        color: #0f172a;
-    }
-    .hero {
-        padding: 90px 50px 40px;
-    }
-    .hero h1 {
-        font-size: 44px;
-        letter-spacing: -1px;
-    }
-    .hero p {
-        margin-top: 10px;
-        color: #64748b;
-        max-width: 650px;
-    }
-    .cta {
-        margin-top: 18px;
-        display: inline-block;
-        padding: 10px 16px;
-        background: white;
-        border: 1px solid #cbd5e1;
-        border-radius: 10px;
-        cursor: pointer;
-    }
-    .cta:hover {
-        background: #f1f5f9;
-    }
-    .layout {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 20px;
-        padding: 40px 50px;
-    }
-    .featured {
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        padding: 22px;
-    }
-    .featured h2 {
-        font-size: 20px;
-        margin-bottom: 10px;
-    }
-    .tag {
-        display: inline-block;
-        font-size: 12px;
-        padding: 4px 8px;
-        background: #eef2ff;
-        color: #4f46e5;
-        border-radius: 999px;
-        margin-bottom: 10px;
-    }
-    .featured p {
-        color: #64748b;
-        margin-top: 10px;
-    }
-    .live {
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        padding: 22px;
-    }
-    .live h2 {
-        font-size: 20px;
-        margin-bottom: 10px;
-    }
-    .project {
-        padding: 12px;
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
-        margin-top: 10px;
-    }
-    .project strong {
-        display: block;
-    }
-    .status {
-        font-size: 12px;
-        color: #16a34a;
-        margin-top: 4px;
-    }
-    .activity {
-        margin: 40px 50px;
-        background: white;
-        border: 1px solid #e2e8f0;
-        border-radius: 16px;
-        padding: 18px;
-    }
-    .activity h2 {
-        font-size: 18px;
-        margin-bottom: 10px;
-    }
-    .feed {
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-    }
-    .item {
-        font-size: 14px;
-        color: #475569;
-    }
-    .item span {
-        color: #0f172a;
-        font-weight: 500;
-    }
-    footer {
-        text-align: center;
-        padding: 30px;
-        color: #94a3b8;
-        border-top: 1px solid #e2e8f0;
-        background: white;
-        margin-top: 40px;
-    }
-    @media (max-width: 900px) {
-        .layout {
-            grid-template-columns: 1fr;
-        }
-    }
-</style>
 </head>
+<body class="bg-slate-50 text-slate-900">
 
-<body>
+<!-- NAV -->
+<nav class="sticky top-0 z-50 bg-white border-b border-slate-200 px-10 py-4 flex justify-between items-center">
+    <img src="media/logo.png" class="h-10">
 
-<nav>
-    <div class="logo">
-        <img src="media/logo.png" alt="ERROR Inc.">
-    </div>
-
-    <div class="links">
-        <a href="#projects">Projects</a>
-        <a href="#activity">Activity</a>
-        <a href="#community">Community</a>
+    <div class="flex gap-6 text-sm text-slate-600">
+        <a href="#projects" class="hover:text-slate-900 transition">Projects</a>
+        <a href="#activity" class="hover:text-slate-900 transition">Activity</a>
+        <a href="#community" class="hover:text-slate-900 transition">Community</a>
     </div>
 </nav>
 
-<div class="hero">
-    <h1>Welcome to the ultimate ERROR Inc.</h1>
-    <p>
-        ERROR Inc. is a small creative studio building real web projects, games, and experimental tools.
-        Everything is actively evolving.
-    </p>
-    <button class="cta">Join Community</button>
-</div>
+<!-- HERO -->
+<section class="max-w-5xl mx-auto px-6 py-20 text-center">
+    <h1 class="text-5xl font-bold tracking-tight">
+        Welcome to the ultimate ERROR Inc.
+    </h1>
 
-<div class="layout">
+    <p class="mt-5 text-slate-600 max-w-2xl mx-auto">
+        We build websites, games, and experimental tools. Everything is active, evolving, and constantly improving.
+    </p>
+
+    <button class="mt-6 px-5 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition">
+        Join Community
+    </button>
+</section>
+
+<!-- MAIN GRID -->
+<section id="projects" class="max-w-6xl mx-auto px-6 grid md:grid-cols-3 gap-6">
 
     <!-- FEATURED -->
-    <div class="featured">
-        <div class="tag">Featured Project</div>
-        <h2>GoggleTools</h2>
-        <p>
-            A lightweight web tools ecosystem with login system, utilities, and experimental UI systems.
-            Currently in active development.
+    <div class="md:col-span-2 bg-white border border-slate-200 rounded-2xl p-6">
+        <span class="text-xs font-semibold px-3 py-1 bg-indigo-100 text-indigo-600 rounded-full">
+            FEATURED PROJECT
+        </span>
+
+        <h2 class="text-2xl font-bold mt-4">
+            GoggleTools Platform
+        </h2>
+
+        <p class="text-slate-600 mt-2">
+            A full ecosystem of web tools, login systems, and UI experiments.
+            This is our main active build right now.
         </p>
+
+        <div class="mt-4 text-sm text-slate-500">
+            Status: In active development ⚡
+        </div>
     </div>
 
     <!-- LIVE PROJECTS -->
-    <div class="live">
-        <h2>Live Projects</h2>
+    <div class="bg-white border border-slate-200 rounded-2xl p-6">
+        <h3 class="font-bold text-lg mb-4">Live Projects</h3>
 
-        <div class="project">
-            <strong>Happy Notifications</strong>
-            <div class="status">Pre-release</div>
-        </div>
+        <div class="space-y-3 text-sm">
+            <div class="p-3 border rounded-xl">
+                <div class="font-semibold">Happy Notifications</div>
+                <div class="text-slate-500">Pre-release</div>
+            </div>
 
-        <div class="project">
-            <strong>2D Obby Builder</strong>
-            <div class="status">In development</div>
-        </div>
+            <div class="p-3 border rounded-xl">
+                <div class="font-semibold">2D Obby Builder</div>
+                <div class="text-slate-500">In development</div>
+            </div>
 
-        <div class="project">
-            <strong>Community Hub</strong>
-            <div class="status">🟢 Live</div>
+            <div class="p-3 border rounded-xl">
+                <div class="font-semibold">Community Hub</div>
+                <div class="text-green-600">Live</div>
+            </div>
         </div>
     </div>
 
-</div>
+</section>
 
-<div class="activity" id="activity">
-    <h2>Recent Activity</h2>
-    <div class="feed">
-        <div class="item"><span>New update:</span> UI system redesign started</div>
-        <div class="item"><span>Fix:</span> login system stability improved</div>
-        <div class="item"><span>Build:</span> new game prototype added</div>
+<!-- ACTIVITY -->
+<section id="activity" class="max-w-6xl mx-auto px-6 py-16">
+    <h2 class="text-2xl font-bold">Recent Activity</h2>
+
+    <div class="mt-6 space-y-3">
+        <div class="bg-white border rounded-xl p-4">
+            <b>Update:</b> UI system redesign started
+        </div>
+
+        <div class="bg-white border rounded-xl p-4">
+            <b>Fix:</b> login system stability improved
+        </div>
+
+        <div class="bg-white border rounded-xl p-4">
+            <b>Build:</b> new game prototype added
+        </div>
+
+        <div class="bg-white border rounded-xl p-4">
+            <b>New:</b> community dashboard planning
+        </div>
     </div>
-</div>
+</section>
 
-<footer>
-    © 2026 ERROR Inc. — Building things that evolve ⚡
+<!-- JOIN SECTION -->
+<section id="community" class="max-w-6xl mx-auto px-6 mt-10">
+    <div class="bg-slate-900 text-white rounded-2xl p-8 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div>
+            <h2 class="text-2xl font-bold">Join ERROR Inc.</h2>
+            <p class="text-slate-300 mt-2">
+                Collaborate, build, and shape active projects with us.
+            </p>
+        </div>
+
+        <button class="px-5 py-2 bg-white text-slate-900 rounded-xl font-semibold hover:bg-slate-200 transition">
+            Join Now
+        </button>
+    </div>
+</section>
+   
+<!-- FOOTER -->
+<footer class="text-center py-8 text-sm text-slate-500 border-t bg-white">
+    © 2026 ERROR Inc.
 </footer>
 
 </body>
