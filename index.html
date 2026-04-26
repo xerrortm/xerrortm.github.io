@@ -11,16 +11,22 @@
 <body class="bg-slate-50 text-slate-900">
 
 <!-- NAV -->
-<div class="flex items-center gap-5">
-    <div class="flex gap-6 text-sm text-slate-600">
-        <a href="#projects" class="hover:text-slate-900">Projects</a>
-        <a href="#activity" class="hover:text-slate-900">Activity</a>
-        <a href="#community" class="hover:text-slate-900">Community</a>
+<nav class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-slate-200 px-10 py-4 flex justify-between items-center">
+    <div class="flex items-center gap-4">
+        <img src="media/logo.png" class="h-10">
     </div>
-    <button id="userBtn" class="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 transition flex items-center justify-center text-lg">
-        👤
-    </button>
-</div>
+    <div class="flex items-center gap-6">
+        <div class="flex gap-6 text-sm text-slate-600">
+            <a href="#projects" class="hover:text-slate-900">Projects</a>
+            <a href="#activity" class="hover:text-slate-900">Activity</a>
+            <a href="#community" class="hover:text-slate-900">Community</a>
+        </div>
+        <button id="userBtn"
+        class="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 transition flex items-center justify-center text-sm font-bold">
+            👤
+        </button>
+    </div>
+</nav>
 
 <!-- HERO -->
 <section class="relative overflow-hidden bg-gradient-to-b from-indigo-50 to-slate-50">
@@ -133,7 +139,7 @@
     </div>
 </section>
 
-<!-- COMMUNITY (dark contrast section) -->
+<!-- COMMUNITY -->
 <section id="community" class="py-24 bg-gradient-to-b from-slate-900 to-slate-950">
 
     <div class="max-w-6xl mx-auto px-6 text-center">
@@ -151,7 +157,7 @@
     </div>
 </section>
 
-<!-- ACTIVITY (different background tone) -->
+<!-- ACTIVITY -->
 <section id="activity" class="py-24 bg-indigo-50">
 
     <div class="max-w-5xl mx-auto px-6">
@@ -187,77 +193,55 @@
 <!-- AUTH POPUP -->
 <div id="authPopup"
 class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-
     <div class="bg-white w-full max-w-md rounded-3xl p-8 relative">
-
         <button id="closeAuth"
         class="absolute top-4 right-4 text-slate-400 hover:text-slate-900">
             ✕
         </button>
-
         <h2 class="text-3xl font-bold">
             Welcome
-        </h2>
-
+        </h2
         <p class="text-slate-500 mt-2">
             Join the ERROR Inc. community.
         </p>
-
         <div class="mt-8 space-y-3">
-
             <a href="signup.html"
             class="block w-full text-center bg-slate-900 text-white py-3 rounded-xl hover:bg-slate-800 transition">
                 Create Account
             </a>
-
             <a href="login.html"
             class="block w-full text-center border border-slate-300 py-3 rounded-xl hover:bg-slate-100 transition">
                 Log In
             </a>
-
         </div>
-
     </div>
-
 </div>
-
-
 
 <!-- PROFILE POPUP -->
 <div id="profilePopup"
 class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-
     <div class="bg-white w-full max-w-md rounded-3xl p-8 relative">
-
         <button id="closeProfile"
         class="absolute top-4 right-4 text-slate-400 hover:text-slate-900">
             ✕
         </button>
-
         <div class="flex flex-col items-center">
-
             <div class="w-24 h-24 rounded-full bg-slate-200 flex items-center justify-center text-4xl">
                 👤
             </div>
-
             <h2 id="profileName"
             class="text-2xl font-bold mt-4">
                 username
             </h2>
-
             <p class="text-slate-500 mt-1">
                 ERROR Inc. Member
             </p>
-
             <button id="logoutBtn"
             class="mt-8 px-6 py-3 rounded-xl bg-red-500 text-white hover:bg-red-600 transition">
                 Log Out
             </button>
-
         </div>
-
     </div>
-
 </div>
 <script>
 
@@ -282,16 +266,8 @@ document.getElementById("profileName");
 const logoutBtn =
 document.getElementById("logoutBtn");
 
-
-
-/* CHECK LOGIN */
-
 const currentUser =
 localStorage.getItem("errorinc_user");
-
-
-
-/* UPDATE BUTTON */
 
 if (currentUser) {
 
@@ -299,10 +275,6 @@ if (currentUser) {
     currentUser.charAt(0).toUpperCase();
 
 }
-
-
-
-/* USER BUTTON CLICK */
 
 userBtn.onclick = () => {
 
@@ -323,10 +295,6 @@ userBtn.onclick = () => {
 
 };
 
-
-
-/* CLOSE POPUPS */
-
 closeAuth.onclick = () => {
     authPopup.classList.add("hidden");
 };
@@ -334,10 +302,6 @@ closeAuth.onclick = () => {
 closeProfile.onclick = () => {
     profilePopup.classList.add("hidden");
 };
-
-
-
-/* CLICK OUTSIDE */
 
 authPopup.onclick = (e) => {
 
@@ -355,10 +319,6 @@ profilePopup.onclick = (e) => {
 
 };
 
-
-
-/* LOGOUT */
-
 logoutBtn.onclick = () => {
 
     localStorage.removeItem("errorinc_user");
@@ -367,6 +327,31 @@ logoutBtn.onclick = () => {
 
 };
 
+document.querySelectorAll("button").forEach(btn => {
+
+    if (btn.innerText.toLowerCase().includes("join")) {
+
+        btn.addEventListener("click", () => {
+
+            const user =
+            localStorage.getItem("errorinc_user");
+
+            if (!user) {
+
+                authPopup.classList.remove("hidden");
+
+            } else {
+
+                profileName.innerText = user;
+                profilePopup.classList.remove("hidden");
+
+            }
+
+        });
+
+    }
+
+});
 </script>
 </body>
 </html>
