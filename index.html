@@ -98,7 +98,7 @@
     </div>
 </section>
 
-<!-- ACTIVE PROJECTS (light tinted section) -->
+<!-- ACTIVE PROJECTS -->
 <section class="py-20 bg-slate-50">
 
     <div class="max-w-6xl mx-auto px-6">
@@ -233,6 +233,13 @@ class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center 
             <p class="text-slate-500 mt-1">
                 ERROR Inc. Member
             </p>
+            <div class="w-full mt-6">
+                <h3 class="font-semibold text-lg mb-3">
+                    Badges
+                </h3>
+                <div id="badgesContainer" class="flex flex-wrap gap-3 justify-center">
+                </div>
+            </div>
             <button id="logoutBtn"
             class="mt-8 px-6 py-3 rounded-xl bg-red-500 text-white hover:bg-red-600 transition">
                 Log Out
@@ -240,31 +247,80 @@ class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center 
         </div>
     </div>
 </div>
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+
+import {
+getDatabase,
+ref,
+get
+}
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
+    authDomain: "error-inc.firebaseapp.com",
+    databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
+    projectId: "error-inc",
+    storageBucket: "error-inc.firebasestorage.app",
+    messagingSenderId: "876188868410",
+    appId: "1:876188868410:web:ca7de451707bd9975c7a03"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+window.loadBadges = async function(username) {
+
+    const badgesContainer =
+    document.getElementById("badgesContainer");
+
+    badgesContainer.innerHTML = "";
+
+    const snapshot =
+    await get(ref(db, "users/" + username));
+
+    if (!snapshot.exists()) return;
+
+    const user =
+    snapshot.val();
+
+    const badges =
+    user.badges || {};
+
+    Object.values(badges).forEach(badge => {
+
+        badgesContainer.innerHTML += `
+        
+        <div class="bg-slate-100 border rounded-2xl px-4 py-3 flex flex-col items-center w-24">
+
+            <img src="${badge.image}"
+            class="w-12 h-12 object-contain">
+
+            <div class="text-xs mt-2 font-medium text-center">
+                ${badge.name}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+};
+
+</script>
 <script>
-
-const userBtn =
-document.getElementById("userBtn");
-
-const authPopup =
-document.getElementById("authPopup");
-
-const profilePopup =
-document.getElementById("profilePopup");
-
-const closeAuth =
-document.getElementById("closeAuth");
-
-const closeProfile =
-document.getElementById("closeProfile");
-
-const profileName =
-document.getElementById("profileName");
-
-const logoutBtn =
-document.getElementById("logoutBtn");
-
-const currentUser =
-localStorage.getItem("errorinc_user");
+const userBtn = document.getElementById("userBtn");
+const authPopup = document.getElementById("authPopup");
+const profilePopup = document.getElementById("profilePopup");
+const closeAuth = document.getElementById("closeAuth");
+const closeProfile = document.getElementById("closeProfile");
+const profileName = document.getElementById("profileName");
+const logoutBtn = document.getElementById("logoutBtn");
+const currentUser = localStorage.getItem("errorinc_user");
 
 if (currentUser) {
 
