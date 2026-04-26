@@ -3,9 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<link rel="icon" type="image/png" href="media/favicon.png">
-<link rel="apple-touch-icon" href="media/favicon.png">
+<link rel="icon" type="image/png" href="media/favicon.png?v=5">
+<link rel="apple-touch-icon" href="media/favicon.png?v=5">
 <title>ERROR Inc.</title>
+
 <style>
     * {
         margin: 0;
@@ -13,108 +14,133 @@
         box-sizing: border-box;
         font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
     }
-
     body {
         background: #f8fafc;
         color: #0f172a;
-        line-height: 1.6;
     }
-
     nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 18px 50px;
+        padding: 16px 50px;
         background: white;
         border-bottom: 1px solid #e2e8f0;
         position: sticky;
         top: 0;
+        z-index: 100;
     }
-
-    nav h1 {
-        font-size: 18px;
-        letter-spacing: 1px;
+    .logo img {
+        height: 42px;
     }
-
-    nav span {
-        color: #64748b;
-        font-size: 14px;
-    }
-
-    nav a {
-        text-decoration: none;
+    .links a {
         margin-left: 18px;
+        text-decoration: none;
         color: #334155;
         font-size: 14px;
     }
-
-    nav a:hover {
+    .links a:hover {
         color: #0f172a;
     }
-
-    /* HERO */
     .hero {
-        padding: 100px 20px 60px;
-        text-align: center;
+        padding: 90px 50px 40px;
     }
-
-    .hero h2 {
-        font-size: 42px;
-        font-weight: 700;
+    .hero h1 {
+        font-size: 44px;
+        letter-spacing: -1px;
     }
-
     .hero p {
-        margin-top: 12px;
+        margin-top: 10px;
         color: #64748b;
-        max-width: 600px;
-        margin-left: auto;
-        margin-right: auto;
+        max-width: 650px;
     }
-
-    .btn {
-        margin-top: 22px;
-        padding: 10px 18px;
-        border-radius: 8px;
-        border: 1px solid #cbd5e1;
+    .cta {
+        margin-top: 18px;
+        display: inline-block;
+        padding: 10px 16px;
         background: white;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
         cursor: pointer;
-        transition: 0.2s;
     }
-
-    .btn:hover {
+    .cta:hover {
         background: #f1f5f9;
     }
-
-    /* SECTIONS */
-    section {
-        padding: 60px 50px;
-    }
-
-    .grid {
+    .layout {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-        gap: 18px;
-        margin-top: 20px;
+        grid-template-columns: 2fr 1fr;
+        gap: 20px;
+        padding: 40px 50px;
     }
-
-    .card {
+    .featured {
         background: white;
         border: 1px solid #e2e8f0;
-        border-radius: 12px;
-        padding: 18px;
-        transition: 0.2s;
+        border-radius: 16px;
+        padding: 22px;
     }
-
-    .card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    .featured h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
     }
-    .card h3 {
-        margin-bottom: 8px;
+    .tag {
+        display: inline-block;
+        font-size: 12px;
+        padding: 4px 8px;
+        background: #eef2ff;
+        color: #4f46e5;
+        border-radius: 999px;
+        margin-bottom: 10px;
     }
-    .card p {
+    .featured p {
         color: #64748b;
+        margin-top: 10px;
+    }
+    .live {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 22px;
+    }
+    .live h2 {
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+    .project {
+        padding: 12px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+        margin-top: 10px;
+    }
+    .project strong {
+        display: block;
+    }
+    .status {
+        font-size: 12px;
+        color: #16a34a;
+        margin-top: 4px;
+    }
+    .activity {
+        margin: 40px 50px;
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 18px;
+    }
+    .activity h2 {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+    .feed {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    .item {
         font-size: 14px;
+        color: #475569;
+    }
+    .item span {
+        color: #0f172a;
+        font-weight: 500;
     }
     footer {
         text-align: center;
@@ -122,75 +148,84 @@
         color: #94a3b8;
         border-top: 1px solid #e2e8f0;
         background: white;
+        margin-top: 40px;
     }
-   .logo img {
-       height: 48px;
-       width: auto;
-       display: block;
-   }
+    @media (max-width: 900px) {
+        .layout {
+            grid-template-columns: 1fr;
+        }
+    }
 </style>
 </head>
 
 <body>
 
 <nav>
-   <div class="logo">
-        <img src="media/logo.png">
+    <div class="logo">
+        <img src="media/logo.png" alt="ERROR Inc.">
     </div>
-    <div class="link
-    <div>
-        <a href="#about">About</a>
+
+    <div class="links">
         <a href="#projects">Projects</a>
+        <a href="#activity">Activity</a>
         <a href="#community">Community</a>
     </div>
 </nav>
 
 <div class="hero">
-    <h2>We build websites & games</h2>
+    <h1>Welcome to the ultimate ERROR Inc.</h1>
     <p>
-        ERROR Inc. is a small developer community focused on creating clean websites, simple tools, and fun games.
+        ERROR Inc. is a small creative studio building real web projects, games, and experimental tools.
+        Everything is actively evolving.
     </p>
-    <button class="btn">Join Community</button>
+    <button class="cta">Join Community</button>
 </div>
 
-<section id="about">
-    <h2>About</h2>
-    <p style="margin-top:10px;color:#64748b;max-width:700px;">
-        We are a group of developers building web projects and game ideas.
-        Our focus is simplicity, creativity, and learning by building.
-    </p>
-</section>
+<div class="layout">
 
-<section id="projects">
-    <h2>What we do</h2>
+    <!-- FEATURED -->
+    <div class="featured">
+        <div class="tag">Featured Project</div>
+        <h2>GoggleTools</h2>
+        <p>
+            A lightweight web tools ecosystem with login system, utilities, and experimental UI systems.
+            Currently in active development.
+        </p>
+    </div>
 
-    <div class="grid">
-        <div class="card">
-            <h3>Websites</h3>
-            <p>Clean and modern HTML/CSS/JS websites.</p>
+    <!-- LIVE PROJECTS -->
+    <div class="live">
+        <h2>Live Projects</h2>
+
+        <div class="project">
+            <strong>Happy Notifications</strong>
+            <div class="status">Pre-release</div>
         </div>
 
-        <div class="card">
-            <h3>Games</h3>
-            <p>Simple browser games and experimental ideas.</p>
+        <div class="project">
+            <strong>2D Obby Builder</strong>
+            <div class="status">In development</div>
         </div>
 
-        <div class="card">
-            <h3>Tools</h3>
-            <p>Useful developer tools and small utilities.</p>
+        <div class="project">
+            <strong>Community Hub</strong>
+            <div class="status">🟢 Live</div>
         </div>
     </div>
-</section>
 
-<section id="community">
-    <h2>Community</h2>
-    <p style="margin-top:10px;color:#64748b;max-width:700px;">
-        A small developer community where people share ideas, learn together, and build projects.
-    </p>
-</section>
+</div>
+
+<div class="activity" id="activity">
+    <h2>Recent Activity</h2>
+    <div class="feed">
+        <div class="item"><span>New update:</span> UI system redesign started</div>
+        <div class="item"><span>Fix:</span> login system stability improved</div>
+        <div class="item"><span>Build:</span> new game prototype added</div>
+    </div>
+</div>
 
 <footer>
-    © 2026 ERROR Inc.
+    © 2026 ERROR Inc. — Building things that evolve ⚡
 </footer>
 
 </body>
