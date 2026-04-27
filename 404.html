@@ -15,3 +15,160 @@
     <center>nginx</center>
   </body>
 </html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>404 Not Found</title>
+
+  <style>
+      .eruda-search-highlight-block{display:inline}
+      .eruda-search-highlight-block
+      .eruda-keyword{background:#fffbe5;color:#5c5c00}
+    .fun-box{
+      position:fixed;
+      bottom:20px;
+      right:20px;
+      width:280px;
+      border:1px solid #000;
+      background:#f5f5f5;
+      padding:12px;
+      font-family: monospace;
+      display:none;
+      z-index:5;
+    }
+
+    .fun-box button{
+      margin-top:8px;
+      cursor:pointer;
+      border:1px solid #000;
+      background:white;
+      padding:4px 8px;
+    }
+
+    .pixel{
+      position:fixed;
+      width:12px;
+      height:12px;
+      background:black;
+      top:-20px;
+      animation:fall linear forwards;
+      z-index:1;
+    }
+
+    @keyframes fall{
+      to{
+        transform:translateY(110vh) rotate(360deg);
+      }
+    }
+
+    .secret{
+      position:fixed;
+      bottom:5px;
+      left:5px;
+      font-size:10px;
+      color:#999;
+      cursor:pointer;
+      user-select:none;
+    }
+
+    .score{
+      margin-top:8px;
+    }
+  </style>
+</head>
+
+<body>
+  <div>
+    <center>
+      <h1>404 Not Found</h1>
+    </center>
+    <hr>
+    <center>nginx</center>
+  </div>
+  <div class="secret" onclick="openFun()">
+    . . .
+  </div>
+  <div class="fun-box" id="funBox">
+    <b>404 Not Found</b>
+    <br><br>
+    nginx
+    <div class="score">
+      Score: <span id="score">0</span>
+    </div>
+    <div class="score">
+      Time: <span id="time">3</span>
+    </div>
+    <button id="gameBtn">CLICK ME</button>
+  </div>
+  <script>
+    const funBox = document.getElementById("funBox");
+    const gameBtn = document.getElementById("gameBtn");
+    const scoreEl = document.getElementById("score");
+    const timeEl = document.getElementById("time");
+
+    let score = 0;
+    let time = 20;
+    let started = false;
+    function openFun(){
+      funBox.style.display = "block";
+
+      if(!started){
+        started = true;
+        startGame();
+      }
+    }
+    function startGame(){
+      setInterval(() => {
+        time--;
+        timeEl.textContent = time;
+
+        if(time <= 0){
+          alert("404. Your mouse was not found.");
+          score = 0;
+          time = 3;
+          scoreEl.textContent = score;
+        }
+      }, 1000);
+    }
+    gameBtn.onclick = () => {
+      score++;
+      scoreEl.textContent = score;
+      timeEl.textContent = time;
+
+      spawnPixels();
+    };
+    function spawnPixels(){
+      for(let i = 0; i < 8; i++){
+        const pixel = document.createElement("div");
+
+        pixel.className = "pixel";
+        pixel.style.left = Math.random() * window.innerWidth + "px";
+        pixel.style.animationDuration = (Math.random() * 2 + 1) + "s";
+
+        document.body.appendChild(pixel);
+
+        setTimeout(() => {
+          pixel.remove();
+        }, 3000);
+      }
+    }
+    let typed = "";
+
+    document.addEventListener("keydown", (e) => {
+      typed += e.key.toLowerCase();
+
+      if(typed.includes("404")){
+        openFun();
+        typed = "";
+      }
+
+      if(typed.length > 10){
+        typed = typed.slice(-10);
+      }
+    });
+  </script>
+
+</body>
+</html>
