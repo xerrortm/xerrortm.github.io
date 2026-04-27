@@ -81,84 +81,263 @@
     </div>
     <button id="gameBtn">CLICK ME</button>
   </div>
-  <script>
-    const funBox = document.getElementById("funBox");
-    const gameBtn = document.getElementById("gameBtn");
-    const scoreEl = document.getElementById("score");
-    const timeEl = document.getElementById("time");
+<script>
+const funBox = document.getElementById("funBox");
+const gameBtn = document.getElementById("gameBtn");
+const scoreEl = document.getElementById("score");
+const timeEl = document.getElementById("time");
 
-    let score = 0;
-    let time = 20;
-    let started = false;
-    function openFun(){
-      funBox.style.display = "block";
+let score = 0;
+let time = 20;
+let started = false;
+let gameInterval;
 
-      if(!started){
-        started = true;
-        startGame();
+const failMessages = [
+  "404 Your mouse was not found.",
+  "404 More time not found.",
+  "500 Skill issue detected.",
+  "403 Clicking forbidden.",
+  "408 User took too long to respond.",
+  "418 I'm a teapot.",
+  "410 Your score is gone."
+];
+
+const winMessages = [
+  "200 OK. You survived.",
+  "201 Fun successfully created.",
+  "202 Your clicks are being processed."
+];
+
+function randomMessage(arr){
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+function openFun(){
+  funBox.style.display = "block";
+
+  if(!started){
+    started = true;
+    startGame();
+  }
+}
+
+function popup404(text){
+
+  const popup = document.createElement("div");
+
+  popup.style.position = "fixed";
+  popup.style.top = Math.random() * 70 + "%";
+  popup.style.left = Math.random() * 70 + "%";
+  popup.style.background = "white";
+  popup.style.border = "2px solid black";
+  popup.style.padding = "10px";
+  popup.style.fontFamily = "monospace";
+  popup.style.zIndex = "9999";
+  popup.style.boxShadow = "4px 4px 0 black";
+
+  popup.innerHTML = `
+    <b>ERROR</b>
+    <hr>
+    ${text}
+    <br><br>
+    <button onclick="this.parentElement.remove()">OK</button>
+  `;
+
+  document.body.appendChild(popup);
+
+  setTimeout(() => {
+    if(popup.parentNode){
+      popup.remove();
+    }
+  }, 5000);
+}
+
+function rain404(){
+
+  for(let i = 0; i < 20; i++){
+
+    const txt = document.createElement("div");
+
+    txt.innerText = "404";
+
+    txt.style.position = "fixed";
+    txt.style.left = Math.random() * window.innerWidth + "px";
+    txt.style.top = "-50px";
+    txt.style.fontSize = Math.random() * 30 + 10 + "px";
+    txt.style.fontFamily = "monospace";
+    txt.style.opacity = "0.3";
+    txt.style.pointerEvents = "none";
+
+    document.body.appendChild(txt);
+
+    const speed = Math.random() * 5 + 3;
+
+    let y = -50;
+
+    const fall = setInterval(() => {
+
+      y += speed;
+      txt.style.top = y + "px";
+
+      if(y > window.innerHeight){
+        clearInterval(fall);
+        txt.remove();
       }
-    }
-    let gameInterval;
-    function startGame(){
-      gameInterval = setInterval(() => {
-        time--;
-        timeEl.textContent = time;
 
-        if(time <= 0 && score <=0 ){
-          alert("404 Your mouse was not found.");
-          score = 0;
-          time = 0;
-          scoreEl.textContent = score;
-          clearInterval(gameInterval);
-          return;
-        }
-        if(time <=0) {
-          alert("404 More time not found.");
-          score = 0;
-          time = 0;
-          scoreEl.textContent = score;
-          clearInterval(gameInterval);
-          return;
-        }
-      }, 1000);
+    }, 16);
+  }
+}
+
+function weirdEnding(){
+
+  const endings = [
+
+    () => {
+      document.body.style.transform = "rotate(1deg)";
+      popup404("301 Reality moved permanently.");
+    },
+
+    () => {
+      document.body.contentEditable = true;
+      popup404("204 Website content disappeared.");
+    },
+
+    () => {
+      for(let i = 0; i < 5; i++){
+        popup404("404 Extra popup not found.");
+      }
+    },
+
+    () => {
+      document.title = "404???";
+      popup404("502 Brain gateway error.");
     }
-    gameBtn.onclick = () => {
-      score++;
+
+  ];
+
+  endings[Math.floor(Math.random() * endings.length)]();
+}
+
+function startGame(){
+
+  gameInterval = setInterval(() => {
+
+    time--;
+    timeEl.textContent = time;
+
+    if(time <= 0){
+
+      clearInterval(gameInterval);
+
+      if(score <= 0){
+
+        popup404(randomMessage(failMessages));
+        rain404();
+
+      } else if(score >= 25){
+
+        popup404("999 SECRET ENDING UNLOCKED.");
+        popup404("The 404 has escaped containment.");
+        weirdEnding();
+
+      } else if(score >= 10){
+
+        popup404(randomMessage(winMessages));
+        rain404();
+
+      } else {
+
+        popup404("206 Partial victory achieved.");
+      }
+
+      score = 0;
+      time = 0;
+
       scoreEl.textContent = score;
-      timeEl.textContent = time;
 
-      spawnPixels();
-    };
-    function spawnPixels(){
-      for(let i = 0; i < 8; i++){
-        const pixel = document.createElement("div");
-
-        pixel.className = "pixel";
-        pixel.style.left = Math.random() * window.innerWidth + "px";
-        pixel.style.animationDuration = (Math.random() * 2 + 1) + "s";
-
-        document.body.appendChild(pixel);
-
-        setTimeout(() => {
-          pixel.remove();
-        }, 3000);
-      }
+      return;
     }
-    let typed = "";
 
-    document.addEventListener("keydown", (e) => {
-      typed += e.key.toLowerCase();
+  }, 1000);
+}
 
-      if(typed.includes("404")){
-        openFun();
-        typed = "";
-      }
+gameBtn.onclick = () => {
 
-      if(typed.length > 10){
-        typed = typed.slice(-10);
-      }
-    });
-  </script>
+  score++;
 
+  scoreEl.textContent = score;
+
+  spawnPixels();
+
+  const texts = [
+    "CLICK ME",
+    "404 BUTTON",
+    "MORE CLICKS",
+    "DO NOT PRESS",
+    "FREE SCORE",
+    "CLICK FASTER",
+    "ERROR BUTTON"
+  ];
+
+  gameBtn.textContent =
+    texts[Math.floor(Math.random() * texts.length)];
+
+};
+
+function spawnPixels(){
+
+  for(let i = 0; i < 8; i++){
+
+    const pixel = document.createElement("div");
+
+    pixel.className = "pixel";
+
+    pixel.style.left =
+      Math.random() * window.innerWidth + "px";
+
+    pixel.style.animationDuration =
+      (Math.random() * 2 + 1) + "s";
+
+    document.body.appendChild(pixel);
+
+    setTimeout(() => {
+      pixel.remove();
+    }, 3000);
+  }
+}
+
+let typed = "";
+
+document.addEventListener("keydown", (e) => {
+
+  typed += e.key.toLowerCase();
+
+  if(typed.includes("404")){
+
+    openFun();
+    popup404("Secret unlocked.");
+    typed = "";
+
+  }
+
+  if(typed.includes("nginx")){
+
+    score += 10;
+    scoreEl.textContent = score;
+
+    popup404("Admin powers granted.");
+
+    typed = "";
+
+  }
+
+  if(typed.length > 20){
+
+    typed = typed.slice(-20);
+
+  }
+
+});
+</script>
 </body>
 </html>
