@@ -267,6 +267,69 @@ function applyErrorEffect(message){
     }, 3000);
   }
 }
+let clickLocked = false;
+
+const clickErrors = [
+  {
+    msg: "403 Clicking forbidden.",
+    effect: () => {
+      clickLocked = true;
+      gameBtn.disabled = true;
+      gameBtn.style.opacity = "0.3";
+
+      setTimeout(() => {
+        clickLocked = false;
+        gameBtn.disabled = false;
+        gameBtn.style.opacity = "1";
+      }, 2500);
+    }
+  },
+  {
+    msg: "410 Your score is gone.",
+    effect: () => {
+      score = undefined;
+      scoreEl.textContent = "undefined";
+
+      setTimeout(() => {
+        score = 0;
+        scoreEl.textContent = score;
+      }, 2500);
+    }
+  },
+  {
+    msg: "408 Time drift detected.",
+    effect: () => {
+      const glitch = setInterval(() => {
+        timeEl.textContent = Math.floor(Math.random() * 99);
+      }, 120);
+
+      setTimeout(() => {
+        clearInterval(glitch);
+        timeEl.textContent = time;
+      }, 2000);
+    }
+  },
+  {
+    msg: "418 I'm a teapot.",
+    effect: () => {
+      gameBtn.textContent = "☕ BOILING...";
+
+      setTimeout(() => {
+        gameBtn.textContent = "CLICK ME";
+      }, 2000);
+    }
+  },
+  {
+    msg: "500 Physics engine crashed.",
+    effect: () => {
+      document.body.style.transform = "rotate(" + (Math.random() * 4 - 2) + "deg)";
+
+      setTimeout(() => {
+        document.body.style.transform = "none";
+      }, 2000);
+    }
+  }
+];
 function startGame(){
 
   gameInterval = setInterval(() => {
@@ -283,13 +346,13 @@ function startGame(){
         applyErrorEffect(randomMessage(failMessages));
         rain404();
 
-      } else if(score >= 25){
+      } else if(score >= 100){
 
         popup404("999 SECRET ENDING UNLOCKED.");
         popup404("The 404 has escaped containment.");
         weirdEnding();
 
-      } else if(score >= 10){
+      } else if(score >= 80){
 
         popup404(randomMessage(winMessages));
         rain404();
@@ -312,8 +375,10 @@ function startGame(){
 
 gameBtn.onclick = () => {
 
-  score++;
+  if(clickLocked) return;
 
+  // normal gameplay
+  score++;
   scoreEl.textContent = score;
 
   spawnPixels();
@@ -330,6 +395,13 @@ gameBtn.onclick = () => {
 
   gameBtn.textContent =
     texts[Math.floor(Math.random() * texts.length)];
+
+  // 💥 RANDOM ERROR EVERY CLICK
+  const err =
+    clickErrors[Math.floor(Math.random() * clickErrors.length)];
+
+  popup404(err.msg);
+  err.effect();
 
 };
 
