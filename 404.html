@@ -212,124 +212,115 @@ function weirdEnding(){
   endings[Math.floor(Math.random() * endings.length)]();
 }
 let clickLocked = false;
-let scoreBroken = false;
-let timeGlitched = false;
-
-function applyErrorEffect(message){
-
-  popup404(message);
-
-  // CLICKING FORBIDDEN → disable button
-  if(message.includes("Clicking forbidden")){
-    clickLocked = true;
-    gameBtn.disabled = true;
-    gameBtn.style.opacity = "0.3";
-
-    setTimeout(() => {
-      clickLocked = false;
-      gameBtn.disabled = false;
-      gameBtn.style.opacity = "1";
-    }, 3000);
-  }
-
-  // SCORE IS GONE → break score display
-  if(message.includes("score is gone")){
-    scoreBroken = true;
-    scoreEl.textContent = "undefined";
-
-    setTimeout(() => {
-      scoreBroken = false;
-      scoreEl.textContent = score;
-    }, 3000);
-  }
-
-  // TIME GLITCH → random time chaos
-  if(message.includes("time not found")){
-    timeGlitched = true;
-
-    const glitch = setInterval(() => {
-      timeEl.textContent = Math.floor(Math.random() * 99);
-    }, 200);
-
-    setTimeout(() => {
-      clearInterval(glitch);
-      timeGlitched = false;
-      timeEl.textContent = time;
-    }, 2500);
-  }
-
-  // TEAPOT → invert button text
-  if(message.includes("I'm a teapot")){
-    gameBtn.textContent = "☕ BOILING...";
-
-    setTimeout(() => {
-      gameBtn.textContent = "CLICK ME";
-    }, 3000);
-  }
-}
-let clickLocked = false;
 
 const clickErrors = [
+
   {
     msg: "403 Clicking forbidden.",
     effect: () => {
+
       clickLocked = true;
+
       gameBtn.disabled = true;
       gameBtn.style.opacity = "0.3";
 
       setTimeout(() => {
+
         clickLocked = false;
+
         gameBtn.disabled = false;
         gameBtn.style.opacity = "1";
+
       }, 2500);
+
     }
   },
+
   {
     msg: "410 Your score is gone.",
     effect: () => {
-      score = undefined;
+
+      const oldScore = score;
+
       scoreEl.textContent = "undefined";
 
-      setTimeout(() => {
-        score = 0;
-        scoreEl.textContent = score;
-      }, 2500);
     }
   },
+
   {
     msg: "408 Time drift detected.",
     effect: () => {
-      const glitch = setInterval(() => {
-        timeEl.textContent = Math.floor(Math.random() * 99);
-      }, 120);
 
-      setTimeout(() => {
-        clearInterval(glitch);
-        timeEl.textContent = time;
-      }, 2000);
+      const glitch = setInterval(() => {
+
+        timeEl.textContent =
+          Math.floor(Math.random() * 99);
+
+      }, 100);
+
     }
   },
+
   {
     msg: "418 I'm a teapot.",
     effect: () => {
+
+      const oldText = gameBtn.textContent;
+
       gameBtn.textContent = "☕ BOILING...";
 
       setTimeout(() => {
-        gameBtn.textContent = "CLICK ME";
+
+        gameBtn.textContent = oldText;
+
       }, 2000);
+
     }
   },
+
   {
     msg: "500 Physics engine crashed.",
     effect: () => {
-      document.body.style.transform = "rotate(" + (Math.random() * 4 - 2) + "deg)";
 
-      setTimeout(() => {
-        document.body.style.transform = "none";
-      }, 2000);
+      document.body.style.transform =
+        `rotate(${Math.random() *10 - 5}deg)`;
+
     }
   }
+
 ];
+
+gameBtn.onclick = () => {
+
+  if(clickLocked) return;
+  score++;
+
+  scoreEl.textContent = score;
+
+  spawnPixels();
+
+  const texts = [
+    "CLICK ME",
+    "404 BUTTON",
+    "MORE CLICKS",
+    "DO NOT PRESS",
+    "FREE SCORE",
+    "CLICK FASTER",
+    "ERROR BUTTON"
+  ];
+
+  gameBtn.textContent =
+    texts[Math.floor(Math.random() * texts.length)];
+
+  // random error
+  const err =
+    clickErrors[Math.floor(Math.random() * clickErrors.length)];
+
+  popup404(err.msg);
+
+  err.effect();
+
+};
 function startGame(){
 
   gameInterval = setInterval(() => {
@@ -372,38 +363,6 @@ function startGame(){
 
   }, 1000);
 }
-
-gameBtn.onclick = () => {
-
-  if(clickLocked) return;
-
-  // normal gameplay
-  score++;
-  scoreEl.textContent = score;
-
-  spawnPixels();
-
-  const texts = [
-    "CLICK ME",
-    "404 BUTTON",
-    "MORE CLICKS",
-    "DO NOT PRESS",
-    "FREE SCORE",
-    "CLICK FASTER",
-    "ERROR BUTTON"
-  ];
-
-  gameBtn.textContent =
-    texts[Math.floor(Math.random() * texts.length)];
-
-  // 💥 RANDOM ERROR EVERY CLICK
-  const err =
-    clickErrors[Math.floor(Math.random() * clickErrors.length)];
-
-  popup404(err.msg);
-  err.effect();
-
-};
 
 function spawnPixels(){
 
