@@ -257,7 +257,10 @@ const clickErrors = [
           Math.floor(Math.random() * 99);
 
       }, 100);
-
+      setTimeout(() => {
+        clearInterval(glitch);
+        timeEl.textContent = time;
+      }, 2000);
     }
   },
 
@@ -266,12 +269,14 @@ const clickErrors = [
     effect: () => {
 
       const oldText = gameBtn.textContent;
+      gameBtn.disabled = true;
 
       gameBtn.textContent = "☕ BOILING...";
 
       setTimeout(() => {
 
         gameBtn.textContent = oldText;
+        gameBtn.disabled = false;
 
       }, 2000);
 
@@ -286,7 +291,154 @@ const clickErrors = [
         `rotate(${Math.random() *10 - 5}deg)`;
 
     }
+  },
+
+{
+  msg: "401 Unauthorized click detected.",
+  effect: () => {
+
+    funBox.style.filter = "blur(4px)";
+
+    setTimeout(() => {
+      funBox.style.filter = "none";
+    }, 4000);
+
   }
+},
+
+{
+  msg: "502 Button gateway failure.",
+  effect: () => {
+
+    gameBtn.style.transform =
+      `translateX(${Math.random() * 200 - 100}px)`;
+
+  }
+},
+
+{
+  msg: "406 Acceptable clicks not found.",
+  effect: () => {
+
+    score = Math.max(0, score - 5);
+    scoreEl.textContent = score;
+
+  }
+},
+
+{
+  msg: "451 Button unavailable for legal reasons.",
+  effect: () => {
+
+    gameBtn.textContent = "[REDACTED]";
+    gameBtn.disabled = true;
+
+    setTimeout(() => {
+
+      gameBtn.textContent = "CLICK ME";
+      gameBtn.disabled = false;
+
+    }, 3000);
+
+  }
+},
+
+{
+  msg: "504 Click timeout.",
+  effect: () => {
+
+    time -= 5;
+
+    if(time < 0){
+      time = 0;
+    }
+
+    timeEl.textContent = time;
+
+  }
+},
+
+{
+  msg: "300 Multiple choices detected.",
+  effect: () => {
+
+    for(let i = 0; i < 3; i++){
+
+      const fake = gameBtn.cloneNode(true);
+
+      fake.innerText = "?";
+
+      fake.style.position = "fixed";
+      fake.style.left = Math.random() * window.innerWidth + "px";
+      fake.style.top = Math.random() * window.innerHeight + "px";
+
+      fake.onclick = () => {
+        fake.remove();
+        popup404("Wrong button.");
+      };
+
+      document.body.appendChild(fake);
+
+      setTimeout(() => {
+        fake.remove();
+      }, 4000);
+
+    }
+
+  }
+},
+
+{
+  msg: "507 Insufficient pixels.",
+  effect: () => {
+
+    document.querySelectorAll(".pixel").forEach(p => {
+      p.remove();
+    });
+
+  }
+},
+
+{
+  msg: "302 Button moved temporarily.",
+  effect: () => {
+
+    gameBtn.style.position = "relative";
+
+    gameBtn.style.left =
+      (Math.random() * 100 - 50) + "px";
+
+    gameBtn.style.top =
+      (Math.random() * 50 - 25) + "px";
+
+  }
+},
+
+{
+  msg: "509 Bandwidth exceeded.",
+  effect: () => {
+
+    document.body.style.zoom = "150%";
+
+    setTimeout(() => {
+      document.body.style.zoom = "100%";
+    }, 2500);
+
+  }
+},
+
+{
+  msg: "Warning: Reality corruption detected.",
+  effect: () => {
+
+    document.body.style.filter = "invert(1)";
+
+    setTimeout(() => {
+      document.body.style.filter = "none";
+    }, 2000);
+
+  }
+},
 
 ];
 
