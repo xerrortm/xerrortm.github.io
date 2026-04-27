@@ -589,78 +589,6 @@ onValue(ref(db, "community-chat"), snapshot => {
 });
 
 </script>
-
-<script>
-
-const userBtn =
-document.getElementById("userBtn");
-
-const authPopup =
-document.getElementById("authPopup");
-
-const profilePopup =
-document.getElementById("profilePopup");
-
-const profileName =
-document.getElementById("profileName");
-
-const logoutBtn =
-document.getElementById("logoutBtn");
-
-const currentUser =
-localStorage.getItem("errorinc_user");
-
-if(currentUser){
-
-    userBtn.innerHTML =
-    currentUser.charAt(0).toUpperCase();
-
-}
-
-userBtn.onclick = () => {
-
-    const user =
-    localStorage.getItem("errorinc_user");
-
-    if(!user){
-
-        authPopup.classList.remove("hidden");
-
-    }else{
-
-        profileName.innerText =
-        user;
-
-        profilePopup.classList.remove("hidden");
-
-    }
-
-};
-const closeAuth = document.getElementById("closeAuth");
-const closeProfile = document.getElementById("closeProfile");
-const authPopup = document.getElementById("authPopup");
-const profilePopup = document.getElementById("profilePopup");
-closeAuth.onclick = () => {
-    authPopup.classList.add("hidden");
-};
-
-closeProfile.onclick = () => {
-    profilePopup.classList.add("hidden");
-};
-
-logoutBtn.onclick = () => {
-    if(!confirm("Are you sure you want to log out?")) return;
-    localStorage.removeItem("errorinc_user");
-    location.reload();
-
-};
-window.onload = () => {
-    if (!currentUser) {
-        authPopup.classList.remove("hidden");
-    }
-};
-
-</script>
 <script>
 
 const userBtn =
@@ -693,6 +621,8 @@ if(currentUser){
     userBtn.innerHTML =
     currentUser.charAt(0).toUpperCase();
 
+} else {
+    window.location.href = "login.html";
 }
 
 
