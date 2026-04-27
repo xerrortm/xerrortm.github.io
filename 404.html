@@ -464,8 +464,6 @@ function startGame(){
       clearInterval(gameInterval);
 
       if(score <= 0){
-
-        applyErrorEffect(randomMessage(failMessages));
         rain404();
 
       } else if(score >= 40){
@@ -473,6 +471,7 @@ function startGame(){
         popup404("999 SECRET ENDING UNLOCKED.");
         popup404("The 404 has escaped containment.");
         weirdEnding();
+        rain404();
 
       } else if(score >= 25){
 
@@ -480,7 +479,6 @@ function startGame(){
         rain404();
 
       } else {
-        applyErrorEffect(randomMessage(failMessages));
         rain404();
       }
 
