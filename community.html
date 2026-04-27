@@ -600,6 +600,11 @@ logoutBtn.onclick = () => {
     location.reload();
 
 };
+window.onload = () => {
+    if (!user) {
+        window.location.href = "login.html"
+    }
+};
 
 </script>
 
