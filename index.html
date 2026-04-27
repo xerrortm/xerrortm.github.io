@@ -7,6 +7,36 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <link rel="icon" type="image/x-icon" href="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/f5f75464-f289-404e-a14d-68b4c3465c10/favicon.ico?format=100w">
 <title>ERROR Inc.</title>
+<style>
+.shine {
+    position: absolute;
+    top: -150%;
+    left: -150%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        135deg,
+        transparent 40%,
+        rgba(255,255,255,0.7) 50%,
+        transparent 60%
+    );
+
+    transform: rotate(10deg);
+    animation: shineMove 3s linear infinite;
+}
+
+@keyframes shineMove {
+
+    0% {
+        transform: translate(-100%, -100%) rotate(10deg);
+    }
+
+    100% {
+        transform: translate(100%, 100%) rotate(10deg);
+    }
+
+}
+</style>
 </head>
 
 <body class="bg-slate-50 text-slate-900">
@@ -247,6 +277,42 @@ class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center 
         </div>
     </div>
 </div>
+<div id="badgePopup"
+class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
+
+    <div id="badgeCard"
+    class="relative bg-white rounded-3xl p-8 max-w-sm w-full overflow-hidden">
+
+        <button id="closeBadgePopup"
+        class="absolute top-4 right-4 text-slate-400 hover:text-slate-900">
+            ✕
+        </button>
+
+        <!-- shiny effect -->
+        <div class="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
+            <div class="shine"></div>
+        </div>
+
+        <div class="flex flex-col items-center relative z-10">
+
+            <img id="badgePopupImage"
+            src=""
+            class="w-40 h-40 object-contain drop-shadow-xl">
+
+            <h2 id="badgePopupName"
+            class="text-2xl font-bold mt-6">
+                Badge
+            </h2>
+
+            <p class="text-slate-500 mt-2 text-center">
+                Earned from the ERROR Inc. community
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
 <script type="module">
 
 import { initializeApp }
@@ -401,6 +467,41 @@ document.querySelectorAll("button").forEach(btn => {
     }
 
 });
+</script>
+<script>
+const badgePopup =
+document.getElementById("badgePopup");
+
+const badgePopupImage =
+document.getElementById("badgePopupImage");
+
+const badgePopupName =
+document.getElementById("badgePopupName");
+
+function openBadge(name, image) {
+
+    badgePopupImage.src = image;
+    badgePopupName.innerText = name;
+
+    badgePopup.classList.remove("hidden");
+
+}
+
+document.getElementById("closeBadgePopup").onclick = () => {
+
+    badgePopup.classList.add("hidden");
+
+};
+
+badgePopup.onclick = (e) => {
+
+    if (e.target === badgePopup) {
+
+        badgePopup.classList.add("hidden");
+
+    }
+
+};
 </script>
 </body>
 </html>
