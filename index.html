@@ -360,7 +360,7 @@ window.loadBadges = async function(username) {
 
         badgesContainer.innerHTML += `
         
-        <div class="border rounded-2xl px-4 py-3 flex flex-col items-center w-24">
+        <div onclick="openBadge('${badge.name}', '${badge.image}')" class="border rounded-2xl px-4 py-3 flex flex-col items-center w-24">
 
             <img src="${badge.image}"
             class="w-20 h-20 object-contain">
