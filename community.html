@@ -47,7 +47,38 @@ body{
     linear-gradient(rgba(255,255,255,.45), rgba(255,255,255,.45)),
     url("https://www.transparenttextures.com/patterns/cubes.png");
 }
-
+.shine {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+.shine::before {
+    content: "";
+    position: absolute;
+    top: -40%;
+    left: -120%;
+    width: 60%;
+    height: 200%;
+    background: linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.9),
+        transparent
+    );
+    transform: rotate(25deg);
+}
+.shine.active::before {
+    animation: shineMove 1.2s ease;
+}
+@keyframes shineMove {
+    from {
+        left: -120%;
+    }
+    to {
+        left: 160%;
+    }
+}
 </style>
 
 </head>
