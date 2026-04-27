@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community | ERROR Inc.</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+body{
+    background:#0f172a;
+    color:white;
+}
+.chat-scroll::-webkit-scrollbar{
+    width:8px;
+}
+.chat-scroll::-webkit-scrollbar-thumb{
+    background:#334155;
+    border-radius:999px;
+}
+.message-enter{
+    animation: pop .2s ease;
+}
+@keyframes pop{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+.glow{
+    box-shadow:0 0 40px rgba(99,102,241,.35);
+}
+</style>
+</head>
+<body>
+<nav class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur border-b border-slate-800 px-8 py-4 flex justify-between items-center">
+    <div class="flex items-center gap-4">
+        <img
+        src="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/5c585ad8-9e96-472a-bc88-5d2ea8f05993/ERRORL1-removebg-preview.png"
+        class="h-14">
+        <div>
+            <div class="font-bold text-xl">
+                Community
+            </div>
+
+            <div class="text-xs text-slate-400">
+                live discussions + updates
+            </div>
+        </div>
+    </div>
+    <div class="flex items-center gap-4">
+
+        <a href="index.html"
+        class="text-slate-300 hover:text-white text-sm">
+            Home
+        </a>
+
+        <button id="userBtn"
+        class="w-11 h-11 rounded-full bg-slate-800 hover:bg-slate-700 transition flex items-center justify-center">
+            <i class="fa-regular fa-user"></i>
+        </button>
+
+    </div>
+
+</nav>
+
+<section class="max-w-7xl mx-auto px-6 py-10 grid lg:grid-cols-[350px_1fr] gap-8">
+
+    <div class="space-y-6">
+
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 glow">
+
+            <div class="flex items-center gap-3">
+
+                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+
+                <h2 class="text-2xl font-bold">
+                    Community News
+                </h2>
+
+            </div>
+
+            <div class="mt-6 space-y-4">
+
+                <div class="bg-slate-800 rounded-2xl p-4">
+                    <div class="text-indigo-400 text-xs font-semibold">
+                        NEW
+                    </div>
+
+                    <div class="font-semibold mt-1">
+                        Live community chat launched
+                    </div>
+
+                    <p class="text-slate-400 text-sm mt-2">
+                        Messages now sync instantly with Firebase.
+                    </p>
+                </div>
+
+                <div class="bg-slate-800 rounded-2xl p-4">
+                    <div class="text-green-400 text-xs font-semibold">
+                        UPDATE
+                    </div>
+
+                    <div class="font-semibold mt-1">
+                        [BETA] Happy Notifications out!
+                    </div>
+
+                    <p class="text-slate-400 text-sm mt-2">
+                        [IN DEV] 2D Obby Builder!
+                    </p>
+                </div>
+
+                <div class="bg-slate-800 rounded-2xl p-4">
+                    <div class="text-pink-400 text-xs font-semibold">
+                        COMMUNITY
+                    </div>
+
+                    <div class="font-semibold mt-1">
+                        Daily cleanup enabled
+                    </div>
+
+                    <p class="text-slate-400 text-sm mt-2">
+                        Chat messages auto-delete after 24h.
+                    </p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-3xl p-6">
+
+            <div class="text-sm uppercase tracking-wider opacity-80">
+                Live Stats
+            </div>
+
+            <div class="mt-5 grid grid-cols-2 gap-4">
+
+                <div class="bg-white/10 rounded-2xl p-4">
+                    <div id="onlineCount"
+                    class="text-3xl font-bold">
+                        0
+                    </div>
+
+                    <div class="text-sm opacity-80">
+                        Messages
+                    </div>
+                </div>
+
+                <div class="bg-white/10 rounded-2xl p-4">
+                    <div class="text-3xl font-bold">
+                        LIVE
+                    </div>
+
+                    <div class="text-sm opacity-80">
+                        Community
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl flex flex-col overflow-hidden">
+
+        <div class="border-b border-slate-800 p-6 flex justify-between items-center">
+
+            <div>
+                <h2 class="text-3xl font-bold">
+                    Global Chat
+                </h2>
+
+                <p class="text-slate-400 mt-1">
+                    talk with the ERROR Inc. community
+                </p>
+            </div>
+
+            <div class="px-4 py-2 rounded-full bg-green-500/20 text-green-400 text-sm">
+                ● LIVE
+            </div>
+
+        </div>
+
+        <div id="chatMessages"
+        class="flex-1 h-[600px] overflow-y-auto p-6 space-y-4 chat-scroll">
+        </div>
+
+        <div class="border-t border-slate-800 p-5">
+
+            <div class="flex gap-3">
+
+                <input
+                id="messageInput"
+                type="text"
+                maxlength="200"
+                placeholder="Send a message..."
+                class="flex-1 bg-slate-800 border border-slate-700 rounded-2xl px-5 py-4 outline-none focus:border-indigo-500">
+
+                <button id="sendBtn"
+                class="px-7 rounded-2xl bg-indigo-600 hover:bg-indigo-500 transition font-semibold">
+                    Send
+                </button>
+
+            </div>
+
+            <div class="text-xs text-slate-500 mt-3">
+                filtered words blocked • messages removed after 24 hours
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<div id="authPopup"
+class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-8">
+
+        <h2 class="text-3xl font-bold">
+            Join Community
+        </h2>
+
+        <p class="text-slate-400 mt-2">
+            sign in to access chat
+        </p>
+
+        <div class="mt-8 space-y-3">
+
+            <a href="signup.html"
+            class="block text-center bg-white text-black py-3 rounded-2xl font-semibold">
+                Create Account
+            </a>
+
+            <a href="login.html"
+            class="block text-center border border-slate-700 py-3 rounded-2xl">
+                Log In
+            </a>
+
+        </div>
+
+    </div>
+
+</div>
+
+<div id="profilePopup"
+class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+
+    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-8">
+
+        <div class="flex flex-col items-center">
+
+            <div class="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center">
+                <i class="fa-regular fa-user text-4xl"></i>
+            </div>
+
+            <h2 id="profileName"
+            class="text-3xl font-bold mt-5">
+                username
+            </h2>
+
+            <p class="text-slate-400">
+                ERROR Inc. Member
+            </p>
+
+            <button id="logoutBtn"
+            class="mt-8 w-full py-3 rounded-2xl bg-red-500 hover:bg-red-600 transition">
+                Log Out
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+
+import {
+getDatabase,
+ref,
+push,
+onValue,
+remove,
+get
+}
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
+
+    authDomain: "error-inc.firebaseapp.com",
+
+    databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
+
+    projectId: "error-inc",
+
+    storageBucket: "error-inc.firebasestorage.app",
+
+    messagingSenderId: "876188868410",
+
+    appId: "1:876188868410:web:ca7de451707bd9975c7a03"
+
+};
+
+const app = initializeApp(firebaseConfig);
+
+const db = getDatabase(app);
+
+const chatMessages =
+document.getElementById("chatMessages");
+
+const messageInput =
+document.getElementById("messageInput");
+
+const sendBtn =
+document.getElementById("sendBtn");
+
+const onlineCount =
+document.getElementById("onlineCount");
+
+const bannedWords = [
+    "fuck",
+    "bitch",
+    "niga",
+    "nigga",
+    "shit"
+];
+
+function filterMessage(text){
+
+    let filtered = text;
+
+    bannedWords.forEach(word => {
+
+        const regex =
+        new RegExp(word, "gi");
+
+        filtered =
+        filtered.replace(regex, "•••");
+
+    });
+
+    return filtered;
+
+}
+
+async function cleanupOldMessages(){
+
+    const snapshot =
+    await get(ref(db, "community-chat"));
+
+    if(!snapshot.exists()) return;
+
+    const now =
+    Date.now();
+
+    snapshot.forEach(child => {
+
+        const data =
+        child.val();
+
+        if(now - data.time > 86400000){
+
+            remove(
+                ref(
+                    db,
+                    "community-chat/" + child.key
+                )
+            );
+
+        }
+
+    });
+
+}
+
+cleanupOldMessages();
+
+function sendMessage(){
+
+    const user =
+    localStorage.getItem("errorinc_user");
+
+    if(!user){
+
+        authPopup.classList.remove("hidden");
+
+        return;
+
+    }
+
+    const text =
+    messageInput.value.trim();
+
+    if(!text) return;
+
+    push(
+        ref(db, "community-chat"),
+        {
+            user,
+            text: filterMessage(text),
+            time: Date.now()
+        }
+    );
+
+    messageInput.value = "";
+
+}
+
+sendBtn.onclick = sendMessage;
+
+messageInput.addEventListener("keypress", e => {
+
+    if(e.key === "Enter"){
+
+        sendMessage();
+
+    }
+
+});
+
+onValue(ref(db, "community-chat"), snapshot => {
+
+    chatMessages.innerHTML = "";
+
+    let count = 0;
+
+    snapshot.forEach(child => {
+
+        const msg =
+        child.val();
+
+        count++;
+
+        const div =
+        document.createElement("div");
+
+        div.className =
+        "message-enter bg-slate-800 rounded-3xl p-4";
+
+        div.innerHTML = `
+
+        <div class="flex items-center gap-3">
+
+            <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold">
+                ${msg.user.charAt(0).toUpperCase()}
+            </div>
+
+            <div>
+
+                <div class="font-semibold">
+                    ${msg.user}
+                </div>
+
+                <div class="text-slate-300 mt-1 break-words">
+                    ${msg.text}
+                </div>
+
+            </div>
+
+        </div>
+
+        `;
+
+        chatMessages.appendChild(div);
+
+    });
+
+    onlineCount.innerText = count;
+
+    chatMessages.scrollTop =
+    chatMessages.scrollHeight;
+
+});
+
+</script>
+
+<script>
+
+const userBtn =
+document.getElementById("userBtn");
+
+const authPopup =
+document.getElementById("authPopup");
+
+const profilePopup =
+document.getElementById("profilePopup");
+
+const profileName =
+document.getElementById("profileName");
+
+const logoutBtn =
+document.getElementById("logoutBtn");
+
+const currentUser =
+localStorage.getItem("errorinc_user");
+
+if(currentUser){
+
+    userBtn.innerHTML =
+    currentUser.charAt(0).toUpperCase();
+
+}
+
+userBtn.onclick = () => {
+
+    const user =
+    localStorage.getItem("errorinc_user");
+
+    if(!user){
+
+        authPopup.classList.remove("hidden");
+
+    }else{
+
+        profileName.innerText = user;
+
+        profilePopup.classList.remove("hidden");
+
+    }
+
+};
+
+authPopup.onclick = e => {
+
+    if(e.target === authPopup){
+
+        authPopup.classList.add("hidden");
+
+    }
+
+};
+
+profilePopup.onclick = e => {
+
+    if(e.target === profilePopup){
+
+        profilePopup.classList.add("hidden");
+
+    }
+
+};
+
+logoutBtn.onclick = () => {
+
+    localStorage.removeItem("errorinc_user");
+
+    location.reload();
+
+};
+
+</script>
+
+</body>
+</html>
