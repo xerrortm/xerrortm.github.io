@@ -14,42 +14,31 @@
     overflow: hidden;
     pointer-events: none;
 }
-
 .shine::before {
-
     content: "";
-
     position: absolute;
     top: -40%;
     left: -120%;
-
     width: 60%;
     height: 200%;
-
     background: linear-gradient(
         120deg,
         transparent,
         rgba(255,255,255,0.9),
         transparent
     );
-
     transform: rotate(25deg);
 }
-
 .shine.active::before {
     animation: shineMove 1.2s ease;
 }
-
 @keyframes shineMove {
-
     from {
         left: -120%;
     }
-
     to {
         left: 160%;
     }
-
 }
 </style>
 </head>
@@ -97,49 +86,36 @@
     </div>
 </section>
 
-<!-- FEATURED (slightly tinted section) -->
+<!-- FEATURED -->
 <section id="projects" class="py-16 bg-slate-100">
-
     <div class="max-w-6xl mx-auto px-6">
-
-        <div class="bg-gradient-to-br from-white to-indigo-50 border border-indigo-200 rounded-3xl p-10 relative overflow-hidden shadow-sm">
-
+        <div onclick="location.href='/mla'"class="bg-gradient-to-br from-white to-indigo-50 border border-indigo-200 rounded-3xl p-10 relative overflow-hidden shadow-sm">
             <div class="absolute -top-24 -right-24 w-96 h-96 bg-indigo-300 blur-3xl opacity-30 rounded-full"></div>
-
             <span class="text-xs font-semibold px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full">
-                FEATURED LIVE PROJECT
+                FEATURED PROJECT
             </span>
-
             <h2 class="text-4xl font-bold mt-6 flex items-center gap-3">
-                GoggleTools
+                GoggleTools (PUBLIC)
                 <span class="w-3 h-3 bg-green-500 rounded-full animate-ping"></span>
             </h2>
-
             <p class="text-slate-600 mt-4 text-lg max-w-2xl">
                 A fully upgraded platform of tools, login systems, and experimental UI frameworks — actively being built and shipped.
             </p>
-
             <div class="mt-10 grid grid-cols-3 gap-6 text-center">
-
                 <div class="bg-white border rounded-2xl p-6">
-                    <div class="text-3xl font-bold text-indigo-600">3</div>
-                    <div class="text-slate-500 mt-1">Updates shipped</div>
+                    <div class="text-3xl font-bold text-indigo-600">5</div>
+                    <div class="text-slate-500 mt-1">Total updates</div>
                 </div>
-
                 <div class="bg-white border rounded-2xl p-6">
                     <div class="text-3xl font-bold text-indigo-600">2</div>
-                    <div class="text-slate-500 mt-1">Systems evolving</div>
+                    <div class="text-slate-500 mt-1">Major updates</div>
                 </div>
-
                 <div class="bg-white border rounded-2xl p-6">
                     <div class="text-3xl font-bold text-green-600">LIVE</div>
                     <div class="text-slate-500 mt-1">Deploy status</div>
                 </div>
-
             </div>
-
         </div>
-
     </div>
 </section>
 
