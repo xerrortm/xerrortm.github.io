@@ -424,9 +424,7 @@ function sendMessage(){
     localStorage.getItem("errorinc_user");
 
     if(!user){
-
-        authPopup.classList.remove("hidden");
-
+        window.location.href = "login.html"
         return;
 
     }
