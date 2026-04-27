@@ -280,7 +280,7 @@ function startGame(){
 
       if(score <= 0){
 
-        popup404(randomMessage(failMessages));
+        applyErrorEffect(randomMessage(failMessages));
         rain404();
 
       } else if(score >= 25){
