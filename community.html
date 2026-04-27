@@ -662,48 +662,109 @@ window.onload = () => {
 
 </script>
 <script>
-const badgePopup =
-document.getElementById("badgePopup");
 
-const badgePopupImage =
-document.getElementById("badgePopupImage");
+const userBtn =
+document.getElementById("userBtn");
 
-const badgePopupName =
-document.getElementById("badgePopupName");
+const authPopup =
+document.getElementById("authPopup");
 
-function openBadge(name, image) {
+const profilePopup =
+document.getElementById("profilePopup");
 
-    badgePopupImage.src = image;
-    badgePopupName.innerText = name;
+const profileName =
+document.getElementById("profileName");
 
-    badgePopup.classList.remove("hidden");
+const logoutBtn =
+document.getElementById("logoutBtn");
 
-    const shine =
-    document.getElementById("badgeShine");
+const closeAuth =
+document.getElementById("closeAuth");
 
-    shine.classList.remove("active");
+const closeProfile =
+document.getElementById("closeProfile");
 
-    void shine.offsetWidth;
+const currentUser =
+localStorage.getItem("errorinc_user");
 
-    shine.classList.add("active");
+
+if(currentUser){
+
+    userBtn.innerHTML =
+    currentUser.charAt(0).toUpperCase();
 
 }
 
-document.getElementById("closeBadgePopup").onclick = () => {
 
-    badgePopup.classList.add("hidden");
+userBtn.onclick = () => {
 
-};
+    const user =
+    localStorage.getItem("errorinc_user");
 
-badgePopup.onclick = (e) => {
+    if(!user){
 
-    if (e.target === badgePopup) {
+        authPopup.classList.remove("hidden");
 
-        badgePopup.classList.add("hidden");
+    } else {
+
+        profileName.innerText =
+        user;
+
+        loadBadges(user);
+
+        profilePopup.classList.remove("hidden");
 
     }
 
 };
+
+
+closeAuth.onclick = () => {
+
+    authPopup.classList.add("hidden");
+
+};
+
+
+closeProfile.onclick = () => {
+
+    profilePopup.classList.add("hidden");
+
+};
+
+
+authPopup.onclick = (e) => {
+
+    if(e.target === authPopup){
+
+        authPopup.classList.add("hidden");
+
+    }
+
+};
+
+
+profilePopup.onclick = (e) => {
+
+    if(e.target === profilePopup){
+
+        profilePopup.classList.add("hidden");
+
+    }
+
+};
+
+
+logoutBtn.onclick = () => {
+
+    if(!confirm("Are you sure you want to log out?")) return;
+
+    localStorage.removeItem("errorinc_user");
+
+    location.reload();
+
+};
+
 </script>
 </body>
 </html>
