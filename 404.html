@@ -77,7 +77,7 @@
       Score: <span id="score">0</span>
     </div>
     <div class="score">
-      Time: <span id="time">3</span>
+      Time: <span id="time">20</span>
     </div>
     <button id="gameBtn">CLICK ME</button>
   </div>
@@ -103,11 +103,19 @@
         time--;
         timeEl.textContent = time;
 
-        if(time <= 0){
-          alert("404. Your mouse was not found.");
+        if(time <= 0 && score <=0 ){
+          alert("404 Your mouse was not found.");
           score = 0;
-          time = 3;
+          time = 0;
           scoreEl.textContent = score;
+          return;
+        }
+        if(time <=0) {
+          alert("404 More time not found.");
+          score = 0;
+          time = 0;
+          scoreEl.textContent = score;
+          return;
         }
       }, 1000);
     }
