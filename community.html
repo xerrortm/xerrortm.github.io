@@ -3,64 +3,76 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Community | ERROR Inc.</title>
+<title>ERROR Community</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <style>
+
 body{
-    background:#0f172a;
-    color:white;
+    background:
+    radial-gradient(circle at top left, rgba(99,102,241,.15), transparent 25%),
+    radial-gradient(circle at bottom right, rgba(16,185,129,.12), transparent 25%),
+    #f3f6ff;
 }
+
 .chat-scroll::-webkit-scrollbar{
     width:8px;
 }
+
 .chat-scroll::-webkit-scrollbar-thumb{
-    background:#334155;
+    background:#cbd5e1;
     border-radius:999px;
 }
+
 .message-enter{
-    animation: pop .2s ease;
+    animation:pop .2s ease;
 }
+
 @keyframes pop{
+
     from{
         opacity:0;
-        transform:translateY(10px);
+        transform:translateY(10px) scale(.98);
     }
+
     to{
         opacity:1;
-        transform:translateY(0);
+        transform:translateY(0) scale(1);
     }
+
 }
-.glow{
-    box-shadow:0 0 40px rgba(99,102,241,.35);
+
+.noise{
+    background-image:
+    linear-gradient(rgba(255,255,255,.45), rgba(255,255,255,.45)),
+    url("https://www.transparenttextures.com/patterns/cubes.png");
 }
+
 </style>
+
 </head>
-<body>
-<nav class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur border-b border-slate-800 px-8 py-4 flex justify-between items-center">
+
+<body class="text-slate-900">
+
+<nav class="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-white/50 px-8 py-4 flex justify-between items-center shadow-sm">
+
     <div class="flex items-center gap-4">
-        <img
-        src="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/5c585ad8-9e96-472a-bc88-5d2ea8f05993/ERRORL1-removebg-preview.png"
-        class="h-14">
+        <img onclick="location.href='index.html'"src="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/5c585ad8-9e96-472a-bc88-5d2ea8f05993/ERRORL1-removebg-preview.png" class="h-16">
         <div>
-            <div class="font-bold text-xl">
+            <div class="text-2xl">
                 Community
             </div>
-
-            <div class="text-xs text-slate-400">
-                live discussions + updates
-            </div>
         </div>
+
     </div>
+
     <div class="flex items-center gap-4">
 
-        <a href="index.html"
-        class="text-slate-300 hover:text-white text-sm">
+        <a href="index.html" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition">
             Home
         </a>
-
         <button id="userBtn"
-        class="w-11 h-11 rounded-full bg-slate-800 hover:bg-slate-700 transition flex items-center justify-center">
+        class="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 hover:scale-105 transition flex items-center justify-center text-indigo-700 shadow-sm">
             <i class="fa-regular fa-user"></i>
         </button>
 
@@ -68,97 +80,117 @@ body{
 
 </nav>
 
-<section class="max-w-7xl mx-auto px-6 py-10 grid lg:grid-cols-[350px_1fr] gap-8">
+<section class="max-w-7xl mx-auto px-6 py-10 grid lg:grid-cols-[380px_1fr] gap-8">
 
     <div class="space-y-6">
 
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 glow">
+        <div class="bg-white/80 backdrop-blur-xl border border-white rounded-[2rem] p-6 shadow-xl noise">
 
-            <div class="flex items-center gap-3">
+            <div class="flex items-center justify-between">
 
-                <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                <div class="flex items-center gap-3">
 
-                <h2 class="text-2xl font-bold">
-                    Community News
-                </h2>
+                    <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+
+                    <h2 class="text-2xl font-black">
+                        Community News
+                    </h2>
+
+                </div>
 
             </div>
 
             <div class="mt-6 space-y-4">
 
-                <div class="bg-slate-800 rounded-2xl p-4">
-                    <div class="text-indigo-400 text-xs font-semibold">
-                        NEW
+                <div class="bg-gradient-to-r from-indigo-50 to-white border border-indigo-100 rounded-3xl p-5">
+
+                    <div class="flex items-center gap-2">
+
+                        <span class="text-xs font-black text-indigo-600">
+                            NEW DROP
+                        </span>
+
+                        <span>🚀</span>
+
                     </div>
 
-                    <div class="font-semibold mt-1">
-                        Live community chat launched
+                    <div class="font-bold mt-2">
+                        Happy Notification beta launched
                     </div>
 
-                    <p class="text-slate-400 text-sm mt-2">
-                        Messages now sync instantly with Firebase.
+                    <p class="text-slate-600 text-sm mt-2">
+                        [BETA] Send people happiness notifications!
                     </p>
+
                 </div>
 
-                <div class="bg-slate-800 rounded-2xl p-4">
-                    <div class="text-green-400 text-xs font-semibold">
+                <div class="bg-gradient-to-r from-pink-50 to-white border border-pink-100 rounded-3xl p-5">
+
+                    <div class="text-xs font-black text-pink-600">
                         UPDATE
                     </div>
 
-                    <div class="font-semibold mt-1">
-                        [BETA] Happy Notifications out!
+                    <div class="font-bold mt-2">
+                        GoggleTools 1.6 update is LIVE!
                     </div>
 
-                    <p class="text-slate-400 text-sm mt-2">
-                        [IN DEV] 2D Obby Builder!
+                    <p class="text-slate-600 text-sm mt-2">
+                        Explore new export formats and a brand-new settings section!
                     </p>
+
                 </div>
 
-                <div class="bg-slate-800 rounded-2xl p-4">
-                    <div class="text-pink-400 text-xs font-semibold">
-                        COMMUNITY
+                <div class="bg-gradient-to-r from-emerald-50 to-white border border-emerald-100 rounded-3xl p-5">
+
+                    <div class="text-xs font-black text-emerald-600">
+                        COMING SOON
                     </div>
 
-                    <div class="font-semibold mt-1">
-                        Daily cleanup enabled
+                    <div class="font-bold mt-2">
+                        [IN DEV] 2D Obby Builder
                     </div>
 
-                    <p class="text-slate-400 text-sm mt-2">
-                        Chat messages auto-delete after 24h.
+                    <p class="text-slate-600 text-sm mt-2">
+                        Be ready for a brand new tool!
                     </p>
+
                 </div>
 
             </div>
 
         </div>
 
-        <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 rounded-3xl p-6">
+        <div class="bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-[2rem] p-6 text-white shadow-xl">
 
-            <div class="text-sm uppercase tracking-wider opacity-80">
+            <div class="uppercase tracking-wider text-sm opacity-80">
                 Live Stats
             </div>
 
-            <div class="mt-5 grid grid-cols-2 gap-4">
+            <div class="grid grid-cols-2 gap-4 mt-5">
 
-                <div class="bg-white/10 rounded-2xl p-4">
-                    <div id="onlineCount"
-                    class="text-3xl font-bold">
+                <div class="bg-white/10 rounded-3xl p-5">
+
+                    <div id="messageCount"
+                    class="text-4xl font-black">
                         0
                     </div>
 
-                    <div class="text-sm opacity-80">
+                    <div class="text-sm opacity-80 mt-1">
                         Messages
                     </div>
+
                 </div>
 
-                <div class="bg-white/10 rounded-2xl p-4">
-                    <div class="text-3xl font-bold">
+                <div class="bg-white/10 rounded-3xl p-5">
+
+                    <div class="text-4xl font-black">
                         LIVE
                     </div>
 
-                    <div class="text-sm opacity-80">
+                    <div class="text-sm opacity-80 mt-1">
                         Community
                     </div>
+
                 </div>
 
             </div>
@@ -167,31 +199,33 @@ body{
 
     </div>
 
-    <div class="bg-slate-900 border border-slate-800 rounded-3xl flex flex-col overflow-hidden">
+    <div class="bg-white/85 backdrop-blur-xl border border-white rounded-[2rem] flex flex-col overflow-hidden shadow-2xl">
 
-        <div class="border-b border-slate-800 p-6 flex justify-between items-center">
+        <div class="border-b border-slate-200 p-6 flex justify-between items-center">
 
             <div>
-                <h2 class="text-3xl font-bold">
+
+                <h2 class="text-3xl font-black">
                     Global Chat
                 </h2>
 
-                <p class="text-slate-400 mt-1">
-                    talk with the ERROR Inc. community
+                <p class="text-slate-500 mt-1">
+                    what's happening in the community right now
                 </p>
+
             </div>
 
-            <div class="px-4 py-2 rounded-full bg-green-500/20 text-green-400 text-sm">
-                ● LIVE
+            <div class="px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-bold">
+                ● ACTIVE
             </div>
 
         </div>
 
         <div id="chatMessages"
-        class="flex-1 h-[600px] overflow-y-auto p-6 space-y-4 chat-scroll">
+        class="flex-1 h-[650px] overflow-y-auto p-6 space-y-4 chat-scroll">
         </div>
 
-        <div class="border-t border-slate-800 p-5">
+        <div class="border-t border-slate-200 p-5 bg-white/70">
 
             <div class="flex gap-3">
 
@@ -199,18 +233,18 @@ body{
                 id="messageInput"
                 type="text"
                 maxlength="200"
-                placeholder="Send a message..."
-                class="flex-1 bg-slate-800 border border-slate-700 rounded-2xl px-5 py-4 outline-none focus:border-indigo-500">
+                placeholder="Say something to the community..."
+                class="flex-1 bg-white border-2 border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-indigo-500">
 
                 <button id="sendBtn"
-                class="px-7 rounded-2xl bg-indigo-600 hover:bg-indigo-500 transition font-semibold">
+                class="px-7 rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:scale-105 transition text-white font-bold shadow-lg">
                     Send
                 </button>
 
             </div>
 
-            <div class="text-xs text-slate-500 mt-3">
-                filtered words blocked • messages removed after 24 hours
+            <div class="text-xs text-slate-400 mt-3">
+                filtered words blocked • auto deletes after 24h
             </div>
 
         </div>
@@ -220,27 +254,27 @@ body{
 </section>
 
 <div id="authPopup"
-class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
 
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-8">
+    <div class="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl">
 
-        <h2 class="text-3xl font-bold">
+        <h2 class="text-3xl font-black">
             Join Community
         </h2>
 
-        <p class="text-slate-400 mt-2">
-            sign in to access chat
+        <p class="text-slate-500 mt-2">
+            sign in to access live chat
         </p>
 
         <div class="mt-8 space-y-3">
 
             <a href="signup.html"
-            class="block text-center bg-white text-black py-3 rounded-2xl font-semibold">
+            class="block text-center bg-indigo-600 hover:bg-indigo-500 transition text-white py-3 rounded-2xl font-bold">
                 Create Account
             </a>
 
             <a href="login.html"
-            class="block text-center border border-slate-700 py-3 rounded-2xl">
+            class="block text-center border border-slate-300 py-3 rounded-2xl hover:bg-slate-100 transition">
                 Log In
             </a>
 
@@ -251,27 +285,27 @@ class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center 
 </div>
 
 <div id="profilePopup"
-class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
 
-    <div class="bg-slate-900 border border-slate-700 w-full max-w-md rounded-3xl p-8">
+    <div class="bg-white rounded-[2rem] p-8 max-w-md w-full shadow-2xl">
 
         <div class="flex flex-col items-center">
 
-            <div class="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center">
-                <i class="fa-regular fa-user text-4xl"></i>
+            <div class="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center text-white text-4xl">
+                <i class="fa-regular fa-user"></i>
             </div>
 
             <h2 id="profileName"
-            class="text-3xl font-bold mt-5">
+            class="text-3xl font-black mt-5">
                 username
             </h2>
 
-            <p class="text-slate-400">
+            <p class="text-slate-500">
                 ERROR Inc. Member
             </p>
 
             <button id="logoutBtn"
-            class="mt-8 w-full py-3 rounded-2xl bg-red-500 hover:bg-red-600 transition">
+            class="mt-8 w-full py-3 rounded-2xl bg-red-500 hover:bg-red-600 transition text-white font-bold">
                 Log Out
             </button>
 
@@ -298,44 +332,37 @@ from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 
 const firebaseConfig = {
 
-    apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
+    apiKey: "YOUR_KEY",
 
-    authDomain: "error-inc.firebaseapp.com",
+    authDomain: "YOUR_DOMAIN",
 
-    databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
+    databaseURL: "YOUR_DB",
 
-    projectId: "error-inc",
+    projectId: "YOUR_PROJECT",
 
-    storageBucket: "error-inc.firebasestorage.app",
+    storageBucket: "YOUR_BUCKET",
 
-    messagingSenderId: "876188868410",
+    messagingSenderId: "YOUR_ID",
 
-    appId: "1:876188868410:web:ca7de451707bd9975c7a03"
+    appId: "YOUR_APP"
 
 };
 
-const app = initializeApp(firebaseConfig);
+const app =
+initializeApp(firebaseConfig);
 
-const db = getDatabase(app);
-
-const chatMessages =
-document.getElementById("chatMessages");
-
-const messageInput =
-document.getElementById("messageInput");
-
-const sendBtn =
-document.getElementById("sendBtn");
-
-const onlineCount =
-document.getElementById("onlineCount");
+const db =
+getDatabase(app);
 
 const bannedWords = [
     "fuck",
+    "shit",
     "bitch",
     "niga",
     "nigga",
-    "shit"
+    "nigger",
+    "hell",
+    "heck"
 ];
 
 function filterMessage(text){
@@ -344,11 +371,11 @@ function filterMessage(text){
 
     bannedWords.forEach(word => {
 
-        const regex =
-        new RegExp(word, "gi");
-
         filtered =
-        filtered.replace(regex, "•••");
+        filtered.replace(
+            new RegExp(word, "gi"),
+            "•••"
+        );
 
     });
 
@@ -368,10 +395,10 @@ async function cleanupOldMessages(){
 
     snapshot.forEach(child => {
 
-        const data =
+        const msg =
         child.val();
 
-        if(now - data.time > 86400000){
+        if(now - msg.time > 86400000){
 
             remove(
                 ref(
@@ -387,6 +414,18 @@ async function cleanupOldMessages(){
 }
 
 cleanupOldMessages();
+
+const chatMessages =
+document.getElementById("chatMessages");
+
+const messageInput =
+document.getElementById("messageInput");
+
+const sendBtn =
+document.getElementById("sendBtn");
+
+const messageCount =
+document.getElementById("messageCount");
 
 function sendMessage(){
 
@@ -406,20 +445,22 @@ function sendMessage(){
 
     if(!text) return;
 
-    push(
-        ref(db, "community-chat"),
-        {
-            user,
-            text: filterMessage(text),
-            time: Date.now()
-        }
-    );
+    push(ref(db, "community-chat"), {
+
+        user,
+
+        text: filterMessage(text),
+
+        time: Date.now()
+
+    });
 
     messageInput.value = "";
 
 }
 
-sendBtn.onclick = sendMessage;
+sendBtn.onclick =
+sendMessage;
 
 messageInput.addEventListener("keypress", e => {
 
@@ -435,36 +476,44 @@ onValue(ref(db, "community-chat"), snapshot => {
 
     chatMessages.innerHTML = "";
 
-    let count = 0;
+    let total = 0;
 
     snapshot.forEach(child => {
 
         const msg =
         child.val();
 
-        count++;
+        total++;
 
         const div =
         document.createElement("div");
 
         div.className =
-        "message-enter bg-slate-800 rounded-3xl p-4";
+        "message-enter bg-white border border-slate-200 rounded-3xl p-4 shadow-sm hover:shadow-md transition";
 
         div.innerHTML = `
 
-        <div class="flex items-center gap-3">
+        <div class="flex gap-4">
 
-            <div class="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center font-bold">
+            <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center font-black text-white shrink-0">
                 ${msg.user.charAt(0).toUpperCase()}
             </div>
 
-            <div>
+            <div class="flex-1">
 
-                <div class="font-semibold">
-                    ${msg.user}
+                <div class="flex items-center gap-2">
+
+                    <div class="font-bold">
+                        ${msg.user}
+                    </div>
+
+                    <div class="text-xs text-slate-400">
+                        live
+                    </div>
+
                 </div>
 
-                <div class="text-slate-300 mt-1 break-words">
+                <div class="mt-2 text-slate-700 break-words leading-relaxed">
                     ${msg.text}
                 </div>
 
@@ -478,7 +527,8 @@ onValue(ref(db, "community-chat"), snapshot => {
 
     });
 
-    onlineCount.innerText = count;
+    messageCount.innerText =
+    total;
 
     chatMessages.scrollTop =
     chatMessages.scrollHeight;
@@ -525,7 +575,8 @@ userBtn.onclick = () => {
 
     }else{
 
-        profileName.innerText = user;
+        profileName.innerText =
+        user;
 
         profilePopup.classList.remove("hidden");
 
