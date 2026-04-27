@@ -144,12 +144,6 @@ function popup404(text){
   `;
 
   document.body.appendChild(popup);
-
-  setTimeout(() => {
-    if(popup.parentNode){
-      popup.remove();
-    }
-  }, 5000);
 }
 
 function rain404(){
@@ -217,7 +211,62 @@ function weirdEnding(){
 
   endings[Math.floor(Math.random() * endings.length)]();
 }
+let clickLocked = false;
+let scoreBroken = false;
+let timeGlitched = false;
 
+function applyErrorEffect(message){
+
+  popup404(message);
+
+  // CLICKING FORBIDDEN → disable button
+  if(message.includes("Clicking forbidden")){
+    clickLocked = true;
+    gameBtn.disabled = true;
+    gameBtn.style.opacity = "0.3";
+
+    setTimeout(() => {
+      clickLocked = false;
+      gameBtn.disabled = false;
+      gameBtn.style.opacity = "1";
+    }, 3000);
+  }
+
+  // SCORE IS GONE → break score display
+  if(message.includes("score is gone")){
+    scoreBroken = true;
+    scoreEl.textContent = "undefined";
+
+    setTimeout(() => {
+      scoreBroken = false;
+      scoreEl.textContent = score;
+    }, 3000);
+  }
+
+  // TIME GLITCH → random time chaos
+  if(message.includes("time not found")){
+    timeGlitched = true;
+
+    const glitch = setInterval(() => {
+      timeEl.textContent = Math.floor(Math.random() * 99);
+    }, 200);
+
+    setTimeout(() => {
+      clearInterval(glitch);
+      timeGlitched = false;
+      timeEl.textContent = time;
+    }, 2500);
+  }
+
+  // TEAPOT → invert button text
+  if(message.includes("I'm a teapot")){
+    gameBtn.textContent = "☕ BOILING...";
+
+    setTimeout(() => {
+      gameBtn.textContent = "CLICK ME";
+    }, 3000);
+  }
+}
 function startGame(){
 
   gameInterval = setInterval(() => {
