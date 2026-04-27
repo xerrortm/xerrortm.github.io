@@ -420,15 +420,6 @@ const clickErrors = [
   }
 },
 
-{
-  msg: "Warning: Reality corruption detected.",
-  effect: () => {
-
-    document.body.style.filter = "invert(1)";
-
-  }
-},
-
 ];
 
 gameBtn.onclick = () => {
@@ -453,7 +444,6 @@ gameBtn.onclick = () => {
   gameBtn.textContent =
     texts[Math.floor(Math.random() * texts.length)];
 
-  // random error
   const err =
     clickErrors[Math.floor(Math.random() * clickErrors.length)];
 
@@ -478,26 +468,21 @@ function startGame(){
         applyErrorEffect(randomMessage(failMessages));
         rain404();
 
-      } else if(score >= 100){
+      } else if(score >= 40){
 
         popup404("999 SECRET ENDING UNLOCKED.");
         popup404("The 404 has escaped containment.");
         weirdEnding();
 
-      } else if(score >= 80){
+      } else if(score >= 25){
 
         popup404(randomMessage(winMessages));
         rain404();
 
       } else {
-
-        popup404("206 Partial victory achieved.");
+        applyErrorEffect(randomMessage(failMessages));
+        rain404();
       }
-
-      score = 0;
-      time = 0;
-
-      scoreEl.textContent = score;
 
       return;
     }
