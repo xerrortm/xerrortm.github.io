@@ -23,7 +23,8 @@
       cursor:pointer;
       border:1px solid #000;
       background:white;
-      padding:4px 8px;
+      padding:14px 28px;
+      font-size: 22px;
     }
 
     .pixel{
@@ -288,7 +289,7 @@ const clickErrors = [
     effect: () => {
 
       document.body.style.transform =
-        `rotate(${Math.random() *10 - 5}deg)`;
+        `rotate(${Math.random() *100 - 50}deg)`;
 
     }
   },
@@ -366,7 +367,7 @@ const clickErrors = [
 
       const fake = gameBtn.cloneNode(true);
 
-      fake.innerText = "?";
+      fake.innerText = "CLICK ME";
 
       fake.style.position = "fixed";
       fake.style.left = Math.random() * window.innerWidth + "px";
@@ -378,10 +379,6 @@ const clickErrors = [
       };
 
       document.body.appendChild(fake);
-
-      setTimeout(() => {
-        fake.remove();
-      }, 4000);
 
     }
 
@@ -409,7 +406,7 @@ const clickErrors = [
       (Math.random() * 100 - 50) + "px";
 
     gameBtn.style.top =
-      (Math.random() * 50 - 25) + "px";
+      (Math.random() * 100 - 50) + "px";
 
   }
 },
@@ -418,11 +415,7 @@ const clickErrors = [
   msg: "509 Bandwidth exceeded.",
   effect: () => {
 
-    document.body.style.zoom = "150%";
-
-    setTimeout(() => {
-      document.body.style.zoom = "100%";
-    }, 2500);
+    document.body.style.zoom = "160%";
 
   }
 },
@@ -432,10 +425,6 @@ const clickErrors = [
   effect: () => {
 
     document.body.style.filter = "invert(1)";
-
-    setTimeout(() => {
-      document.body.style.filter = "none";
-    }, 2000);
 
   }
 },
