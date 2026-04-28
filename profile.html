@@ -690,10 +690,12 @@ badgePopup.onclick = (e) => {
 
 <script>
 
-emailjs.init("yGVzllcBp2uAdb4pI");
-
 const SERVICE_ID = "service_zjz7o0t";
 const TEMPLATE_ID = "template_e9fbdqa";
+const PUBLIC_KEY = "yGVzllcBp2uAdb4pI";
+(function() {
+   emailjs.init(PUBLIC_KEY);
+})();
 
 let verificationCode = null;
 
@@ -714,20 +716,25 @@ async () => {
         100000 + Math.random() * 900000
     ).toString();
 
-    try{
+    try {
+        const templateParams = {
+            email: email,
+           from_name: "HelloXerrorTM Support",
+            code: verificationCode,
+            reply_to: "helloxerrortm@gmail.com"
+                };
 
-        await emailjs.send(
-            SERVICE_ID,
-            TEMPLATE_ID,
-            {
+                const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
 
-                to_email: email,
-                code: verificationCode
-
-            }
-
-        );
-
+                if (response.status === 200) {
+                    sentCode = verificationCode;
+                    document.getElementById('display-email').innerText = email;
+                    showStep('step-verify');
+                    startTimer();
+                } else {
+                    throw new Error("Email service rejected the request.");
+                }
+            
         document
         .getElementById("verifySection")
         .classList.remove("hidden");
