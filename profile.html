@@ -1,11 +1,13 @@
-<!DOCTYPE html>
+broooooooo why it not work <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
 <title>Profile | ERROR Inc.</title>
+
 <script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
 <link rel="stylesheet"
 href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 
@@ -248,8 +250,6 @@ class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center 
                 class="w-full mt-2 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-indigo-500">
 
             </div>
-            <!-- ADD THIS INSIDE THE EDIT PROFILE POPUP -->
-<!-- place this UNDER the email input -->
 
 <div>
 
@@ -687,22 +687,21 @@ badgePopup.onclick = (e) => {
 };
 
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 
 <script>
 
+emailjs.init("yGVzllcBp2uAdb4pI");
+
 const SERVICE_ID = "service_zjz7o0t";
 const TEMPLATE_ID = "template_e9fbdqa";
-const PUBLIC_KEY = "yGVzllcBp2uAdb4pI";
-(function() {
-   emailjs.init(PUBLIC_KEY);
-})();
 
 let verificationCode = null;
 
 document.getElementById("sendCodeBtn").onclick =
 async () => {
 
-    const email = document.getElementById("editEmail").value.trim();
+    const email = document.getElementById("profileEmail").textContent;
 
     if(!email){
 
@@ -716,25 +715,20 @@ async () => {
         100000 + Math.random() * 900000
     ).toString();
 
-    try {
-        const templateParams = {
-            email: email,
-           from_name: "HelloXerrorTM Support",
-            code: verificationCode,
-            reply_to: "helloxerrortm@gmail.com"
-                };
+    try{
 
-                const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
+        await emailjs.send(
+            SERVICE_ID,
+            TEMPLATE_ID,
+            {
+                to_email: email,
+                email: email,
+                code: verificationCode
 
-                if (response.status === 200) {
-                    sentCode = verificationCode;
-                    document.getElementById('display-email').innerText = email;
-                    showStep('step-verify');
-                    startTimer();
-                } else {
-                    throw new Error("Email service rejected the request.");
-                }
-            
+            }
+
+        );
+
         document
         .getElementById("verifySection")
         .classList.remove("hidden");
