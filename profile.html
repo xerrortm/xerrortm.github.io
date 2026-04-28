@@ -705,8 +705,7 @@ let verificationCode = null;
 document.getElementById("sendCodeBtn").onclick =
 async () => {
 
-    const email =
-    document.getElementById("editEmail").value.trim();
+    const email = localStorage.getItem('errorinc_user')
 
     if(!email){
 
