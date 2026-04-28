@@ -36,11 +36,14 @@
         placeholder="Password"
         class="w-full border rounded-xl p-3 outline-none">
 
-        <button id="signupBtn"
-        class="w-full bg-slate-900 text-white py-3 rounded-xl">
-            Create Account
+        <button id="signupBtn" class="w-full bg-slate-900 text-white py-3 rounded-xl flex items-center justify-center gap-3 transition disabled:opacity-70">
+            <span id="signupText">
+                Log In
+            </span>
+            <div id="signupLoader" class="hidden w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+
         </button>
-        <p onclick="location.href='login.html'"class="text-sm text-blue-500">Already have an account?</p>
+        <p onclick="location.href='login.html'"class="text-sm text-blue-500 hover:underline cursor-pointer">Already have an account?</p>
         <div id="msg" class="text-sm text-red-500"></div>
 
     </div>
@@ -89,14 +92,22 @@ btn.onclick = async () => {
 
     const msg =
     document.getElementById("msg");
+    
+    const signupLoader =
+    document.getElementById("signupLoader");
 
+    msg.innerText = "";
+    btn.disabled = true;
+    signupLoader.classList.remove("hidden");
     msg.innerText = "";
 
     if (!username || !email || !password) {
         msg.innerText = "Fill all fields";
+        btn.disabled = false;
+        signupLoader.classList.add("hidden");
         return;
     }
-
+    
     const snapshot =
     await get(ref(db, "err-user"));
 
@@ -107,12 +118,16 @@ btn.onclick = async () => {
         const user = users[uid];
 
         if (user.username === username) {
-            msg.innerText = "Username already exists";
+            msg.innerText = "Username already exists";\
+            btn.disabled = false;
+            signupLoader.classList.add("hidden");
             return;
         }
 
         if (user.email === email) {
             msg.innerText = "Email already exists";
+            btn.disabled = false;
+            signupLoader.classList.add("hidden");
             return;
         }
 
