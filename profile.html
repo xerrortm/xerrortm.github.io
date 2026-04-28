@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Profile | ERROR Inc.</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+
+body{
+    background:#f8fafc;
+}
+
+.shine{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+    pointer-events:none;
+}
+
+.shine::before{
+    content:"";
+    position:absolute;
+    top:-40%;
+    left:-120%;
+    width:60%;
+    height:200%;
+    background:linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,.9),
+        transparent
+    );
+    transform:rotate(25deg);
+}
+
+.shine.active::before{
+    animation:shineMove 1.2s ease;
+}
+
+@keyframes shineMove{
+
+    from{
+        left:-120%;
+    }
+
+    to{
+        left:160%;
+    }
+
+}
+
+</style>
+
+</head>
+
+<body class="text-slate-900">
+
+<!-- NAV -->
+
+<nav class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-slate-200 px-10 py-4 flex justify-between items-center">
+
+    <img
+    onclick="location.href='/'"
+    src="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/5c585ad8-9e96-472a-bc88-5d2ea8f05993/ERRORL1-removebg-preview.png"
+    class="h-14 cursor-pointer">
+
+    <div class="flex items-center gap-5 text-sm">
+
+        <a href="/projects"
+        class="text-slate-600 hover:text-black transition">
+            Projects
+        </a>
+
+        <a href="/community"
+        class="text-slate-600 hover:text-black transition">
+            Community
+        </a>
+
+        <button id="logoutBtn"
+        class="px-5 py-2 rounded-xl bg-red-500 text-white hover:bg-red-600 transition">
+            Log Out
+        </button>
+
+    </div>
+
+</nav>
+
+<!-- PROFILE -->
+
+<section class="max-w-6xl mx-auto px-6 py-14">
+
+    <div class="bg-white border border-slate-200 rounded-[2rem] p-10 shadow-sm">
+
+        <div class="flex flex-col lg:flex-row gap-10 justify-between">
+
+            <div class="flex gap-6">
+
+                <div id="profileAvatar"
+                class="w-32 h-32 rounded-[2rem] bg-gradient-to-br from-indigo-500 to-indigo-700 text-white flex items-center justify-center text-5xl font-black shadow-lg">
+                    U
+                </div>
+
+                <div>
+
+                    <div class="flex items-center gap-3">
+
+                        <h1 id="profileName"
+                        class="text-5xl font-black">
+                            username
+                        </h1>
+
+                        <button id="editBtn"
+                        class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 transition text-sm font-semibold">
+
+                            Edit Profile
+
+                        </button>
+
+                    </div>
+
+                    <p class="text-slate-500 mt-4 text-lg">
+                        ERROR Inc. Community Member
+                    </p>
+
+                    <div class="mt-6 flex flex-wrap gap-3">
+
+                        <div class="px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 text-sm font-semibold">
+                            🚀 Developer
+                        </div>
+
+                        <div class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold">
+                            ⚡ Builder
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="grid gap-4 w-full lg:w-[320px]">
+
+                <div class="bg-slate-50 border border-slate-200 rounded-3xl p-6">
+
+                    <div class="text-sm text-slate-400">
+                        Email Address
+                    </div>
+
+                    <div id="profileEmail"
+                    class="font-bold text-lg mt-2 break-all">
+                        loading...
+                    </div>
+
+                </div>
+
+                <div class="bg-slate-50 border border-slate-200 rounded-3xl p-6">
+
+                    <div class="text-sm text-slate-400">
+                        Badges Earned
+                    </div>
+
+                    <div id="badgeCount"
+                    class="text-4xl font-black mt-2">
+                        0
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- BADGES -->
+
+<section class="max-w-6xl mx-auto px-6 pb-20">
+
+    <div class="bg-white border border-slate-200 rounded-[2rem] p-8">
+
+        <div class="flex items-center justify-between">
+
+            <h2 class="text-3xl font-black">
+                Badges
+            </h2>
+
+            <div class="text-sm text-slate-400">
+                collected achievements
+            </div>
+
+        </div>
+
+        <div id="badgesContainer"
+        class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-8">
+        </div>
+
+    </div>
+
+</section>
+
+<!-- EDIT PROFILE POPUP -->
+
+<div id="editPopup"
+class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+
+    <div class="bg-white rounded-[2rem] w-full max-w-md p-8 relative">
+
+        <button id="closeEdit"
+        class="absolute top-5 right-5 text-slate-400 hover:text-black">
+            ✕
+        </button>
+
+        <h2 class="text-3xl font-black">
+            Edit Profile
+        </h2>
+
+        <div class="mt-8 space-y-5">
+
+            <div>
+
+                <label class="text-sm text-slate-500">
+                    Username
+                </label>
+
+                <input
+                id="editUsername"
+                type="text"
+                class="w-full mt-2 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-indigo-500">
+
+            </div>
+
+            <div>
+
+                <label class="text-sm text-slate-500">
+                    Email
+                </label>
+
+                <input
+                id="editEmail"
+                type="email"
+                class="w-full mt-2 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-indigo-500">
+
+            </div>
+
+            <button id="saveProfileBtn"
+            class="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition">
+
+                Save Changes
+
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+<!-- BADGE POPUP -->
+
+<div id="badgePopup"
+class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
+
+    <div class="relative bg-white rounded-[2rem] p-8 max-w-sm w-full overflow-hidden">
+
+        <button id="closeBadgePopup"
+        class="absolute top-4 right-4 text-slate-400 hover:text-black">
+            ✕
+        </button>
+
+        <div class="flex flex-col items-center relative z-10">
+
+            <img id="badgePopupImage"
+            src=""
+            class="w-40 h-40 object-contain">
+
+            <div id="badgeShine"
+            class="shine"></div>
+
+            <h2 id="badgePopupName"
+            class="text-3xl font-black mt-6">
+                Badge
+            </h2>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    get,
+    update
+}
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
+
+    authDomain: "error-inc.firebaseapp.com",
+
+    databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
+
+    projectId: "error-inc",
+
+    storageBucket: "error-inc.firebasestorage.app",
+
+    messagingSenderId: "876188868410",
+
+    appId: "1:876188868410:web:ca7de451707bd9975c7a03"
+
+};
+
+const app =
+initializeApp(firebaseConfig);
+
+const db =
+getDatabase(app);
+
+const currentUser =
+localStorage.getItem("errorinc_user");
+
+if(!currentUser){
+
+    location.href = "/login";
+
+}
+
+const profileName =
+document.getElementById("profileName");
+
+const profileAvatar =
+document.getElementById("profileAvatar");
+
+const profileEmail =
+document.getElementById("profileEmail");
+
+const badgesContainer =
+document.getElementById("badgesContainer");
+
+const badgeCount =
+document.getElementById("badgeCount");
+
+profileName.innerText =
+currentUser;
+
+profileAvatar.innerText =
+currentUser.charAt(0).toUpperCase();
+
+const snapshot =
+await get(ref(db, "err-user/" + currentUser));
+
+if(snapshot.exists()){
+
+    const data =
+    snapshot.val();
+
+    profileEmail.innerText =
+    data.email || "No email found";
+
+    document.getElementById("editUsername").value =
+    currentUser;
+
+    document.getElementById("editEmail").value =
+    data.email || "";
+
+    const badges =
+    data.badges || {};
+
+    const badgeValues =
+    Object.values(badges);
+
+    badgeCount.innerText =
+    badgeValues.length;
+
+    if(badgeValues.length === 0){
+
+        badgesContainer.innerHTML = `
+
+        <div class="col-span-full text-center py-10 text-slate-400">
+
+            No badges earned yet.
+
+        </div>
+
+        `;
+
+    }
+
+    badgeValues.forEach(badge => {
+
+        badgesContainer.innerHTML += `
+
+        <div
+        onclick="openBadge('${badge.name}', '${badge.image}')"
+        class="cursor-pointer bg-slate-50 border border-slate-200 rounded-3xl p-5 hover:shadow-lg transition">
+
+            <img
+            src="${badge.image}"
+            class="w-24 h-24 object-contain mx-auto">
+
+            <div class="mt-4 text-center font-bold">
+                ${badge.name}
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+document.getElementById("saveProfileBtn").onclick =
+async () => {
+
+    const newUsername =
+    document.getElementById("editUsername").value.trim();
+
+    const newEmail =
+    document.getElementById("editEmail").value.trim();
+
+    if(!newUsername || !newEmail){
+
+        alert("Fill in all fields.");
+
+        return;
+
+    }
+
+    await update(
+        ref(db, "err-user/" + currentUser),
+        {
+            email:newEmail,
+            username:newUsername
+        }
+    );
+
+    profileName.innerText =
+    newUsername;
+
+    profileEmail.innerText =
+    newEmail;
+
+    profileAvatar.innerText =
+    newUsername.charAt(0).toUpperCase();
+
+    localStorage.setItem(
+        "errorinc_user",
+        newUsername
+    );
+
+    alert("Profile updated.");
+
+    location.reload();
+
+};
+
+</script>
+
+<script>
+
+const logoutBtn =
+document.getElementById("logoutBtn");
+
+logoutBtn.onclick = () => {
+
+    localStorage.removeItem("errorinc_user");
+
+    location.href = "/";
+
+};
+
+const editPopup =
+document.getElementById("editPopup");
+
+document.getElementById("editBtn").onclick = () => {
+
+    editPopup.classList.remove("hidden");
+
+};
+
+document.getElementById("closeEdit").onclick = () => {
+
+    editPopup.classList.add("hidden");
+
+};
+
+editPopup.onclick = (e) => {
+
+    if(e.target === editPopup){
+
+        editPopup.classList.add("hidden");
+
+    }
+
+};
+
+const badgePopup =
+document.getElementById("badgePopup");
+
+const badgePopupImage =
+document.getElementById("badgePopupImage");
+
+const badgePopupName =
+document.getElementById("badgePopupName");
+
+window.openBadge = function(name, image){
+
+    badgePopupImage.src =
+    image;
+
+    badgePopupName.innerText =
+    name;
+
+    badgePopup.classList.remove("hidden");
+
+    const shine =
+    document.getElementById("badgeShine");
+
+    shine.classList.remove("active");
+
+    void shine.offsetWidth;
+
+    shine.classList.add("active");
+
+};
+
+document.getElementById("closeBadgePopup").onclick = () => {
+
+    badgePopup.classList.add("hidden");
+
+};
+
+badgePopup.onclick = (e) => {
+
+    if(e.target === badgePopup){
+
+        badgePopup.classList.add("hidden");
+
+    }
+
+};
+
+</script>
+
+</body>
+</html>
