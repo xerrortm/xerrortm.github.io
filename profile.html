@@ -428,24 +428,13 @@ document.getElementById("badgeCount");
 
 profileName.innerText =
 currentUser;
-    
-if (data.photoURL) {
-    profileAvatar.innerHTML = `
-        <img src="${data.photoURL}"
-        class="w-32 h-32 object-cover rounded-[2rem]">
-    `;
-} else {
-    profileAvatar.innerText =
-    currentUser.charAt(0).toUpperCase();
-}
 
 const snapshot =
 await get(ref(db, "err-user/" + currentUser));
 
 if(snapshot.exists()){
 
-    const data =
-    snapshot.val();
+    const data = snapshot.val();
 
     profileEmail.innerText =
     data.email || "No email found";
@@ -456,6 +445,15 @@ if(snapshot.exists()){
     document.getElementById("editEmail").value =
     data.email || "";
 
+    if (data.photoURL) {
+        profileAvatar.innerHTML = `
+            <img src="${data.photoURL}"
+            class="w-32 h-32 object-cover rounded-[2rem]">
+        `;
+    } else {
+        profileAvatar.innerText =
+        currentUser.charAt(0).toUpperCase();
+    }
     const badges =
     data.badges || {};
 
