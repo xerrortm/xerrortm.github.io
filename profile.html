@@ -221,7 +221,13 @@ class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center 
         </h2>
 
         <div class="mt-8 space-y-5">
+            <div>
+                <label class="text-sm text-slate-500">
+                    Profile Picture
+                </label>
 
+                <input id="pfpInput" type="file" accept="image/*" class="w-full mt-2 border border-slate-200 rounded-2xl px-5 py-3"/>
+            </div>
             <div>
 
                 <label class="text-sm text-slate-500">
@@ -365,6 +371,12 @@ import {
     remove
 }
 from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+import {
+    getStorage,
+    ref as sRef,
+    uploadBytes,
+    getDownloadURL
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-storage.js";
 
 const firebaseConfig = {
 
@@ -389,7 +401,7 @@ initializeApp(firebaseConfig);
 
 const db =
 getDatabase(app);
-
+const storage = getStorage(app);
 const currentUser =
 localStorage.getItem("errorinc_user");
 
@@ -416,9 +428,16 @@ document.getElementById("badgeCount");
 
 profileName.innerText =
 currentUser;
-
-profileAvatar.innerText =
-currentUser.charAt(0).toUpperCase();
+    
+if (data.photoURL) {
+    profileAvatar.innerHTML = `
+        <img src="${data.photoURL}"
+        class="w-32 h-32 object-cover rounded-[2rem]">
+    `;
+} else {
+    profileAvatar.innerText =
+    currentUser.charAt(0).toUpperCase();
+}
 
 const snapshot =
 await get(ref(db, "err-user/" + currentUser));
@@ -484,8 +503,7 @@ if(snapshot.exists()){
 
 }
 
-document.getElementById("saveProfileBtn").onclick =
-async () => {
+document.getElementById("saveProfileBtn").onclick = async () => {
 
     const newUsername =
     document.getElementById("editUsername").value.trim();
@@ -493,108 +511,114 @@ async () => {
     const newEmail =
     document.getElementById("editEmail").value.trim();
 
-    if(!newUsername || !newEmail){
+    const file =
+    document.getElementById("pfpInput").files[0];
 
+    if (!newUsername || !newEmail) {
         alert("Fill in all fields.");
         return;
-
     }
 
-    const allUsers =
-    await get(ref(db, "err-user"));
+    let photoURL = null;
 
-    let usernameTaken = false;
-    let emailTaken = false;
+    try {
 
-    if(allUsers.exists()){
+        if (file) {
 
-        allUsers.forEach(child => {
+            const storageRef =
+            sRef(storage, "pfp/" + newUsername);
 
-            const key =
-            child.key;
+            await uploadBytes(storageRef, file);
 
-            const value =
-            child.val();
+            photoURL =
+            await getDownloadURL(storageRef);
+        }
 
-            if(
-                key.toLowerCase() === newUsername.toLowerCase()
-                &&
-                key !== currentUser
-            ){
+        const allUsers =
+        await get(ref(db, "err-user"));
 
-                usernameTaken = true;
+        let usernameTaken = false;
+        let emailTaken = false;
 
-            }
+        if (allUsers.exists()) {
 
-            if(
-                value.email &&
-                value.email.toLowerCase() === newEmail.toLowerCase()
-                &&
-                key !== currentUser
-            ){
+            allUsers.forEach(child => {
 
-                emailTaken = true;
+                const key = child.key;
+                const value = child.val();
 
-            }
+                if (
+                    key.toLowerCase() === newUsername.toLowerCase() &&
+                    key !== currentUser
+                ) {
+                    usernameTaken = true;
+                }
 
-        });
+                if (
+                    value.email &&
+                    value.email.toLowerCase() === newEmail.toLowerCase() &&
+                    key !== currentUser
+                ) {
+                    emailTaken = true;
+                }
 
-    }
+            });
 
-    if(usernameTaken){
+        }
 
-        alert("Username already exists.");
-        return;
+        if (usernameTaken) {
+            alert("Username already exists.");
+            return;
+        }
 
-    }
+        if (emailTaken) {
+            alert("Email already exists.");
+            return;
+        }
 
-    if(emailTaken){
+        const currentData =
+        snapshot.val();
 
-        alert("Email already exists.");
-        return;
+        const updatedData = {
+            ...currentData,
+            username: newUsername,
+            email: newEmail,
+            photoURL: photoURL || currentData.photoURL || null
+        };
 
-    }
+        if (newUsername !== currentUser) {
 
-    const currentData =
-    snapshot.val();
+            await set(
+                ref(db, "err-user/" + newUsername),
+                updatedData
+            );
 
-    const updatedData = {
+            await remove(
+                ref(db, "err-user/" + currentUser)
+            );
 
-        ...currentData,
+        } else {
 
-        username:newUsername,
-        email:newEmail
+            await update(
+                ref(db, "err-user/" + currentUser),
+                updatedData
+            );
 
-    };
+        }
 
-    if(newUsername !== currentUser){
-
-        await set(
-            ref(db, "err-user/" + newUsername),
-            updatedData
+        localStorage.setItem(
+            "errorinc_user",
+            newUsername
         );
 
-        await remove(
-            ref(db, "err-user/" + currentUser)
-        );
+        alert("Profile updated successfully");
 
-    }else{
+        location.reload();
 
-        await update(
-            ref(db, "err-user/" + currentUser),
-            updatedData
-        );
-
+    } catch (err) {
+        console.error(err);
+        alert("Error uploading profile picture.");
     }
-
-    localStorage.setItem(
-        "errorinc_user",
-        newUsername
-    );
-
-    alert("Profile updated successfully.");
-
-    location.reload();
 
 };
 const logoutBtn =
