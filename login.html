@@ -105,13 +105,7 @@ async () => {
             loginLoader.classList.add("hidden");
 
             return;
-        } else {
-            msg.innerText = "Something went wrong";
-            loginBtn.disabled = false;
-            loginLoader.classList.add("hidden");
-
-            return;
-        }
+        } 
 
         localStorage.setItem(
             "errorinc_user",
@@ -119,6 +113,12 @@ async () => {
         );
         window.location.href = "index.html";
 
+    } catch(e) {
+        msg.innerText = "Something went wrong";
+        loginBtn.disabled = false;
+        loginLoader.classList.add("hidden");
+
+        return;
     } finally {
         console.log("Login successful");
     }
