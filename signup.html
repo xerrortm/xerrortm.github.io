@@ -118,7 +118,7 @@ btn.onclick = async () => {
         const user = users[uid];
 
         if (user.username === username) {
-            msg.innerText = "Username already exists";\
+            msg.innerText = "Username already exists";
             btn.disabled = false;
             signupLoader.classList.add("hidden");
             return;
