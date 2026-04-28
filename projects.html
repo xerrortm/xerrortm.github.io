@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Projects | ERROR Inc.</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+<style>
+
+body{
+    background:
+    radial-gradient(circle at top left, rgba(99,102,241,.15), transparent 25%),
+    radial-gradient(circle at bottom right, rgba(16,185,129,.12), transparent 25%),
+    #f8fafc;
+}
+
+.project-card{
+    transition:.25s;
+}
+
+.project-card:hover{
+    transform:translateY(-6px);
+}
+
+.glow{
+    box-shadow:0 20px 60px rgba(99,102,241,.15);
+}
+
+</style>
+
+</head>
+
+<body class="text-slate-900">
+
+<!-- NAV -->
+
+<nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200 px-10 py-4 flex justify-between items-center">
+
+    <div class="flex items-center gap-4">
+
+        <img
+        onclick="location.href='index.html'"
+        src="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/5c585ad8-9e96-472a-bc88-5d2ea8f05993/ERRORL1-removebg-preview.png"
+        class="h-16 cursor-pointer">
+        <div>
+            <div class="text-2xl">
+                Projects
+            </div>
+            <div class="text-sm text-slate-500">
+                active systems + experiments
+            </div>
+        </div>
+    </div>
+
+    <div class="flex items-center gap-5">
+
+        <a href="index.html"
+        class="text-slate-600 hover:text-indigo-600 transition">
+            Home
+        </a>
+
+        <a href="community.html"
+        class="text-slate-600 hover:text-indigo-600 transition">
+            Community
+        </a>
+
+        <button id="userBtn"
+        class="w-11 h-11 rounded-full bg-indigo-100 hover:bg-indigo-200 transition flex items-center justify-center font-bold text-indigo-700">
+            <i class="fa-regular fa-user"></i>
+        </button>
+
+    </div>
+
+</nav>
+
+<!-- HERO -->
+
+<section class="py-20 px-6">
+
+    <div class="max-w-6xl mx-auto">
+
+        <div class="bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-[3rem] p-12 text-white relative overflow-hidden glow">
+
+            <div class="absolute -right-24 -top-24 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+
+            <div class="relative z-10">
+
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur">
+
+                    <div class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+
+                    <span class="text-sm font-bold">
+                        LIVE DEVELOPMENT
+                    </span>
+
+                </div>
+
+                <h1 class="text-6xl font-black mt-8 leading-tight max-w-3xl">
+                    Building evolving tools, games & systems.
+                </h1>
+
+                <p class="mt-6 text-indigo-100 text-lg max-w-2xl">
+                    Every project inside ERROR Inc. is actively evolving with new features, redesigns, experiments, and community feedback.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<!-- PROJECTS -->
+
+<section class="pb-24 px-6">
+
+    <div class="max-w-7xl mx-auto">
+
+        <div class="grid lg:grid-cols-2 gap-8">
+
+            <!-- PROJECT -->
+
+            <div class="project-card bg-white rounded-[2rem] p-8 border border-slate-200 shadow-xl">
+
+                <div class="flex justify-between items-start">
+
+                    <div>
+
+                        <div class="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-600 text-xs font-bold">
+                            PUBLIC
+                        </div>
+
+                        <h2 class="text-4xl font-black mt-5">
+                            GoggleTools
+                        </h2>
+
+                    </div>
+
+                    <div class="text-green-500 font-bold">
+                        ● LIVE
+                    </div>
+
+                </div>
+
+                <p class="mt-5 text-slate-600 leading-relaxed">
+                    A growing utility platform with export systems, generators, tools, authentication systems, and experimental interfaces.
+                </p>
+
+                <div class="mt-8 grid grid-cols-3 gap-4">
+
+                    <div class="bg-slate-50 rounded-2xl p-4">
+
+                        <div class="text-3xl font-black text-indigo-600">
+                            5
+                        </div>
+
+                        <div class="text-sm text-slate-500 mt-1">
+                            Updates
+                        </div>
+
+                    </div>
+
+                    <div class="bg-slate-50 rounded-2xl p-4">
+
+                        <div class="text-3xl font-black text-indigo-600">
+                            12+
+                        </div>
+
+                        <div class="text-sm text-slate-500 mt-1">
+                            Tools
+                        </div>
+
+                    </div>
+
+                    <div class="bg-slate-50 rounded-2xl p-4">
+
+                        <div class="text-3xl font-black text-green-600">
+                            LIVE
+                        </div>
+
+                        <div class="text-sm text-slate-500 mt-1">
+                            Status
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="mt-8">
+
+                    <h3 class="font-bold text-lg">
+                        Features
+                    </h3>
+
+                    <div class="mt-4 flex flex-wrap gap-3">
+
+                        <span class="px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-sm">
+                            Export Systems
+                        </span>
+
+                        <span class="px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-sm">
+                            Login System
+                        </span>
+
+                        <span class="px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-sm">
+                            AI Utilities
+                        </span>
+
+                        <span class="px-4 py-2 rounded-full bg-indigo-100 text-indigo-700 text-sm">
+                            UI Experiments
+                        </span>
+
+                    </div>
+
+                </div>
+
+                <button
+                onclick="location.href='/mla'"
+                class="mt-8 w-full py-4 rounded-2xl bg-blue-600 hover:bg-blue-500 transition text-white font-bold">
+                    Open Project
+                </button>
+
+            </div>
+
+            <!-- PROJECT -->
+
+            <div class="project-card bg-white rounded-[2rem] p-8 border border-slate-200 shadow-xl">
+
+                <div class="flex justify-between items-start">
+
+                    <div>
+
+                        <div class="inline-block px-3 py-1 rounded-full bg-yellow-100 text-yellow-700 text-xs font-bold">
+                            BETA
+                        </div>
+
+                        <h2 class="text-4xl font-black mt-5">
+                            Happy Notifications
+                        </h2>
+
+                    </div>
+
+                    <div class="text-yellow-500 font-bold">
+                        ● TESTING
+                    </div>
+
+                </div>
+
+                <p class="mt-5 text-slate-600 leading-relaxed">
+                    Experimental notification platform focused on emotional interactions, UI alerts, and live browser notifications.
+                </p>
+
+                <div class="mt-8 space-y-4">
+
+                    <div class="bg-slate-50 rounded-2xl p-5">
+
+                        <div class="font-bold">
+                            Current Development
+                        </div>
+
+                        <p class="text-slate-500 mt-2">
+                            background notification delivery + popup animation engine
+                        </p>
+
+                    </div>
+
+                    <div class="bg-slate-50 rounded-2xl p-5">
+
+                        <div class="font-bold">
+                            Planned Features
+                        </div>
+
+                        <p class="text-slate-500 mt-2">
+                            reactions, sound effects, live syncing
+                        </p>
+
+                    </div>
+
+                </div>
+              
+                <button
+                onclick="location.href='happy'"
+                class="mt-8 w-full py-4 rounded-2xl bg-yellow-600 hover:bg-yellow-500 transition text-white font-bold">
+                    Open Project
+                </button>
+
+            </div>
+
+            <!-- PROJECT -->
+
+            <div class="project-card bg-white rounded-[2rem] p-8 border border-slate-200 shadow-xl">
+
+                <div class="flex justify-between items-start">
+
+                    <div>
+
+                        <div class="inline-block px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold">
+                            IN DEV
+                        </div>
+
+                        <h2 class="text-4xl font-black mt-5">
+                            2D Obby Builder
+                        </h2>
+
+                    </div>
+
+                    <div class="text-blue-500 font-bold">
+                        ● BUILDING
+                    </div>
+
+                </div>
+
+                <p class="mt-5 text-slate-600 leading-relaxed">
+                    A physics-based builder game allowing players to create obstacle courses with custom mechanics and dynamic gameplay.
+                </p>
+
+                <div class="mt-8 grid grid-cols-2 gap-4">
+
+                    <div class="bg-slate-50 rounded-2xl p-5">
+
+                        <div class="font-bold">
+                            Engine
+                        </div>
+
+                        <p class="text-slate-500 mt-2">
+                            custom physics system
+                        </p>
+
+                    </div>
+
+                    <div class="bg-slate-50 rounded-2xl p-5">
+
+                        <div class="font-bold">
+                            Progress
+                        </div>
+
+                        <p class="text-slate-500 mt-2">
+                            terrain + collision systems
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- PROJECT -->
+
+            <div class="project-card bg-white rounded-[2rem] p-8 border border-slate-200 shadow-xl">
+
+                <div class="flex justify-between items-start">
+
+                    <div>
+
+                        <div class="inline-block px-3 py-1 rounded-full bg-emerald-100 text-emerald-700 text-xs font-bold">
+                            LIVE
+                        </div>
+
+                        <h2 class="text-4xl font-black mt-5">
+                            Community Hub
+                        </h2>
+
+                    </div>
+
+                    <div class="text-emerald-500 font-bold">
+                        ● ACTIVE
+                    </div>
+
+                </div>
+
+                <p class="mt-5 text-slate-600 leading-relaxed">
+                    Real-time community platform with global chat, announcements, profile systems, and badge rewards.
+                </p>
+
+                <div class="mt-8 flex flex-wrap gap-3">
+
+                    <span class="px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 text-sm">
+                        Firebase Chat
+                    </span>
+
+                    <span class="px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 text-sm">
+                        Live Sync
+                    </span>
+
+                    <span class="px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 text-sm">
+                        Badge System
+                    </span>
+
+                    <span class="px-4 py-2 rounded-full bg-emerald-100 text-emerald-700 text-sm">
+                        Auto Cleanup
+                    </span>
+
+                </div>
+
+                <button
+                onclick="location.href='community.html'"
+                class="mt-8 w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 transition text-white font-bold">
+                    Open Community
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+<footer class="py-10 text-center text-slate-500 border-t border-slate-200 bg-white">
+
+    © 2026 ERROR Inc.
+
+</footer>
+
+<script>
+
+const userBtn =
+document.getElementById("userBtn");
+
+const currentUser =
+localStorage.getItem("errorinc_user");
+
+if(currentUser){
+
+    userBtn.innerHTML =
+    currentUser.charAt(0).toUpperCase();
+
+}
+
+</script>
+
+</body>
+</html>
