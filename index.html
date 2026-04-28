@@ -52,6 +52,9 @@
     </div>
     <div class="flex items-center gap-6">
         <div class="flex gap-6 text-sm text-slate-600">
+            <a href="/projects" class="hover:text-slate-900">Projects</a>
+        </div>
+        <div class="flex gap-6 text-sm text-slate-600">
             <a href="/community" class="hover:text-slate-900">Community</a>
         </div>
         <button id="userBtn" class="w-11 h-11 rounded-full bg-slate-100 hover:bg-slate-200 transition flex items-center justify-center text-slate-700">
@@ -124,7 +127,7 @@
 
         <h2 class="text-2xl font-bold mb-8">Active Projects</h2>
         
-        <button onclick="location.href='projects.html'" class="mt-8 px-7 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:scale-105 transition">
+        <button onclick="location.href='/projects'" class="mt-8 px-7 py-3 bg-blue-600 text-white rounded-xl font-semibold hover:scale-105 transition">
             View More
         </button>
 
@@ -225,11 +228,11 @@ class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center 
             Join the ERROR Inc. community.
         </p>
         <div class="mt-8 space-y-3">
-            <a href="signup.html"
+            <a href="/signup"
             class="block w-full text-center bg-slate-900 text-white py-3 rounded-xl hover:bg-slate-800 transition">
                 Create Account
             </a>
-            <a href="login.html"
+            <a href="/logi"
             class="block w-full text-center border border-slate-300 py-3 rounded-xl hover:bg-slate-100 transition">
                 Log In
             </a>
@@ -442,7 +445,7 @@ document.querySelectorAll("button").forEach(btn => {
                 authPopup.classList.remove("hidden");
 
             } else {
-                window.location.href = "community.html"
+                window.location.href = "/community"
 
             }
 
