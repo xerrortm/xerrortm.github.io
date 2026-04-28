@@ -250,6 +250,66 @@ class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center 
                 class="w-full mt-2 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-indigo-500">
 
             </div>
+            <!-- ADD THIS INSIDE THE EDIT PROFILE POPUP -->
+<!-- place this UNDER the email input -->
+
+<div>
+
+    <label class="text-sm text-slate-500">
+        Change Password
+    </label>
+
+    <div class="flex gap-3 mt-2">
+
+        <button id="sendCodeBtn"
+        class="flex-1 py-3 rounded-2xl bg-slate-900 text-white font-semibold hover:bg-black transition">
+
+            Send Verification Code
+
+        </button>
+
+    </div>
+
+</div>
+
+<div id="verifySection" class="hidden space-y-4">
+
+    <div>
+
+        <label class="text-sm text-slate-500">
+            Verification Code
+        </label>
+
+        <input
+        id="verifyCodeInput"
+        type="text"
+        placeholder="Enter code"
+        class="w-full mt-2 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-indigo-500">
+
+    </div>
+
+    <div>
+
+        <label class="text-sm text-slate-500">
+            New Password
+        </label>
+
+        <input
+        id="newPasswordInput"
+        type="password"
+        placeholder="New password"
+        class="w-full mt-2 border border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-indigo-500">
+
+    </div>
+
+    <button id="changePasswordBtn"
+    class="w-full py-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition">
+
+        Change Password
+
+    </button>
+
+</div>
 
             <button id="saveProfileBtn"
             class="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition">
@@ -305,7 +365,9 @@ import {
     getDatabase,
     ref,
     get,
-    update
+    update,
+    set,
+    remove
 }
 from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 
@@ -409,7 +471,7 @@ if(snapshot.exists()){
 
         <div
         onclick="openBadge('${badge.name}', '${badge.image}')"
-        class="cursor-pointer bg-slate-50 border border-slate-200 rounded-3xl p-5 hover:shadow-lg transition">
+        class="cursor-pointer bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-lg transition">
 
             <img
             src="${badge.image}"
@@ -439,39 +501,107 @@ async () => {
     if(!newUsername || !newEmail){
 
         alert("Fill in all fields.");
-
         return;
 
     }
 
-    await update(
-        ref(db, "err-user/" + currentUser),
-        {
-            email:newEmail,
-            username:newUsername
-        }
-    );
+    const allUsers =
+    await get(ref(db, "err-user"));
 
-    profileName.innerText =
-    newUsername;
+    let usernameTaken = false;
+    let emailTaken = false;
 
-    profileEmail.innerText =
-    newEmail;
+    if(allUsers.exists()){
 
-    profileAvatar.innerText =
-    newUsername.charAt(0).toUpperCase();
+        allUsers.forEach(child => {
+
+            const key =
+            child.key;
+
+            const value =
+            child.val();
+
+            if(
+                key.toLowerCase() === newUsername.toLowerCase()
+                &&
+                key !== currentUser
+            ){
+
+                usernameTaken = true;
+
+            }
+
+            if(
+                value.email &&
+                value.email.toLowerCase() === newEmail.toLowerCase()
+                &&
+                key !== currentUser
+            ){
+
+                emailTaken = true;
+
+            }
+
+        });
+
+    }
+
+    if(usernameTaken){
+
+        alert("Username already exists.");
+        return;
+
+    }
+
+    if(emailTaken){
+
+        alert("Email already exists.");
+        return;
+
+    }
+
+    const currentData =
+    snapshot.val();
+
+    const updatedData = {
+
+        ...currentData,
+
+        username:newUsername,
+        email:newEmail
+
+    };
+
+    if(newUsername !== currentUser){
+
+        await set(
+            ref(db, "err-user/" + newUsername),
+            updatedData
+        );
+
+        await remove(
+            ref(db, "err-user/" + currentUser)
+        );
+
+    }else{
+
+        await update(
+            ref(db, "err-user/" + currentUser),
+            updatedData
+        );
+
+    }
 
     localStorage.setItem(
         "errorinc_user",
         newUsername
     );
 
-    alert("Profile updated.");
+    alert("Profile updated successfully.");
 
     location.reload();
 
 };
-
 </script>
 
 <script>
@@ -559,6 +689,104 @@ badgePopup.onclick = (e) => {
 };
 
 </script>
+<!-- ADD THIS ENTIRE SCRIPT BELOW YOUR CURRENT <script> -->
 
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+
+<script>
+
+emailjs.init("yGVzllcBp2uAdb4pI");
+
+const SERVICE_ID = "service_zjz7o0t";
+const TEMPLATE_ID = "template_e9fbdqa";
+
+let verificationCode = null;
+
+document.getElementById("sendCodeBtn").onclick =
+async () => {
+
+    const email =
+    document.getElementById("editEmail").value.trim();
+
+    if(!email){
+
+        alert("Enter an email first.");
+        return;
+
+    }
+
+    verificationCode =
+    Math.floor(
+        100000 + Math.random() * 900000
+    ).toString();
+
+    try{
+
+        await emailjs.send(
+            SERVICE_ID,
+            TEMPLATE_ID,
+            {
+
+                to_email: email,
+                code: verificationCode
+
+            }
+
+        );
+
+        document
+        .getElementById("verifySection")
+        .classList.remove("hidden");
+
+        alert("Verification code sent.");
+
+    }catch(err){
+
+        console.error(err);
+
+        alert("Failed to send email.");
+
+    }
+
+};
+
+document.getElementById("changePasswordBtn").onclick =
+async () => {
+
+    const enteredCode =
+    document.getElementById("verifyCodeInput").value.trim();
+
+    const newPassword =
+    document.getElementById("newPasswordInput").value.trim();
+
+    if(enteredCode !== verificationCode){
+
+        alert("Invalid verification code.");
+        return;
+
+    }
+
+    if(newPassword.length < 6){
+
+        alert("Password must be at least 6 characters.");
+        return;
+
+    }
+
+    await update(
+        ref(db, "err-user/" + currentUser),
+        {
+            password:newPassword
+        }
+    );
+
+    alert("Password changed successfully.");
+
+    document.getElementById("verifySection")
+    .classList.add("hidden");
+
+};
+
+</script>
 </body>
 </html>
