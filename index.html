@@ -381,49 +381,5 @@ document.querySelectorAll("button").forEach(btn => {
 
 });
 </script>
-<script>
-const badgePopup =
-document.getElementById("badgePopup");
-
-const badgePopupImage =
-document.getElementById("badgePopupImage");
-
-const badgePopupName =
-document.getElementById("badgePopupName");
-
-function openBadge(name, image) {
-
-    badgePopupImage.src = image;
-    badgePopupName.innerText = name;
-
-    badgePopup.classList.remove("hidden");
-
-    const shine =
-    document.getElementById("badgeShine");
-
-    shine.classList.remove("active");
-
-    void shine.offsetWidth;
-
-    shine.classList.add("active");
-
-}
-
-document.getElementById("closeBadgePopup").onclick = () => {
-
-    badgePopup.classList.add("hidden");
-
-};
-
-badgePopup.onclick = (e) => {
-
-    if (e.target === badgePopup) {
-
-        badgePopup.classList.add("hidden");
-
-    }
-
-};
-</script>
 </body>
 </html>
