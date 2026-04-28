@@ -745,8 +745,7 @@ async () => {
 
 };
 
-document.getElementById("changePasswordBtn").onclick =
-async () => {
+document.getElementById("changePasswordBtn").onclick = async () => {
 
     const enteredCode =
     document.getElementById("verifyCodeInput").value.trim();
@@ -754,31 +753,56 @@ async () => {
     const newPassword =
     document.getElementById("newPasswordInput").value.trim();
 
-    if(enteredCode !== verificationCode){
+    if (!verificationCode) {
+        alert("Please request a verification code first.");
+        return;
+    }
 
+    if (!enteredCode) {
+        alert("Enter verification code.");
+        return;
+    }
+
+    if (enteredCode !== verificationCode) {
         alert("Invalid verification code.");
         return;
-
     }
 
-    if(newPassword.length < 6){
-
+    if (newPassword.length < 6) {
         alert("Password must be at least 6 characters.");
         return;
-
     }
 
-    await update(
-        ref(db, "err-user/" + currentUser),
-        {
-            password:newPassword
+    try {
+
+        const userRef = ref(db, "err-user/" + currentUser);
+        const snap = await get(userRef);
+
+        if (!snap.exists()) {
+            alert("User not found in database.");
+            return;
         }
-    );
 
-    alert("Password changed successfully.");
+        await update(userRef, {
+            password: newPassword
+        });
 
-    document.getElementById("verifySection")
-    .classList.add("hidden");
+        alert("Password updated successfully 🔐");
+
+        document.getElementById("verifySection").classList.add("hidden");
+
+        // reset
+        verificationCode = null;
+
+        document.getElementById("verifyCodeInput").value = "";
+        document.getElementById("newPasswordInput").value = "";
+
+    } catch (err) {
+
+        console.error(err);
+        alert("Something went wrong updating password.");
+
+    }
 
 };
 
