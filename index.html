@@ -7,40 +7,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 <link rel="icon" type="image/x-icon" href="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/f5f75464-f289-404e-a14d-68b4c3465c10/favicon.ico?format=100w">
 <title>ERROR Inc.</title>
-<style>
-.shine {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-}
-.shine::before {
-    content: "";
-    position: absolute;
-    top: -40%;
-    left: -120%;
-    width: 60%;
-    height: 200%;
-    background: linear-gradient(
-        120deg,
-        transparent,
-        rgba(255,255,255,0.9),
-        transparent
-    );
-    transform: rotate(25deg);
-}
-.shine.active::before {
-    animation: shineMove 1.2s ease;
-}
-@keyframes shineMove {
-    from {
-        left: -120%;
-    }
-    to {
-        left: 160%;
-    }
-}
-</style>
 </head>
 
 <body class="bg-slate-50 text-slate-900">
