@@ -31,12 +31,13 @@
         placeholder="Password"
         class="w-full border rounded-xl p-3 outline-none">
 
-        <button id="loginBtn"
-        class="w-full bg-slate-900 text-white py-3 rounded-xl">
-            Log In
+        <button id="loginBtn" class="w-full bg-slate-900 text-white py-3 rounded-xl flex items-center justify-center gap-3 transition disabled:opacity-70">
+            <span id="loginText">
+                Log In
+            </span>
+            <div id="loginLoader" class="hidden w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
         </button>
-        <p onclick="location.href='signup.html'"class="text-sm text-blue-500">Don't have an account?</p>
-
+        <p onclick="location.href='signup.html'"class="text-sm text-blue-500 hover:underline cursor-pointer">Don't have an account?</p>
         <div id="msg" class="text-sm text-red-500"></div>
 
     </div>
@@ -81,32 +82,63 @@ async () => {
     const msg =
     document.getElementById("msg");
 
+    const loginBtn =
+    document.getElementById("loginBtn");
+
+    const loginText =
+    document.getElementById("loginText");
+
+    const loginLoader =
+    document.getElementById("loginLoader");
+
     msg.innerText = "";
 
-    const snapshot =
-    await get(ref(db, "err-user/" + username));
+    loginBtn.disabled = true;
 
-    if (!snapshot.exists()) {
-        msg.innerText = "User not found";
-        return;
+    loginLoader.classList.remove("hidden");
+
+    try {
+
+        const snapshot =
+        await get(ref(db, "err-user/" + username));
+
+        if (!snapshot.exists()) {
+
+            msg.innerText = "User not found";
+
+            return;
+
+        }
+
+        const user =
+        snapshot.val();
+
+        if (user.password !== password) {
+
+            msg.innerText = "Incorrect password";
+
+            return;
+
+        }
+
+        localStorage.setItem(
+            "errorinc_user",
+            username
+        );
+
+        window.location.href = "index.html";
+
+    } finally {
+
+        loginBtn.disabled = false;
+
+        loginText.innerText = "Log In";
+
+        loginLoader.classList.add("hidden");
+
     }
-
-    const user = snapshot.val();
-
-    if (user.password !== password) {
-        msg.innerText = "Incorrect password";
-        return;
-    }
-
-    localStorage.setItem(
-        "errorinc_user",
-        username
-    );
-
-    window.location.href = "index.html";
 
 };
-
 </script>
 
 </body>
