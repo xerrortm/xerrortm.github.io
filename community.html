@@ -329,13 +329,10 @@ class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center 
             <p class="text-slate-500 mt-1">
                 ERROR Inc. Member
             </p>
-            <div class="w-full mt-6">
-                <h3 class="font-semibold text-lg mb-3">
-                    Badges
-                </h3>
-                <div id="badgesContainer" class="flex flex-wrap gap-3 justify-center">
-                </div>
-            </div>
+            <button onclick = "location.href='/profile'"
+            class="mt-8 px-6 py-3 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition">
+                Full Profile
+            </button>
             <button id="logoutBtn"
             class="mt-8 px-6 py-3 rounded-xl bg-red-500 text-white hover:bg-red-600 transition">
                 Log Out
@@ -401,44 +398,6 @@ initializeApp(firebaseConfig);
 
 const db =
 getDatabase(app);
-window.loadBadges = async function(username) {
-
-    const badgesContainer =
-    document.getElementById("badgesContainer");
-
-    badgesContainer.innerHTML = "";
-
-    const snapshot =
-    await get(ref(db, "err-user/" + username));
-
-    if (!snapshot.exists()) return;
-
-    const user =
-    snapshot.val();
-
-    const badges =
-    user.badges || {};
-
-    Object.values(badges).forEach(badge => {
-
-        badgesContainer.innerHTML += `
-        
-        <div onclick="openBadge('${badge.name}', '${badge.image}')" class="border rounded-2xl px-4 py-3 flex flex-col items-center w-24">
-
-            <img src="${badge.image}"
-            class="w-20 h-20 object-contain">
-
-            <div class="text-xs mt-2 font-medium text-center">
-                ${badge.name}
-            </div>
-
-        </div>
-
-        `;
-
-    });
-
-};
 
 const bannedWords = [
     "fuck",
@@ -670,9 +629,6 @@ userBtn.onclick = () => {
 
         profileName.innerText =
         user;
-
-        loadBadges(user);
-
         profilePopup.classList.remove("hidden");
 
     }
