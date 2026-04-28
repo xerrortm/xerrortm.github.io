@@ -73,65 +73,55 @@ const db = getDatabase(app);
 document.getElementById("loginBtn").onclick =
 async () => {
 
-    const username =
-    document.getElementById("username").value.trim();
-
-    const password =
-    document.getElementById("password").value;
-
-    const msg =
-    document.getElementById("msg");
-
-    const loginBtn =
-    document.getElementById("loginBtn");
-
-    const loginText =
-    document.getElementById("loginText");
-
-    const loginLoader =
-    document.getElementById("loginLoader");
+    const username = document.getElementById("username").value.trim();
+    const password = document.getElementById("password").value;
+    const msg = document.getElementById("msg");
+    const loginBtn = document.getElementById("loginBtn");
+    const loginText = document.getElementById("loginText");
+    const loginLoader = document.getElementById("loginLoader");
 
     msg.innerText = "";
-
     loginBtn.disabled = true;
-
     loginLoader.classList.remove("hidden");
 
     try {
-
         const snapshot =
         await get(ref(db, "err-user/" + username));
 
         if (!snapshot.exists()) {
-
             msg.innerText = "User not found";
+            loginBtn.disabled = false;
+            loginLoader.classList.add("hidden");
 
             return;
-
         }
 
         const user =
         snapshot.val();
 
         if (user.password !== password) {
-
             msg.innerText = "Incorrect password";
+            loginBtn.disabled = false;
+            loginLoader.classList.add("hidden");
 
             return;
+        } else {
+            msg.innerText = "Something went wrong";
+            loginBtn.disabled = false;
+            loginLoader.classList.add("hidden");
 
+            return;
         }
 
         localStorage.setItem(
             "errorinc_user",
             username
         );
-
         window.location.href = "index.html";
 
     } finally {
         console.log("Login successful");
     }
-
 };
 </script>
 
