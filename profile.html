@@ -520,16 +520,10 @@ document.getElementById("saveProfileBtn").onclick = async () => {
     let photoURL = null;
 
     try {
-
         if (file) {
-
-            const storageRef =
-            sRef(storage, "pfp/" + newUsername);
-
-            await uploadBytes(storageRef, file);
-
-            photoURL =
-            await getDownloadURL(storageRef);
+            const fileRef = sRef(storage, `pfp/${currentUser}_${Date.now()}`);
+            await uploadBytes(fileRef, file);
+            photoURL = await getDownloadURL(fileRef);
         }
 
         const allUsers =
@@ -574,8 +568,8 @@ document.getElementById("saveProfileBtn").onclick = async () => {
             return;
         }
 
-        const currentData =
-        snapshot.val();
+        const currentSnap = await get(ref(db, "err-user/" + currentUser));
+        const currentData = currentSnap.exists() ? currentSnap.val() : {};
 
         const updatedData = {
             ...currentData,
