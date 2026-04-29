@@ -301,11 +301,11 @@ class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center 
             Join the ERROR Inc. community.
         </p>
         <div class="mt-8 space-y-3">
-            <a href="signup.html"
+            <a href="/signup"
             class="block w-full text-center bg-slate-900 text-white py-3 rounded-xl hover:bg-slate-800 transition">
                 Create Account
             </a>
-            <a href="login.html"
+            <a href="/login"
             class="block w-full text-center border border-slate-300 py-3 rounded-xl hover:bg-slate-100 transition">
                 Log In
             </a>
@@ -615,7 +615,7 @@ if(currentUser){
     currentUser.charAt(0).toUpperCase();
 
 } else {
-    window.location.href = "login.html";
+    window.location.href = "/login";
 }
 
 
