@@ -311,6 +311,9 @@ class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center 
                 Save Changes
 
             </button>
+            <button id="deleteAccountBtn" class="w-full mt-3 py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold transition">
+                Delete Account
+            </button>
 
         </div>
 
@@ -349,7 +352,47 @@ class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center 
     </div>
 
 </div>
+<div id="deletePopup"
+class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6">
 
+    <div class="bg-white rounded-[2rem] w-full max-w-md p-8 relative">
+
+        <button id="closeDeletePopup"
+        class="absolute top-4 right-4 text-slate-400 hover:text-black">
+            ✕
+        </button>
+
+        <h2 class="text-3xl font-black text-red-600">
+            We’re sorry to see you go 💔
+        </h2>
+
+        <p class="text-slate-500 mt-3">
+            Before you leave, please tell us why:
+        </p>
+
+        <select id="deleteReason"
+        class="w-full mt-5 border border-slate-200 rounded-2xl px-4 py-3">
+
+            <option>Just testing the app</option>
+            <option>Privacy concerns</option>
+            <option>Not useful anymore</option>
+            <option>Too many notifications</option>
+            <option>Other</option>
+
+        </select>
+
+        <input id="deletePassword"
+        type="password"
+        placeholder="Confirm password"
+        class="w-full mt-4 border border-slate-200 rounded-2xl px-4 py-3">
+
+        <button id="confirmDeleteBtn" class="w-full mt-6 py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold">
+            Permanently Delete My Account
+        </button>
+
+    </div>
+
+</div>
 <script type="module">
 
 import { initializeApp }
@@ -632,8 +675,8 @@ document.getElementById("logoutBtn");
 
 logoutBtn.onclick = () => {
 
+    if(!confirm("Are you sure you wnat to log out?")) return;
     localStorage.removeItem("errorinc_user");
-
     location.href = "/";
 
 };
@@ -805,7 +848,7 @@ document.getElementById("changePasswordBtn").onclick = async () => {
             password: newPassword
         });
 
-        alert("Password updated successfully 🔐");
+        alert("Password updated successfully");
 
         document.getElementById("verifySection").classList.add("hidden");
 
@@ -823,7 +866,68 @@ document.getElementById("changePasswordBtn").onclick = async () => {
     }
 
 };
+const deletePopup = document.getElementById("deletePopup");
 
+document.getElementById("deleteAccountBtn").onclick = () => {
+    deletePopup.classList.remove("hidden");
+};
+
+document.getElementById("closeDeletePopup").onclick = () => {
+    deletePopup.classList.add("hidden");
+};
+
+deletePopup.onclick = (e) => {
+    if(e.target === deletePopup){
+        deletePopup.classList.add("hidden");
+    }
+};
+
+document.getElementById("confirmDeleteBtn").onclick = async () => {
+
+    const reason = document.getElementById("deleteReason").value;
+    const password = document.getElementById("deletePassword").value;
+
+    if(!password){
+        alert("Enter your password");
+        return;
+    }
+
+    try {
+
+        const userRef = ref(db, "err-user/" + currentUser);
+        const snap = await get(userRef);
+
+        if(!snap.exists()){
+            alert("User not found");
+            return;
+        }
+
+        const data = snap.val();
+
+        if(data.password !== password){
+            alert("Wrong password");
+            return;
+        }
+
+        await set(ref(db, "deleted-users/" + currentUser), {
+            reason,
+            deletedAt: Date.now()
+        });
+
+        await remove(userRef);
+
+        localStorage.removeItem("errorinc_user");
+
+        alert("Account deleted");
+
+        location.href = "/";
+
+    } catch(err){
+        console.error(err);
+        alert("Failed to delete account");
+    }
+
+};
 </script>
 </body>
 </html>
