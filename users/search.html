@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Search Users | ERROR Inc.</title>
+<script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-slate-50 text-slate-900">
+
+<nav class="px-8 py-5 bg-white border-b flex justify-between items-center">
+    <img onclick="location.href='/'"
+    src="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/5c585ad8-9e96-472a-bc88-5d2ea8f05993/ERRORL1-removebg-preview.png"
+    class="h-12 cursor-pointer">
+
+    <a href="/users/search" class="font-semibold text-indigo-600">
+        Search Users
+    </a>
+</nav>
+
+<section class="max-w-4xl mx-auto px-6 py-10">
+
+    <h1 class="text-4xl font-black mb-6">
+        Discover Users
+    </h1>
+
+    <input id="searchInput"
+    placeholder="Search username..."
+    class="w-full px-5 py-4 rounded-2xl border border-slate-200 focus:outline-none focus:border-indigo-500">
+
+    <div id="results"
+    class="mt-8 grid gap-4">
+    </div>
+
+</section>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
+    authDomain: "error-inc.firebaseapp.com",
+    databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
+    projectId: "error-inc",
+    storageBucket: "error-inc.firebasestorage.app",
+    messagingSenderId: "876188868410",
+    appId: "1:876188868410:web:ca7de451707bd9975c7a03"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const results = document.getElementById("results");
+const searchInput = document.getElementById("searchInput");
+
+let users = [];
+
+async function loadUsers() {
+
+    const snap = await get(ref(db, "err-user"));
+
+    if (!snap.exists()) return;
+
+    users = [];
+
+    snap.forEach(child => {
+        const data = child.val();
+
+        if (data.public === true) {
+            users.push({
+                username: child.key,
+                ...data
+            });
+        }
+    });
+
+    render(users);
+}
+
+function render(list) {
+
+    results.innerHTML = "";
+
+    if (list.length === 0) {
+        results.innerHTML = `
+            <div class="text-slate-400 text-center py-10">
+                No users found
+            </div>
+        `;
+        return;
+    }
+
+    list.forEach(user => {
+
+        results.innerHTML += `
+        <div onclick="goUser('${user.username}')"
+        class="cursor-pointer bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4 hover:shadow-md transition">
+
+            <div class="w-12 h-12 rounded-xl bg-indigo-500 text-white flex items-center justify-center font-bold">
+                ${user.username.charAt(0).toUpperCase()}
+            </div>
+
+            <div>
+                <div class="font-bold text-lg">
+                    ${user.username}
+                </div>
+
+                <div class="text-sm text-slate-500">
+                    ERROR Inc. Member
+                </div>
+            </div>
+
+        </div>
+        `;
+    });
+}
+
+window.goUser = (username) => {
+    location.href = `/users/?name=${encodeURIComponent(username)}`;
+};
+
+searchInput.addEventListener("input", (e) => {
+
+    const value = e.target.value.toLowerCase();
+
+    const filtered = users.filter(u =>
+        u.username.toLowerCase().includes(value)
+    );
+
+    render(filtered);
+
+});
+
+loadUsers();
+
+</script>
+
+</body>
+</html>
