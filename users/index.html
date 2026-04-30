@@ -179,6 +179,7 @@ if(!name){
 
         document.getElementById("profileName").innerText = name;
         document.getElementById("profileAvatar").innerText = name.charAt(0).toUpperCase();
+        document.title = `${name} | ERROR Inc.`;
 
         const badges = Object.values(data.badges || {});
         const container = document.getElementById("badgesContainer");
@@ -211,7 +212,7 @@ if(!name){
         badges.forEach(b => {
             container.innerHTML += `
                 <div class="bg-white border rounded-3xl p-5 text-center">
-                    <img src="${b.image}" class="w-20 h-20 mx-auto"/>
+                    <img src="../${b.image}" class="w-20 h-20 mx-auto"/>
                     <div class="font-bold mt-2">${b.name}</div>
                 </div>
             `;
