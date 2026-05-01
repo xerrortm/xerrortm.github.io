@@ -178,9 +178,6 @@ onValue(ref(db, "community-chat"), snapshot => {
 
 });
 
-</script>
-<script>
-
 const userBtn =
 document.getElementById("userBtn");
 
