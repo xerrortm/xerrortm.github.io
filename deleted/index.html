@@ -1,14 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Account Deleted | ERROR Inc.</title>
-
 <script src="https://cdn.tailwindcss.com"></script>
-
 <style>
 
 body{
@@ -51,40 +47,49 @@ class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justi
 
     <div class="bg-white rounded-[2rem] w-full max-w-md p-8 relative">
 
-        <button id="closeRecoverPopup"
-        class="absolute top-4 right-4 text-slate-400 hover:text-black">
-            ✕
-        </button>
+    <button id="closeRecoverPopup"
+    class="absolute top-4 right-4 text-slate-400 hover:text-black">
+        ✕
+    </button>
 
-        <h2 class="text-3xl font-black">
+    <h2 class="text-3xl font-black">
+        Recover Account
+    </h2>
+
+    <p class="text-slate-500 mt-3">
+        Confirm your deleted account credentials.
+    </p>
+
+    <input
+    id="recoverEmail"
+    type="email"
+    placeholder="Email"
+    class="w-full mt-6 border border-slate-200 rounded-2xl px-4 py-3">
+
+    <input
+    id="recoverPassword"
+    type="password"
+    placeholder="Password"
+    class="w-full mt-4 border border-slate-200 rounded-2xl px-4 py-3">
+
+    <button id="confirmRecoverBtn"
+    class="w-full mt-6 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold flex items-center justify-center gap-3 disabled:opacity-70">
+
+        <span id="recoverBtnText">
             Recover Account
-        </h2>
+        </span>
 
-        <p class="text-slate-500 mt-3">
-            Confirm your deleted account credentials.
-        </p>
+        <div id="recoverLoader"
+        class="hidden w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin">
+        </div>
 
-        <input
-        id="recoverEmail"
-        type="email"
-        placeholder="Email"
-        class="w-full mt-6 border border-slate-200 rounded-2xl px-4 py-3">
+    </button>
 
-        <input
-        id="recoverPassword"
-        type="password"
-        placeholder="Password"
-        class="w-full mt-4 border border-slate-200 rounded-2xl px-4 py-3">
-
-        <button id="confirmRecoverBtn"
-        class="w-full mt-6 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold">
-
-            Recover Account
-
-        </button>
-
+    <div id="recoverMsg"
+    class="mt-4 text-sm text-center text-red-500">
     </div>
 
+</div>
 </div>
 
 <script type="module">
@@ -125,8 +130,6 @@ initializeApp(firebaseConfig);
 const db =
 getDatabase(app);
 
-/* GET USER FROM URL */
-
 const params =
 new URLSearchParams(location.search);
 
@@ -147,8 +150,6 @@ if(!username){
     throw new Error("No username");
 
 }
-
-/* CHECK ACCOUNT STATUS */
 
 const deletedSnap =
 await get(
@@ -180,8 +181,6 @@ if(
 
 }
 
-/* OPEN POPUP */
-
 const recoverPopup =
 document.getElementById("recoverPopup");
 
@@ -207,8 +206,6 @@ recoverPopup.onclick = (e) => {
 
 };
 
-/* RECOVER ACCOUNT */
-
 document.getElementById("confirmRecoverBtn").onclick = async () => {
 
     const email =
@@ -217,9 +214,29 @@ document.getElementById("confirmRecoverBtn").onclick = async () => {
     const password =
     document.getElementById("recoverPassword").value.trim();
 
+    const btn =
+    document.getElementById("confirmRecoverBtn");
+
+    const loader =
+    document.getElementById("recoverLoader");
+
+    const msg =
+    document.getElementById("recoverMsg");
+
+    msg.innerText = "";
+
+    btn.disabled = true;
+
+    loader.classList.remove("hidden");
+
     if(!email || !password){
 
-        alert("Fill in all fields");
+        msg.innerText = "Fill in all fields";
+
+        btn.disabled = false;
+
+        loader.classList.add("hidden");
+
         return;
 
     }
@@ -234,7 +251,9 @@ document.getElementById("confirmRecoverBtn").onclick = async () => {
 
         if(!snap.exists()){
 
-            alert("Deleted account not found");
+            msg.innerText =
+            "Deleted account not found";
+
             return;
 
         }
@@ -253,22 +272,17 @@ document.getElementById("confirmRecoverBtn").onclick = async () => {
 
         ){
 
-            alert("Incorrect email or password");
+            msg.innerText =
+            "Incorrect email or password";
+
             return;
 
         }
 
-        /* RESTORE ACCOUNT */
-
         await set(
-
             ref(db, "err-user/" + username),
-
             accountData
-
         );
-
-        /* REMOVE FROM DELETED */
 
         await remove(deletedRef);
 
@@ -277,20 +291,35 @@ document.getElementById("confirmRecoverBtn").onclick = async () => {
             username
         );
 
-        alert("Account recovered successfully");
+        msg.classList.remove("text-red-500");
 
-        location.href = "/profile";
+        msg.classList.add("text-green-600");
+
+        msg.innerText =
+        "Account recovered successfully";
+
+        setTimeout(() => {
+
+            location.href = "/profile";
+
+        }, 1000);
 
     } catch(err){
 
         console.error(err);
 
-        alert("Failed to recover account");
+        msg.innerText =
+        "Something went wrong";
+
+    } finally {
+
+        btn.disabled = false;
+
+        loader.classList.add("hidden");
 
     }
 
 };
-
 </script>
 
 </body>
