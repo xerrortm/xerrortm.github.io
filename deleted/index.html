@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Account Deleted | ERROR Inc.</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+
+body{
+    background:#f8fafc;
+}
+
+</style>
+
+</head>
+
+<body class="min-h-screen flex items-center justify-center px-6 text-slate-900">
+
+<div class="bg-white border border-slate-200 rounded-[2rem] p-10 max-w-xl w-full text-center shadow-sm">
+
+    <h1 class="text-4xl font-black text-red-600">
+        Account deleted
+    </h1>
+
+    <p id="statusText"
+    class="text-slate-500 mt-5 text-lg leading-relaxed">
+
+        Checking account...
+
+    </p>
+
+    <p id="recoverText" class="hidden mt-6 text-lg text-slate-500 leading-relaxed">
+      If you did it by mistake, you can
+      <span id="recoverBtn" class="text-blue-600 hover:underline font-semibold cursor-pointer">
+        recover
+      </span>
+        your account within 7 days.
+    </p>
+
+</div>
+
+<!-- RECOVER POPUP -->
+
+<div id="recoverPopup"
+class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
+
+    <div class="bg-white rounded-[2rem] w-full max-w-md p-8 relative">
+
+        <button id="closeRecoverPopup"
+        class="absolute top-4 right-4 text-slate-400 hover:text-black">
+            ✕
+        </button>
+
+        <h2 class="text-3xl font-black">
+            Recover Account
+        </h2>
+
+        <p class="text-slate-500 mt-3">
+            Confirm your deleted account credentials.
+        </p>
+
+        <input
+        id="recoverEmail"
+        type="email"
+        placeholder="Email"
+        class="w-full mt-6 border border-slate-200 rounded-2xl px-4 py-3">
+
+        <input
+        id="recoverPassword"
+        type="password"
+        placeholder="Password"
+        class="w-full mt-4 border border-slate-200 rounded-2xl px-4 py-3">
+
+        <button id="confirmRecoverBtn"
+        class="w-full mt-6 py-4 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-bold">
+
+            Recover Account
+
+        </button>
+
+    </div>
+
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+
+import {
+    getDatabase,
+    ref,
+    get,
+    set,
+    remove
+}
+from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+const firebaseConfig = {
+
+    apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
+
+    authDomain: "error-inc.firebaseapp.com",
+
+    databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
+
+    projectId: "error-inc",
+
+    storageBucket: "error-inc.firebasestorage.app",
+
+    messagingSenderId: "876188868410",
+
+    appId: "1:876188868410:web:ca7de451707bd9975c7a03"
+
+};
+
+const app =
+initializeApp(firebaseConfig);
+
+const db =
+getDatabase(app);
+
+/* GET USER FROM URL */
+
+const params =
+new URLSearchParams(location.search);
+
+const username =
+params.get("user");
+
+const statusText =
+document.getElementById("statusText");
+
+const recoverSection =
+document.getElementById("recoverText");
+
+if(!username){
+
+    statusText.innerHTML =
+    "Invalid recovery link.";
+
+    throw new Error("No username");
+
+}
+
+/* CHECK ACCOUNT STATUS */
+
+const deletedSnap =
+await get(
+    ref(db, "deleted-users/" + username)
+);
+
+const normalSnap =
+await get(
+    ref(db, "err-user/" + username)
+);
+
+if(
+
+    deletedSnap.exists() &&
+    !normalSnap.exists()
+
+){
+
+    statusText.innerHTML = `
+    
+        You have successfully deleted your account.<br><br>
+
+        If you did it by mistake, you can
+        <span class="text-blue-600 font-semibold">
+            recover
+        </span>
+        your account within 7 days.
+
+    `;
+
+    recoverSection.classList.remove("hidden");
+
+} else {
+
+    statusText.innerHTML =
+    "This deleted account could not be found.";
+
+}
+
+/* OPEN POPUP */
+
+const recoverPopup =
+document.getElementById("recoverPopup");
+
+document.getElementById("recoverBtn").onclick = () => {
+
+    recoverPopup.classList.remove("hidden");
+
+};
+
+document.getElementById("closeRecoverPopup").onclick = () => {
+
+    recoverPopup.classList.add("hidden");
+
+};
+
+recoverPopup.onclick = (e) => {
+
+    if(e.target === recoverPopup){
+
+        recoverPopup.classList.add("hidden");
+
+    }
+
+};
+
+/* RECOVER ACCOUNT */
+
+document.getElementById("confirmRecoverBtn").onclick = async () => {
+
+    const email =
+    document.getElementById("recoverEmail").value.trim();
+
+    const password =
+    document.getElementById("recoverPassword").value.trim();
+
+    if(!email || !password){
+
+        alert("Fill in all fields");
+        return;
+
+    }
+
+    try {
+
+        const deletedRef =
+        ref(db, "deleted-users/" + username);
+
+        const snap =
+        await get(deletedRef);
+
+        if(!snap.exists()){
+
+            alert("Deleted account not found");
+            return;
+
+        }
+
+        const deletedData =
+        snap.val();
+
+        const accountData =
+        deletedData.accountData;
+
+        if(
+
+            accountData.email !== email ||
+
+            accountData.password !== password
+
+        ){
+
+            alert("Incorrect email or password");
+            return;
+
+        }
+
+        /* RESTORE ACCOUNT */
+
+        await set(
+
+            ref(db, "err-user/" + username),
+
+            accountData
+
+        );
+
+        /* REMOVE FROM DELETED */
+
+        await remove(deletedRef);
+
+        localStorage.setItem(
+            "errorinc_user",
+            username
+        );
+
+        alert("Account recovered successfully");
+
+        location.href = "/profile";
+
+    } catch(err){
+
+        console.error(err);
+
+        alert("Failed to recover account");
+
+    }
+
+};
+
+</script>
+
+</body>
+</html>
