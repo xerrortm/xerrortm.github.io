@@ -737,5 +737,5 @@ function resetCaptcha() {
     } else {
         start();
     }
-
+    }
 })();
