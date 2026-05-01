@@ -541,7 +541,7 @@ onValue(ref(db, "community-chat"), snapshot => {
 
         <div class="flex gap-4">
 
-            <div onclick="location.href='/users?name=${msg.user}'" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center font-black text-white shrink-0">
+            <div onclick="location.href='/users/${msg.user}'" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center font-black text-white shrink-0">
                 ${msg.user.charAt(0).toUpperCase()}
             </div>
 
