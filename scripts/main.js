@@ -1,4 +1,3 @@
-
 import { initializeApp }
 from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 
@@ -21,7 +20,6 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
 const userBtn = document.getElementById("userBtn");
 const authPopup = document.getElementById("authPopup");
 const profilePopup = document.getElementById("profilePopup");
@@ -37,7 +35,6 @@ if (currentUser) {
     currentUser.charAt(0).toUpperCase();
 
 }
-
 userBtn.onclick = () => {
 
     const user =
@@ -52,15 +49,12 @@ userBtn.onclick = () => {
         profilePopup.classList.remove("hidden");
     }
 };
-
 closeAuth.onclick = () => {
     authPopup.classList.add("hidden");
 };
-
 closeProfile.onclick = () => {
     profilePopup.classList.add("hidden");
 };
-
 authPopup.onclick = (e) => {
 
     if (e.target === authPopup) {
@@ -68,7 +62,6 @@ authPopup.onclick = (e) => {
     }
 
 };
-
 profilePopup.onclick = (e) => {
 
     if (e.target === profilePopup) {
@@ -76,34 +69,22 @@ profilePopup.onclick = (e) => {
     }
 
 };
-
 logoutBtn.onclick = () => {
     if(!confirm("Are you sure you want to log out?")) return;
     localStorage.removeItem("errorinc_user");
     location.reload();
 
 };
-
 document.querySelectorAll("button").forEach(btn => {
-
     if (btn.innerText.toLowerCase().includes("join")) {
-
         btn.addEventListener("click", () => {
-
             const user =
             localStorage.getItem("errorinc_user");
-
             if (!user) {
-
                 authPopup.classList.remove("hidden");
-
             } else {
                 window.location.href = "/community"
-
             }
-
         });
-
     }
-
 });
