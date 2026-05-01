@@ -156,7 +156,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const name = new URLSearchParams(location.search).get("name");
+const name = window.location.pathname.split("/").pop();
 
 const profile = document.getElementById("profile");
 const badgesSection = document.getElementById("badgesSection");
