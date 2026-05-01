@@ -362,33 +362,59 @@ class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center 
             ✕
         </button>
 
-        <h2 class="text-3xl font-black text-red-600">
-            We’re sorry to see you go 💔
-        </h2>
+        <div id="deleteStep1">
 
-        <p class="text-slate-500 mt-3">
-            Before you leave, please tell us why:
-        </p>
+            <h2 class="text-3xl font-black text-red-600">
+                We’re sorry to see you go 💔
+            </h2>
 
-        <select id="deleteReason"
-        class="w-full mt-5 border border-slate-200 rounded-2xl px-4 py-3">
+            <p class="text-slate-500 mt-3">
+                Please tell us why you're leaving:
+            </p>
 
-            <option>Just testing the app</option>
-            <option>Privacy concerns</option>
-            <option>Not useful anymore</option>
-            <option>Too many notifications</option>
-            <option>Other</option>
+            <select id="deleteReason"
+            class="w-full mt-5 border border-slate-200 rounded-2xl px-4 py-3">
 
-        </select>
+                <option>Just testing the app</option>
+                <option>Privacy concerns</option>
+                <option>Not useful anymore</option>
+                <option>Too many notifications</option>
+                <option>Other</option>
 
-        <input id="deletePassword"
-        type="password"
-        placeholder="Confirm password"
-        class="w-full mt-4 border border-slate-200 rounded-2xl px-4 py-3">
+            </select>
 
-        <button id="confirmDeleteBtn" class="w-full mt-6 py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold">
-            Permanently Delete My Account
-        </button>
+            <button id="goToDeleteStep2"
+            class="w-full mt-6 py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold">
+                Continue
+            </button>
+
+        </div>
+
+        <!-- STEP 2 -->
+
+        <div id="deleteStep2" class="hidden">
+
+            <h2 class="text-3xl font-black text-red-600">
+                Delete Confirmation
+            </h2>
+
+            <p class="text-slate-500 mt-3">
+                Enter your password to permanently delete your account.
+            </p>
+
+            <input id="deletePassword"
+            type="password"
+            placeholder="Confirm password"
+            class="w-full mt-5 border border-slate-200 rounded-2xl px-4 py-3">
+
+            <button id="confirmDeleteBtn"
+            class="w-full mt-6 py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold">
+
+                Permanently Delete My Account
+
+            </button>
+
+        </div>
 
     </div>
 
@@ -866,65 +892,112 @@ document.getElementById("changePasswordBtn").onclick = async () => {
     }
 
 };
-const deletePopup = document.getElementById("deletePopup");
+const deletePopup =
+document.getElementById("deletePopup");
+
+const deleteStep1 =
+document.getElementById("deleteStep1");
+
+const deleteStep2 =
+document.getElementById("deleteStep2");
 
 document.getElementById("deleteAccountBtn").onclick = () => {
+
     deletePopup.classList.remove("hidden");
+
+    deleteStep1.classList.remove("hidden");
+    deleteStep2.classList.add("hidden");
+
 };
 
 document.getElementById("closeDeletePopup").onclick = () => {
+
     deletePopup.classList.add("hidden");
+
 };
 
 deletePopup.onclick = (e) => {
+
     if(e.target === deletePopup){
+
         deletePopup.classList.add("hidden");
+
     }
+
+};
+
+document.getElementById("goToDeleteStep2").onclick = () => {
+
+    deleteStep1.classList.add("hidden");
+    deleteStep2.classList.remove("hidden");
+
 };
 
 document.getElementById("confirmDeleteBtn").onclick = async () => {
 
-    const reason = document.getElementById("deleteReason").value;
-    const password = document.getElementById("deletePassword").value;
+    const reason =
+    document.getElementById("deleteReason").value;
+
+    const password =
+    document.getElementById("deletePassword").value;
 
     if(!password){
+
         alert("Enter your password");
         return;
+
     }
 
     try {
 
-        const userRef = ref(db, "err-user/" + currentUser);
-        const snap = await get(userRef);
+        const userRef =
+        ref(db, "err-user/" + currentUser);
+
+        const snap =
+        await get(userRef);
 
         if(!snap.exists()){
+
             alert("User not found");
             return;
+
         }
 
-        const data = snap.val();
+        const userData =
+        snap.val();
 
-        if(data.password !== password){
+        if(userData.password !== password){
+
             alert("Wrong password");
             return;
+
         }
 
-        await set(ref(db, "deleted-users/" + currentUser), {
-            reason,
-            deletedAt: Date.now()
-        });
+        await set(
+            ref(db, "deleted-users/" + currentUser),
+            {
+                username: currentUser,
+                deletedAt: Date.now(),
+                deleteReason: reason,
+                accountData: userData
+
+            }
+        );
 
         await remove(userRef);
 
         localStorage.removeItem("errorinc_user");
 
-        alert("Account deleted");
+        alert("Account deleted successfully");
 
-        location.href = "/";
+        location.href = "/deleted";
 
     } catch(err){
+
         console.error(err);
+
         alert("Failed to delete account");
+
     }
 
 };
