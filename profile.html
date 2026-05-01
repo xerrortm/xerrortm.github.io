@@ -305,12 +305,15 @@ class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center 
 
 </div>
 
-            <button id="saveProfileBtn"
-            class="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition">
-
-                Save Changes
-
+           <button id="saveProfileBtn" class="w-full py-4 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold transition flex items-center justify-center gap-3 disabled:opacity-70">    
+                <span id="saveProfileText">
+                    Save Changes
+                </span>
+                <div id="saveProfileLoader" class="hidden w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin">
+                </div>
             </button>
+            <div id="saveProfileMsg" class="text-sm text-center text-red-500">
+            </div>
             <button id="deleteAccountBtn" class="w-full mt-3 py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold transition">
                 Delete Account
             </button>
@@ -407,12 +410,16 @@ class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center 
             placeholder="Confirm password"
             class="w-full mt-5 border border-slate-200 rounded-2xl px-4 py-3">
 
-            <button id="confirmDeleteBtn"
-            class="w-full mt-6 py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold">
-
-                Permanently Delete My Account
-
+            <button id="confirmDeleteBtn" class="w-full mt-6 py-4 rounded-2xl bg-red-600 hover:bg-red-700 text-white font-bold flex items-center justify-center gap-3 disabled:opacity-70">
+                <span id="deleteBtnText">
+                    Permanently Delete My Account
+                </span>
+                <div id="deleteLoader" class="hidden w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin">
+                </div>
             </button>
+
+            <div id="deleteMsg" class="mt-4 text-sm text-center text-red-500">
+            </div>
 
         </div>
 
@@ -596,9 +603,35 @@ document.getElementById("saveProfileBtn").onclick = async () => {
     const isPublic =
     document.getElementById("publicProfile").checked;
 
+    const btn =
+    document.getElementById("saveProfileBtn");
+
+    const loader =
+    document.getElementById("saveProfileLoader");
+
+    const msg =
+    document.getElementById("saveProfileMsg");
+
+    msg.innerText = "";
+
+    msg.className =
+    "text-sm text-center text-red-500";
+
+    btn.disabled = true;
+
+    loader.classList.remove("hidden");
+
     if (!newUsername || !newEmail) {
-        alert("Fill in all fields.");
+
+        msg.innerText =
+        "Fill in all fields";
+
+        btn.disabled = false;
+
+        loader.classList.add("hidden");
+
         return;
+
     }
 
     try {
@@ -636,13 +669,21 @@ document.getElementById("saveProfileBtn").onclick = async () => {
         }
 
         if (usernameTaken) {
-            alert("Username already exists.");
+
+            msg.innerText =
+            "Username already exists";
+
             return;
+
         }
 
         if (emailTaken) {
-            alert("Email already exists.");
+
+            msg.innerText =
+            "Email already exists";
+
             return;
+
         }
 
         const currentSnap =
@@ -652,10 +693,15 @@ document.getElementById("saveProfileBtn").onclick = async () => {
         currentSnap.val();
 
         const updatedData = {
+
             ...currentData,
+
             username: newUsername,
+
             email: newEmail,
+
             public: !!isPublic
+
         };
 
         if (newUsername !== currentUser) {
@@ -683,15 +729,30 @@ document.getElementById("saveProfileBtn").onclick = async () => {
             newUsername
         );
 
-        alert("Profile updated successfully");
+        msg.className =
+        "text-sm text-center text-green-600";
 
-        location.reload();
+        msg.innerText =
+        "Profile updated successfully";
+
+        setTimeout(() => {
+
+            location.reload();
+
+        }, 1000);
 
     } catch (err) {
 
         console.error(err);
 
-        alert("Failed to update profile.");
+        msg.innerText =
+        "Failed to update profile";
+
+    } finally {
+
+        btn.disabled = false;
+
+        loader.classList.add("hidden");
 
     }
 
@@ -941,9 +1002,33 @@ document.getElementById("confirmDeleteBtn").onclick = async () => {
     const password =
     document.getElementById("deletePassword").value;
 
+    const btn =
+    document.getElementById("confirmDeleteBtn");
+
+    const loader =
+    document.getElementById("deleteLoader");
+
+    const msg =
+    document.getElementById("deleteMsg");
+
+    msg.innerText = "";
+
+    msg.className =
+    "mt-4 text-sm text-center text-red-500";
+
+    btn.disabled = true;
+
+    loader.classList.remove("hidden");
+
     if(!password){
 
-        alert("Enter your password");
+        msg.innerText =
+        "Enter your password";
+
+        btn.disabled = false;
+
+        loader.classList.add("hidden");
+
         return;
 
     }
@@ -958,7 +1043,9 @@ document.getElementById("confirmDeleteBtn").onclick = async () => {
 
         if(!snap.exists()){
 
-            alert("User not found");
+            msg.innerText =
+            "User not found";
+
             return;
 
         }
@@ -968,7 +1055,9 @@ document.getElementById("confirmDeleteBtn").onclick = async () => {
 
         if(userData.password !== password){
 
-            alert("Wrong password");
+            msg.innerText =
+            "Wrong password";
+
             return;
 
         }
@@ -976,6 +1065,7 @@ document.getElementById("confirmDeleteBtn").onclick = async () => {
         await set(
             ref(db, "deleted-users/" + currentUser),
             {
+
                 username: currentUser,
                 deletedAt: Date.now(),
                 deleteReason: reason,
@@ -985,15 +1075,32 @@ document.getElementById("confirmDeleteBtn").onclick = async () => {
         );
 
         await remove(userRef);
+
         localStorage.removeItem("errorinc_user");
-        alert("Account deleted successfully");
-        location.href = "/deleted?user=${currentUser}";
+
+        msg.className =
+        "mt-4 text-sm text-center text-green-600";
+
+        setTimeout(() => { 
+            msg.innerText = "Account deleted successfully";
+
+            location.href =
+            `/deleted?user=${currentUser}`;
+
+        }, 2000);
 
     } catch(err){
 
         console.error(err);
 
-        alert("Failed to delete account");
+        msg.innerText =
+        "Failed to delete account";
+
+    } finally {
+
+        btn.disabled = false;
+
+        loader.classList.add("hidden");
 
     }
 
