@@ -682,7 +682,16 @@ function verifyChallenge() {
 
     }
 }
-
+function toggleOptionSelection(item, value) {
+    if (selectedChallengeOptions.has(value)) {
+        selectedChallengeOptions.delete(value);
+        item.classList.remove("bg-blue-500", "text-white");
+    } else {
+        selectedChallengeOptions.add(value);
+        item.classList.add("bg-blue-500", "text-white");
+    }
+    updateVerifyButtonState();
+}
 
 /**
  * reset
