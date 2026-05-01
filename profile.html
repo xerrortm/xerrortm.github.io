@@ -985,12 +985,9 @@ document.getElementById("confirmDeleteBtn").onclick = async () => {
         );
 
         await remove(userRef);
-
         localStorage.removeItem("errorinc_user");
-
         alert("Account deleted successfully");
-
-        location.href = "/deleted";
+        location.href = "/deleted?user=${currentUser}";
 
     } catch(err){
 
