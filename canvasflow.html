@@ -1,0 +1,1824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanvasFlow Pro - Advanced Website Builder</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code&display=swap" rel="stylesheet">
+<style id="dynamic-classes"></style>
+    <style>
+#app.preview-mode {
+    grid-template-columns: 0px 1fr 0px !important;
+}
+
+        :root {
+            --bg-main: #0a0a0a;
+            --bg-side: #141414;
+            --bg-input: #1f1f1f;
+            --accent: #3b82f6;
+            --text-main: #f3f4f6;
+            --text-dim: #9ca3af;
+            --border: #262626;
+            --panel-width-left: 260px;
+            --panel-width-right: 320px;
+            --toolbar-height: 56px;
+        }
+
+        * { box-sizing: border-box; }
+        body, html {
+            margin: 0; padding: 0;
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            overflow: hidden;
+        }
+
+        #app {
+    display: grid;
+    grid-template-areas:
+        "header header header"
+        "left main right";
+    grid-template-columns: var(--panel-width-left) 1fr var(--panel-width-right);
+    grid-template-rows: var(--toolbar-height) 1fr;
+    height: 100vh;
+    overflow: hidden;
+}
+
+        /* Top Toolbar */
+        header {
+            grid-area: header;
+            background: var(--bg-side);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            justify-content: space-between;
+            z-index: 1000;
+        }
+
+        .tool-group { display: flex; gap: 8px; align-items: center; }
+        .logo { font-weight: 800; color: var(--accent); font-size: 1rem; letter-spacing: 0.1em; margin-right: 16px;}
+
+        .btn {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 6px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .btn:hover { background: #2a2a2a; color: #fff; border-color: #444; }
+        .btn.active { color: var(--accent); border-color: var(--accent); background: rgba(59, 130, 246, 0.1); }
+        .btn.primary { background: var(--accent); border: none; color: white; }
+        .btn.primary:hover { background: #2563eb; }
+
+        /* Left Sidebar: Library */
+        #left-sidebar {
+            grid-area: left;
+            background: var(--bg-side);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-section-title {
+            padding: 16px 16px 8px;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #555;
+            font-weight: 800;
+        }
+
+        .element-grid {
+            padding: 0 12px 12px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .draggable-item {
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            padding: 10px 4px;
+            border-radius: 6px;
+            text-align: center;
+            cursor: grab;
+            font-size: 11px;
+            transition: 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+        .draggable-item:hover { border-color: var(--accent); transform: translateY(-1px); background: #252525; }
+        .draggable-item svg { width: 16px; height: 16px; opacity: 0.8; }
+
+        /* Main Canvas Wrapper */
+        #canvas-wrapper {
+            grid-area: main;
+            background: #000;
+            overflow: auto;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0px;
+        }
+
+        #canvas-container {
+            width: 100%;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 100%;
+            min-height: 100%;
+        }
+
+        #canvas {
+            background: white;
+            min-height: 800px;
+            width: 100%;
+            position: relative;
+            color: #333;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
+            outline: none;
+            overflow: hidden;
+        }
+
+        #canvas.grid-visible {
+            background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+
+        /* Elements on Canvas */
+        .editable-element {
+            position: relative;
+            transition: outline 0.1s ease;
+        }
+        
+        .drop-target {
+            outline: 2px dashed var(--accent) !important;
+            background: rgba(59, 130, 246, 0.08) !important;
+        }
+
+        .editable-element:hover {
+            outline: 1px solid rgba(59, 130, 246, 0.4);
+        }
+
+        .editable-element.selected {
+            outline: 2px solid var(--accent) !important;
+            outline-offset: -1px;
+        }
+
+        .resizer {
+            position: absolute;
+            width: 16px; height: 16px;
+            background: white; border: 2px solid var(--accent);
+            right: -5px; bottom: -5px;
+            cursor: nwse-resize;
+            display: none;
+            z-index: 100;
+            border-radius: 50%;
+        }
+        .selected > .resizer { display: block; }
+
+        /* Right Sidebar: Properties */
+        #right-sidebar {
+            grid-area: right;
+            background: var(--bg-side);
+            border-left: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .side-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+        }
+        .side-tab {
+            flex: 1; padding: 12px; text-align: center; font-size: 12px; cursor: pointer; color: var(--text-dim); border-bottom: 2px solid transparent;
+        }
+        .side-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(255,255,255,0.02); }
+
+        .prop-content { padding: 16px; }
+        .prop-group { margin-bottom: 20px; }
+        .prop-label { display: block; font-size: 10px; color: #666; margin-bottom: 6px; text-transform: uppercase; font-weight: 700; }
+        .prop-row { display: flex; gap: 6px; margin-bottom: 6px; }
+        .prop-col { flex: 1; }
+
+        .input-control {
+            width: 100%; background: var(--bg-input); border: 1px solid var(--border);
+            color: #fff; padding: 6px 8px; border-radius: 4px; font-size: 12px;
+            transition: border 0.2s;
+        }
+        .input-control:focus { outline: none; border-color: var(--accent); }
+
+        /* Modal */
+        #overlay {
+            position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.9); z-index: 2000;
+            display: none; justify-content: center; align-items: center;
+        }
+        #modal {
+            background: var(--bg-side); width: 80%; height: 80%;
+            border-radius: 12px; display: flex; flex-direction: column;
+            border: 1px solid var(--border);
+        }
+        #modal-header { padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        #code-editor { flex: 1; background: #050505; color: #10b981; font-family: 'Fira Code', monospace; padding: 20px; border: none; resize: none; font-size: 13px; line-height: 1.5; outline: none; }
+
+        /* Toast */
+        #toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #22c55e; color: white; padding: 8px 16px; border-radius: 6px;
+            display: none; font-size: 12px; z-index: 4000; font-weight: 600;
+        }
+
+        #context-menu {
+            position: fixed; background: #1a1a1a; border: 1px solid #333;
+            display: none; flex-direction: column; min-width: 150px; z-index: 3000;
+            border-radius: 4px; padding: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        }
+        .menu-item { padding: 6px 10px; cursor: pointer; font-size: 12px; color: #ccc; border-radius: 3px; display: flex; align-items: center; gap: 8px; }
+        .menu-item:hover { background: var(--accent); color: white; }
+
+        .hidden { display: none !important; }
+
+        /* Inject Panel */
+        #inject-panel { padding: 16px; }
+        .code-block-label { font-size: 11px; color: #888; margin-bottom: 8px; display: block; }
+        
+        /* Custom UI for specific tags */
+        button.editable-element:active { transform: scale(0.98); }
+#left-sidebar,
+#right-sidebar {
+    transition: transform 0.5s ease, opacity 0.4s ease;
+}
+
+/* Hidden states */
+#left-sidebar.hidden-left {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+#right-sidebar.hidden-right {
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Preview mode */
+.preview-mode #left-sidebar {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none;
+}
+.preview-mode #right-sidebar {
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+}
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <header>
+        <div class="tool-group">
+            <div class="logo">CANVASFLOW PRO</div>
+            <button class="btn" title="Save" onclick="editor.saveToLocal()"><i data-lucide="save"></i></button>
+            <button class="btn" title="Undo" onclick="editor.undo()"><i data-lucide="undo-2"></i></button>
+            <button class="btn" title="Redo" onclick="editor.redo()"><i data-lucide="redo-2"></i></button>
+<button class="btn" id="toggle-elements" onclick="editor.toggleLeft()">
+    <i data-lucide="box"></i>
+</button>
+
+<button class="btn" id="toggle-editor" onclick="editor.toggleRight()">
+    <i data-lucide="sliders"></i>
+</button>
+        </div>
+
+        <div class="tool-group">
+            <button class="btn bp-btn active" id="bp-desktop" onclick="editor.setViewport('100%', 'bp-desktop')"><i data-lucide="monitor"></i></button>
+            <button class="btn bp-btn" id="bp-tablet" onclick="editor.setViewport('768px', 'bp-tablet')"><i data-lucide="tablet"></i></button>
+            <button class="btn bp-btn" id="bp-mobile" onclick="editor.setViewport('375px', 'bp-mobile')"><i data-lucide="smartphone"></i></button>
+        </div>
+
+<div class="tool-group">
+    <button class="btn" id="preview-btn" onclick="editor.togglePreview()">
+        <i data-lucide="eye"></i>
+    </button>
+    <button class="btn" onclick="editor.openCode('html')">
+        <i data-lucide="code"></i> HTML
+    </button>
+    <button class="btn primary" onclick="editor.exportHTML()">
+        <i data-lucide="external-link"></i> Publish
+    </button>
+</div>
+    </header>
+
+    <aside id="left-sidebar">
+<div id="sidebar-normal">
+<div style="padding:12px;">
+    <button class="btn" style="width:100%; justify-content:center;" onclick="editor.toggleTemplates()">
+        <i data-lucide="layout-template"></i> Templates
+    </button>
+</div>
+        <div class="sidebar-section-title">Layout</div>
+        <div class="element-grid">
+            <div class="draggable-item" draggable="true" data-type="section"><i data-lucide="layout"></i>Section</div>
+            <div class="draggable-item" draggable="true" data-type="container"><i data-lucide="container"></i>Container</div>
+            <div class="draggable-item" draggable="true" data-type="row"><i data-lucide="columns-2"></i>Flex Row</div>
+            <div class="draggable-item" draggable="true" data-type="grid"><i data-lucide="layout-grid"></i>Grid</div>
+<div class="draggable-item" draggable="true" data-type="nav">
+    <i data-lucide="menu"></i>Navbar
+</div>
+<div class="draggable-item" draggable="true" data-type="footer">
+    <i data-lucide="layout-template"></i>Footer
+</div>
+
+<div class="draggable-item" draggable="true" data-type="hr">
+    <i data-lucide="minus"></i>Divider
+</div>
+        </div>
+
+        <div class="sidebar-section-title">Typography</div>
+        <div class="element-grid">
+            <div class="draggable-item" draggable="true" data-type="h1"><i data-lucide="heading-1"></i>H1</div>
+            <div class="draggable-item" draggable="true" data-type="h2"><i data-lucide="heading-2"></i>H2</div>
+            <div class="draggable-item" draggable="true" data-type="p"><i data-lucide="pilcrow"></i>Text Block</div>
+            <div class="draggable-item" draggable="true" data-type="span"><i data-lucide="type"></i>Inline Span</div>
+        </div>
+
+        <div class="sidebar-section-title">Media & Buttons</div>
+        <div class="element-grid">
+            <div class="draggable-item" draggable="true" data-type="img"><i data-lucide="image"></i>Image</div>
+            <div class="draggable-item" draggable="true" data-type="button"><i data-lucide="square"></i>Button</div>
+            <div class="draggable-item" draggable="true" data-type="link"><i data-lucide="link"></i>Hyperlink</div>
+            <div class="draggable-item" draggable="true" data-type="video"><i data-lucide="video"></i>Video</div>
+        </div>
+
+        <div class="sidebar-section-title">Forms</div>
+        <div class="element-grid">
+<div class="draggable-item" draggable="true" data-type="form">
+    <i data-lucide="file-text"></i>Form
+</div>
+            <div class="draggable-item" draggable="true" data-type="input"><i data-lucide="form-input"></i>Input</div>
+            <div class="draggable-item" draggable="true" data-type="textarea"><i data-lucide="align-left"></i>Textarea</div>
+            <div class="draggable-item" draggable="true" data-type="select"><i data-lucide="chevron-down-square"></i>Select</div>
+        </div>
+</div>
+ <div id="sidebar-templates" class="hidden">
+        <div style="padding:12px;">
+            <button class="btn" style="width:100%;" onclick="editor.toggleTemplates()">
+                ← Back
+            </button>
+        </div>
+        <div class="sidebar-section-title">Templates</div>
+        <div id="template-grid" class="element-grid"></div>
+    </div>
+    </aside>
+
+    <main id="canvas-wrapper">
+        <div id="canvas-container">
+            <div id="canvas" class="grid-visible">
+            </div>
+        </div>
+    </main>
+
+    <aside id="right-sidebar">
+        <div class="side-tabs">
+            <div class="side-tab active" onclick="editor.switchTab('style')">Design</div>
+            <div class="side-tab" onclick="editor.switchTab('config')">Config</div>
+            <div class="side-tab" onclick="editor.switchTab('code')">Settings</div>
+        </div>
+
+        <div id="tab-style" class="prop-content">
+            <div id="prop-empty" style="text-align: center; padding-top: 60px; color: #444;">
+                <i data-lucide="mouse-pointer-2" style="width: 32px; height: 32px; margin-bottom: 12px;"></i>
+                <p style="font-size: 11px;">Select an element to customize</p>
+            </div>
+
+            <div id="prop-editor" class="hidden">
+                <div class="prop-group">
+                    <span class="prop-label">Layout & Size</span>
+                    <div class="prop-row">
+                        <div class="prop-col">
+                            <span class="prop-label" style="font-size: 9px;">Display</span>
+                            <select id="val-display" class="input-control">
+                                <option value="block">Block</option>
+                                <option value="flex">Flex</option>
+                                <option value="grid">Grid</option>
+                                <option value="inline-block">Inline</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="prop-row">
+                        <div class="prop-col"><input type="text" id="val-width" class="input-control" placeholder="W (e.g. 100%)"></div>
+                        <div class="prop-col"><input type="text" id="val-height" class="input-control" placeholder="H (e.g. auto)"></div>
+                    </div>
+                </div>
+
+                <div class="prop-group">
+                    <span class="prop-label">Spacing</span>
+                    <div class="prop-row">
+                        <div class="prop-col"><input type="text" id="val-padding" class="input-control" placeholder="Padding"></div>
+                        <div class="prop-col"><input type="text" id="val-margin" class="input-control" placeholder="Margin"></div>
+                    </div>
+                </div>
+
+                <div class="prop-group">
+                    <span class="prop-label">Typography</span>
+                    <div class="prop-row">
+                        <div class="prop-col"><input type="text" id="val-fontSize" class="input-control" placeholder="Font Size"></div>
+                        <div class="prop-col">
+                            <select id="val-fontWeight" class="input-control">
+                                <option value="400">Regular</option>
+                                <option value="500">Medium</option>
+                                <option value="700">Bold</option>
+                                <option value="900">Black</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="prop-row">
+                        <div class="prop-col"><input type="color" id="val-color" class="input-control" style="height:32px; padding:2px"></div>
+                        <div class="prop-col">
+                            <div class="prop-group">
+    <span class="prop-label">Text Align</span>
+    <select id="val-textAlign" class="input-control">
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+        <option value="right">Right</option>
+    </select>
+</div>
+
+<div class="prop-group">
+    <span class="prop-label">Element Align</span>
+    <select id="val-alignSelf" class="input-control">
+        <option value="left">Left</option>
+        <option value="center">Center</option>
+        <option value="right">Right</option>
+    </select>
+</div>
+                        </div>
+                    </div>
+                    <input type="text" id="val-lineHeight" class="input-control" placeholder="Line Height" style="margin-top:6px">
+                </div>
+
+                <div class="prop-group">
+                    <span class="prop-label">Appearance</span>
+                    <div class="prop-row">
+                        <div class="prop-col"><input type="color" id="val-backgroundColor" class="input-control" style="height:32px; padding:2px"></div>
+                        <div class="prop-col"><input type="text" id="val-borderRadius" class="input-control" placeholder="Radius"></div>
+                    </div>
+                    <div class="prop-row">
+                        <div class="prop-col"><input type="text" id="val-border" class="input-control" placeholder="Border (1px solid #000)"></div>
+                    </div>
+                    <div class="prop-row">
+                        <div class="prop-col"><input type="text" id="val-boxShadow" class="input-control" placeholder="Shadow (0 4px 6px ...)"></div>
+                    </div>
+                </div>
+
+                <div class="prop-group">
+                    <span class="prop-label">Transitions</span>
+                    <input type="text" id="val-transition" class="input-control" placeholder="all 0.3s ease">
+                    <input type="text" id="val-opacity" class="input-control" placeholder="Opacity (0-1)" style="margin-top:6px">
+                </div>
+<button class="btn" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="editor.duplicateSelected()">
+    <i data-lucide="copy"></i> Duplicate Element
+</button>
+                <button class="btn" style="width: 100%; justify-content: center; background: #ef4444; color: white; border: none; margin-top: 10px;" onclick="editor.deleteSelected()">
+                    <i data-lucide="trash-2"></i> Delete Element
+                </button>
+            </div>
+        </div>
+
+        <div id="tab-config" class="prop-content hidden">
+            <div id="config-editor">
+                <div class="prop-group">
+                    <span class="prop-label">Attributes</span>
+<div style="margin-top: 8px;">
+    <span class="prop-label" style="font-size: 9px;">CSS Class</span>
+    <input id="val-class" class="input-control" placeholder="e.g. highlight"
+        oninput="editor.setClass(this.value)">
+</div>
+
+<div style="margin-top: 8px; display:flex; gap:6px;">
+    <input id="new-class-name" class="input-control" placeholder="class name">
+    <button class="btn" onclick="editor.createClass()">+</button>
+</div>
+<br>
+<div class="prop-group">
+    <span class="prop-label">Saved Classes</span>
+    <div id="class-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+</div>
+                    <div id="attr-src-box" class="hidden">
+                        <span class="prop-label" style="font-size: 9px;">Source URL (Image/Video)</span>
+                        <input type="text" id="val-src" class="input-control" placeholder="https://...">
+                    </div>
+                    <div id="attr-href-box" class="hidden" style="margin-top: 8px;">
+                        <span class="prop-label" style="font-size: 9px;">Link Target (href)</span>
+                        <input type="text" id="val-href" class="input-control" placeholder="/home or https://...">
+                    </div>
+<div id="attr-onclick-box" class="hidden" style="margin-top: 8px;">
+    <span class="prop-label" style="font-size: 9px;">On Click</span>
+    <input type="text" id="val-onclick" class="input-control" placeholder="alert('clicked')">
+</div>
+                    <div style="margin-top: 8px;">
+                        <span class="prop-label" style="font-size: 9px;">Element ID</span>
+                        <input type="text" id="val-id" class="input-control" placeholder="my-element">
+                    </div>
+<div id="attr-options-box" class="hidden" style="margin-top: 12px;">
+    <span class="prop-label" style="font-size: 9px;">Options</span>
+
+    <div id="options-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+
+    <button class="btn" style="margin-top:8px; width:100%;" onclick="editor.addOption()">
+      <i data-lucide="plus"></i> Add Option
+    </button>
+</div>
+                </div>
+<div id="attr-input-type-box" class="hidden" style="margin-top: 8px;">
+    <span class="prop-label" style="font-size: 9px;">Input Type</span>
+    <select id="val-inputType" class="input-control">
+        <option value="text">Text</option>
+        <option value="password">Password</option>
+        <option value="email">Email</option>
+        <option value="number">Number</option>
+        <option value="color">Color</option>
+        <option value="checkbox">Checkbox</option>
+        <option value="radio">Radio</option>
+        <option value="range">Range</option>
+        <option value="date">Date</option>
+        <option value="file">File</option>
+    </select>
+</div>
+                <div class="prop-group">
+                    <span class="prop-label">Text Content</span>
+                    <textarea id="val-innerText" class="input-control" rows="6" placeholder="Enter text content..."></textarea>
+                </div>
+<div class="prop-group">
+    <span class="prop-label">Element HTML</span>
+    <textarea id="val-outerHTML" class="input-control" rows="10"
+        placeholder="Full HTML here..."></textarea>
+
+    <button class="btn primary" style="margin-top:8px; width:100%;" onclick="editor.applyOuterHTML()">
+        Apply HTML Changes
+    </button>
+</div>
+            </div>
+        </div>
+
+        <div id="tab-code" class="prop-content hidden">
+            <div id="inject-panel">
+<label class="code-block-label" style="margin-top:10px;">Title</label>
+<input id="page-title-input" class="input-control" placeholder="Page Title" oninput="editor.setPageTitle(this.value)">
+
+<label class="code-block-label">Global Font</label>
+<select id="global-font" class="input-control" onchange="editor.applyFont(this.value)">
+    <option value="Inter">Inter</option>
+    <option value="Arial">Arial</option>
+    <option value="Fira Code">Fira Code</option>
+    <option value="Georgia">Georgia</option>
+</select>
+
+<label class="code-block-label" style="margin-top:10px;">Base Font Size</label>
+<input id="global-font-size" class="input-control" placeholder="16px" oninput="editor.applyBaseFontSize(this.value)">
+                <label class="code-block-label">Global Styles (CSS)</label>
+                <textarea id="global-css" class="input-control" rows="8" placeholder="body { background: #ffffff }"></textarea>
+                
+                <label class="code-block-label" style="margin-top: 16px;">Global Script (JS)</label>
+                <textarea id="global-js" class="input-control" rows="8" placeholder="console.log('hello world')"></textarea>
+                
+                <button class="btn primary" style="width: 100%; margin-top: 12px;" onclick="editor.applyGlobals()">Apply Custom Code</button>
+            </div>
+        </div>
+    </aside>
+</div>
+
+<!-- Overlays -->
+<div id="overlay">
+    <div id="modal">
+        <div id="modal-header">
+            <h3 id="modal-title" style="font-size: 14px;">Source Code Editor</h3>
+            <div class="tool-group">
+                <button class="btn primary" onclick="editor.applyCode()">Apply Changes</button>
+                <button class="btn" onclick="editor.closeModal()">Close</button>
+            </div>
+        </div>
+        <textarea id="code-editor" spellcheck="false"></textarea>
+    </div>
+</div>
+
+<div id="context-menu">
+    <div class="menu-item" onclick="editor.duplicateSelected()"><i data-lucide="copy" style="width:14px"></i> Duplicate</div>
+    <div class="menu-item" onclick="editor.deleteSelected()"><i data-lucide="trash-2" style="width:14px"></i> Delete</div>
+    <div class="menu-item" onclick="editor.moveUp()"><i data-lucide="chevron-up" style="width:14px"></i> Move Up</div>
+    <div class="menu-item" onclick="editor.moveDown()"><i data-lucide="chevron-down" style="width:14px"></i> Move Down</div>
+</div>
+
+<div id="toast">Changes Saved</div>
+
+<script>
+    class ProWebBuilder {
+toggleLeft() {
+    const left = document.getElementById('left-sidebar');
+    left.classList.toggle('hidden-left');
+}
+
+toggleRight() {
+    const right = document.getElementById('right-sidebar');
+    right.classList.toggle('hidden-right');
+}
+
+togglePreview() {
+    const app = document.getElementById('app');
+    const btn = document.getElementById('preview-btn');
+
+    const isPreview = app.classList.toggle('preview-mode');
+    btn.classList.toggle('active', isPreview);
+}
+       constructor() {
+            this.canvas = document.getElementById('canvas');
+            this.selected = null;
+            this.history = [];
+            this.historyIdx = -1;
+            this.activeTab = 'style';
+            this.globals = { css: '', js: '' };
+            this.isTemplatesMode = false;
+this.classLibrary = {};
+            this.init();
+this.templates = [
+
+{
+    name: "Clean Header",
+    build: () => {
+        const header = document.createElement("header");
+        header.className = "editable-element";
+        header.style.display = "flex";
+        header.style.justifyContent = "space-between";
+        header.style.alignItems = "center";
+        header.style.padding = "20px 40px";
+        header.style.background = "#ffffff";
+        header.style.borderBottom = "1px solid #e5e7eb";
+
+        const logo = document.createElement("div");
+        logo.className = "editable-element";
+        logo.innerText = "YourBrand";
+        logo.style.fontWeight = "800";
+        logo.style.fontSize = "18px";
+
+        const nav = document.createElement("nav");
+        nav.style.display = "flex";
+        nav.style.gap = "20px";
+
+        ["Home", "About", "Services", "Contact"].forEach(t => {
+            const link = document.createElement("span");
+            link.className = "editable-element";
+            link.innerText = t;
+            link.style.cursor = "pointer";
+            link.style.fontSize = "14px";
+            link.style.color = "#333";
+            nav.appendChild(link);
+        });
+
+        const btn = document.createElement("button");
+        btn.className = "editable-element";
+        btn.innerText = "Get Started";
+        btn.style.padding = "8px 14px";
+        btn.style.borderRadius = "8px";
+        btn.style.border = "none";
+        btn.style.background = "#3b82f6";
+        btn.style.color = "white";
+        btn.style.fontSize = "13px";
+
+        header.appendChild(logo);
+        header.appendChild(nav);
+        header.appendChild(btn);
+
+        return header;
+    }
+},
+
+{
+    name: "Dark Header",
+    build: () => {
+        const nav = document.createElement("nav");
+        nav.className = "editable-element";
+        nav.style.display = "flex";
+        nav.style.justifyContent = "space-between";
+        nav.style.alignItems = "center";
+        nav.style.padding = "16px 30px";
+        nav.style.background = "#111827";
+        nav.style.color = "white";
+
+        const left = document.createElement("div");
+        left.className = "editable-element";
+        left.innerText = "Logo";
+        left.style.fontWeight = "700";
+
+        const center = document.createElement("div");
+        center.style.display = "flex";
+        center.style.gap = "16px";
+
+        ["Home", "Docs", "Pricing"].forEach(t => {
+            const item = document.createElement("span");
+            item.className = "editable-element";
+            item.innerText = t;
+            item.style.fontSize = "13px";
+            item.style.opacity = "0.8";
+            center.appendChild(item);
+        });
+
+        const right = document.createElement("button");
+        right.className = "editable-element";
+        right.innerText = "Login";
+        right.style.padding = "6px 12px";
+        right.style.border = "1px solid #374151";
+        right.style.background = "transparent";
+        right.style.color = "white";
+        right.style.borderRadius = "6px";
+
+        nav.appendChild(left);
+        nav.appendChild(center);
+        nav.appendChild(right);
+
+        return nav;
+    }
+},
+
+{
+    name: "Hero Section",
+    build: () => {
+        const section = document.createElement("section");
+        section.className = "editable-element";
+        section.style.padding = "80px 20px";
+        section.style.textAlign = "center";
+        section.style.background = "#f9fafb";
+
+        const title = document.createElement("h1");
+        title.className = "editable-element";
+        title.innerText = "Build Something Great";
+        title.style.fontSize = "42px";
+        title.style.marginBottom = "10px";
+
+        const subtitle = document.createElement("p");
+        subtitle.className = "editable-element";
+        subtitle.innerText = "A simple clean hero section you can reuse anywhere.";
+        subtitle.style.color = "#6b7280";
+        subtitle.style.marginBottom = "20px";
+
+        const btn = document.createElement("button");
+        btn.className = "editable-element";
+        btn.innerText = "Start Now";
+        btn.style.padding = "10px 18px";
+        btn.style.borderRadius = "8px";
+        btn.style.border = "none";
+        btn.style.background = "#3b82f6";
+        btn.style.color = "white";
+
+        section.appendChild(title);
+        section.appendChild(subtitle);
+        section.appendChild(btn);
+
+        return section;
+    }
+},
+
+{
+    name: "Card Grid Section",
+    build: () => {
+        const section = document.createElement("section");
+        section.className = "editable-element";
+        section.style.padding = "60px 20px";
+        section.style.background = "white";
+
+        const grid = document.createElement("div");
+        grid.style.display = "grid";
+        grid.style.gridTemplateColumns = "repeat(auto-fit, minmax(200px, 1fr))";
+        grid.style.gap = "16px";
+
+        for (let i = 1; i <= 3; i++) {
+            const card = document.createElement("div");
+            card.className = "editable-element";
+            card.style.padding = "20px";
+            card.style.border = "1px solid #e5e7eb";
+            card.style.borderRadius = "10px";
+            card.style.background = "#fafafa";
+
+            const title = document.createElement("div");
+            title.innerText = "Feature " + i;
+            title.style.fontWeight = "600";
+            title.style.marginBottom = "6px";
+
+            const desc = document.createElement("div");
+            desc.innerText = "Short description goes here.";
+            desc.style.fontSize = "13px";
+            desc.style.color = "#6b7280";
+
+            card.appendChild(title);
+            card.appendChild(desc);
+            grid.appendChild(card);
+        }
+
+        section.appendChild(grid);
+        return section;
+    }
+},
+
+{
+    name: "Simple Footer",
+    build: () => {
+        const footer = document.createElement("footer");
+        footer.className = "editable-element";
+        footer.style.padding = "30px 20px";
+        footer.style.background = "#111827";
+        footer.style.color = "white";
+        footer.style.display = "flex";
+        footer.style.justifyContent = "space-between";
+        footer.style.flexWrap = "wrap";
+        footer.style.gap = "10px";
+
+        const left = document.createElement("div");
+        left.className = "editable-element";
+        left.innerText = "© 2026 My Website";
+
+        const links = document.createElement("div");
+        links.style.display = "flex";
+        links.style.gap = "12px";
+
+        ["Privacy", "Terms", "Support"].forEach(t => {
+            const l = document.createElement("span");
+            l.className = "editable-element";
+            l.innerText = t;
+            l.style.fontSize = "13px";
+            l.style.opacity = "0.7";
+            links.appendChild(l);
+        });
+
+        footer.appendChild(left);
+        footer.appendChild(links);
+
+        return footer;
+    }
+},
+
+{
+    name: "Contact Strip",
+    build: () => {
+        const section = document.createElement("section");
+        section.className = "editable-element";
+        section.style.padding = "40px 20px";
+        section.style.background = "#f3f4f6";
+        section.style.display = "flex";
+        section.style.justifyContent = "space-between";
+        section.style.alignItems = "center";
+        section.style.flexWrap = "wrap";
+        section.style.gap = "10px";
+
+        const text = document.createElement("div");
+        text.className = "editable-element";
+        text.innerText = "Need help? Contact our team anytime.";
+
+        const btn = document.createElement("button");
+        btn.className = "editable-element";
+        btn.innerText = "Contact Us";
+        btn.style.padding = "10px 16px";
+        btn.style.border = "none";
+        btn.style.borderRadius = "8px";
+        btn.style.background = "#10b981";
+        btn.style.color = "white";
+
+        section.appendChild(text);
+        section.appendChild(btn);
+
+        return section;
+    }
+}
+
+];
+        }
+
+        init() {
+            lucide.createIcons();
+            this.bindEvents();
+            this.bindDnD();
+            this.loadProject();
+            
+            // Auto-save every 3 seconds
+            setInterval(() => this.saveToLocal(true), 3000);
+        }
+
+        bindEvents() {
+            // Selection logic
+            this.canvas.addEventListener('mousedown', (e) => {
+                const el = e.target.closest('.editable-element');
+                if (el && el !== this.canvas) {
+                    this.select(el);
+                    e.stopPropagation();
+                } else {
+                    this.deselect();
+                }
+            });
+
+            // Double click text editing for specific elements
+            this.canvas.addEventListener('dblclick', (e) => {
+                const el = e.target.closest('.editable-element');
+                const nonEditable = ['IMG', 'VIDEO', 'INPUT', 'SELECT'];
+                if (el && !nonEditable.includes(el.tagName)) {
+                    el.contentEditable = "true";
+                    el.focus();
+                    el.addEventListener('blur', () => {
+                        el.contentEditable = "false";
+                        this.record();
+                    }, { once: true });
+                }
+            });
+
+            // Context Menu
+            this.canvas.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const el = e.target.closest('.editable-element');
+                if (el) {
+                    this.select(el);
+                    const menu = document.getElementById('context-menu');
+                    menu.style.display = 'flex';
+                    menu.style.left = e.clientX + 'px';
+                    menu.style.top = e.clientY + 'px';
+                }
+            });
+
+            document.addEventListener('click', () => {
+                document.getElementById('context-menu').style.display = 'none';
+            });
+
+            // Live Properties
+            const inputs = document.querySelectorAll('.input-control');
+            inputs.forEach(input => {
+                input.addEventListener('input', (e) => {
+                    if (e.target.id.startsWith('val-')) this.applyStyle(e);
+                });
+            });
+
+            // Keyboard Shortcuts
+            window.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.key === 'z') { e.preventDefault(); this.undo(); }
+                if (e.ctrlKey && e.key === 'y') { e.preventDefault(); this.redo(); }
+                if (e.ctrlKey && e.key === 's') { e.preventDefault(); this.saveToLocal(); }
+                if (e.key === 'Delete' && this.selected) this.deleteSelected();
+            });
+        }
+
+        bindDnD() {
+            const items = document.querySelectorAll('.draggable-item');
+            items.forEach(item => {
+                item.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', item.dataset.type);
+                });
+            });
+
+            this.canvas.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const target = e.target.closest('.editable-element') || this.canvas;
+                document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+                target.classList.add('drop-target');
+            });
+
+            this.canvas.addEventListener('dragleave', (e) => {
+                const target = e.target.closest('.editable-element');
+                if (target) target.classList.remove('drop-target');
+            });
+
+            this.canvas.addEventListener('drop', (e) => {
+
+                e.preventDefault();
+                document.querySelectorAll('.drop-target').forEach(el => el.classList.remove('drop-target'));
+                const type = e.dataTransfer.getData('text/plain');
+const template = e.dataTransfer.getData('template');
+                const target = e.target.closest('.editable-element') || this.canvas;
+if (template) {
+    const t = this.templates.find(x => x.name === template);
+    if (t) {
+        const el = t.build();
+        this.canvas.appendChild(el);
+        this.hydrateCanvas();
+        this.record();
+    }
+    return;
+}
+                this.addElement(type, target);
+            });
+        }
+
+        addElement(type, parent) {
+            const el = document.createElement(this.getTagName(type));
+            el.className = 'editable-element';
+            
+            // Set base styles for better drop visibility
+            el.style.minHeight = '20px';
+
+            switch(type) {
+                case 'h1': el.innerText = 'Heading'; el.style.fontSize = '50px'; break;
+                case 'h2': el.innerText = 'Subheading'; el.style.fontSize = '30px'; break;
+                case 'p': el.innerText = 'Start typing content here...'; break;
+                case 'section':
+                    el.style.width = '100%';
+                    el.style.height = '300px';
+                    el.style.padding = '80px 20px';
+                    el.style.backgroundColor = '#ffffff';
+                    break;
+                case 'container':
+                    el.style.margin = '0 auto';
+                    el.style.padding = '20px';
+                    break;
+                case 'row':
+                    el.style.display = 'flex';
+                    el.style.gap = '20px';
+                    el.style.padding = '20px';
+                    const col1 = document.createElement('div');
+                    col1.className = 'editable-element';
+                    col1.style.flex = '1';
+                    col1.innerText = 'Column A';
+                    el.appendChild(col1);
+                    break;
+                case 'grid':
+                    el.style.display = 'grid';
+                    el.style.gridTemplateColumns = 'repeat(3, 1fr)';
+                    el.style.gap = '20px';
+                    el.style.padding = '20px';
+                    for(let i=1; i<=3; i++) {
+                        const cell = document.createElement('div');
+                        cell.className = 'editable-element';
+                        cell.innerText = 'Grid Item ' + i;
+                        el.appendChild(cell);
+                    }
+                    break;
+                case 'img':
+                    el.src = 'https://picsum.photos/800/400' || 'https://www.youtube.com/embed/dQw4w9WgXcQ';
+                    el.style.width = '100%';
+                    el.style.display = 'block';
+                    break;
+                case 'button':
+                    el.innerText = 'Button';
+                    el.style.cssText = "background: #3b82f6; color: white; padding: 12px 24px; border-radius: 6px; border: none; cursor: pointer; display: inline-block;";
+                    break;
+                case 'input':
+                    el.placeholder = 'Type here...';
+                    el.style.cssText = "padding: 10px; border: 1px solid #ddd; border-radius: 4px; width: 100%; display: block;";
+                    el.setAttribute('data-type', 'text');
+                    break;
+case 'nav':
+    el.style.display = 'flex';
+    el.style.justifyContent = 'space-between';
+    el.style.alignItems = 'center';
+    el.style.padding = '16px 24px';
+    el.style.background = '#ffffff';
+    el.style.color = '#111';
+    el.style.width = '100%';
+
+    el.style.position = 'sticky';
+    el.style.top = '0';
+    el.style.zIndex = '999';
+
+    el.innerHTML = `
+        <div class="editable-element">Logo</div>
+        <div class="editable-element" style="display:flex; gap:16px;">
+            <span class="editable-element">Home</span>
+            <span class="editable-element">About</span>
+            <span class="editable-element">Contact</span>
+        </div>
+    `;
+
+    this.canvas.prepend(el);
+
+    this.select(el);
+    this.record();
+    return;
+
+case 'form':
+    el.style.display = 'flex';
+    el.style.flexDirection = 'column';
+    el.style.gap = '12px';
+    el.style.padding = '20px';
+    el.style.border = '1px solid #ddd';
+    el.style.background = '#ffffff';
+    //el.setAttribute('onsubmit', 'event.preventDefault()');
+    break;
+case 'footer':
+    el.innerText = 'Footer';
+    el.style.cssText = `
+        width:100%;
+        padding:40px 20px;
+        background:#111;
+        color:#fff;
+        text-align:center;
+    `;
+    break;
+case 'hr':
+    el.style.width = '100%';
+    el.style.border = 'none';
+    el.style.borderTop = '2px solid #ddd';
+    el.style.margin = '20px 0';
+    break;
+            }
+
+            parent.appendChild(el);
+            this.select(el);
+            this.record();
+        }
+
+        getTagName(type) {
+            const map = {
+                'h1':'h1', 'h2':'h2', 'p':'p', 'span':'span', 'section':'section', 'container':'div', 
+                'row':'div', 'grid':'div', 'img':'img', 'button':'button', 'link':'a', 
+                'video':'iframe', 'input':'input', 'textarea':'textarea', 'select':'select', 'nav': 'nav','form': 'form', 'footer': 'footer', 'hr': 'hr',
+
+            };
+            return map[type] || 'div';
+        }
+
+        select(el) {
+            this.deselect();
+            this.selected = el;
+            el.classList.add('selected');
+            
+            if (!el.querySelector(':scope > .resizer') && !['INPUT', 'SELECT', 'TEXTAREA'].includes(el.tagName)) {
+                const rs = document.createElement('div');
+                rs.className = 'resizer';
+                el.appendChild(rs);
+                this.initResizer(rs, el);
+            }
+this.renderOptions();
+            this.updatePropPanel();
+        }
+
+        deselect() {
+            document.querySelectorAll('.editable-element.selected').forEach(el => el.classList.remove('selected'));
+            this.selected = null;
+            document.getElementById('prop-editor').classList.add('hidden');
+            document.getElementById('prop-empty').classList.remove('hidden');
+        }
+
+        updatePropPanel() {
+            const el = this.selected;
+            if (!el) return;
+
+            document.getElementById('prop-editor').classList.remove('hidden');
+            document.getElementById('prop-empty').classList.add('hidden');
+
+            const style = window.getComputedStyle(el);
+            
+            // Design Tab Sync
+            const designProps = ['display', 'width', 'height', 'padding', 'margin', 'fontSize', 'fontWeight', 'textAlign', 'lineHeight', 'borderRadius', 'border', 'boxShadow', 'transition', 'opacity'];
+            designProps.forEach(p => {
+                const input = document.getElementById('val-' + p);
+                if (input) input.value = el.style[p] || style[p] || '';
+            });
+
+            document.getElementById('val-color').value = this.rgbToHex(style.color);
+            document.getElementById('val-backgroundColor').value = this.rgbToHex(style.backgroundColor);
+
+            // Config Tab Sync
+            document.getElementById('attr-src-box').classList.toggle('hidden', !['IMG', 'IFRAME'].includes(el.tagName));
+            document.getElementById('attr-href-box').classList.toggle('hidden', el.tagName !== 'A');
+            
+            document.getElementById('val-innerText').value = el.innerText;
+            document.getElementById('val-src').value = el.src || '';
+            document.getElementById('val-href').value = el.href || '';
+            document.getElementById('val-id').value = el.id || '';
+document.getElementById('attr-onclick-box')
+    .classList.remove('hidden');
+
+document.getElementById('val-onclick').value = el.getAttribute('onclick') || '';
+document.getElementById('attr-options-box')
+    .classList.toggle('hidden', el.tagName !== 'SELECT');
+document.getElementById('val-outerHTML').value = el.outerHTML;
+document.getElementById('attr-input-type-box')
+    .classList.toggle('hidden', el.tagName !== 'INPUT');
+
+document.getElementById('val-inputType').value = el.type || 'text';
+        }
+
+        applyStyle(e) {
+    if (!this.selected) return;
+
+    const el = this.selected;
+    const prop = e.target.id.replace('val-', '');
+    const val = e.target.value;
+
+    if (prop === 'innerText') {
+        el.innerText = val;
+
+    } else if (prop === 'id') {
+        el.id = val;
+
+    } else if (prop === 'src') {
+        el.src = val;
+
+    } else if (prop === 'href') {
+        el.href = val;
+
+    } else if (prop === 'onclick') {
+        if (val.trim() === '') {
+            el.removeAttribute('onclick');
+        } else {
+            el.setAttribute('onclick', val);
+        }
+	 } else if (prop === 'textAlign') {
+        el.style.textAlign = val;
+
+    } else if (prop === 'alignSelf') {
+
+    	el.style.marginLeft = '';
+    	el.style.marginRight = '';
+    	el.style.display = 'block';
+    	if (val === 'center') {
+        	el.style.marginLeft = 'auto';
+        	el.style.marginRight = 'auto';
+    	}
+    	if (val === 'right') {
+        	el.style.marginLeft = 'auto';
+        	el.style.marginRight = '0';
+    	}
+    	if (val === 'left') {
+        	el.style.marginLeft = '0';
+        	el.style.marginRight = 'auto';
+    	}
+    }  else if (prop === 'inputType') {
+       el.type = val;
+
+       if (val === 'checkbox' || val === 'radio') {
+           el.style.width = 'auto';
+       } else {
+           el.style.width = '100%';
+       } 
+}else {
+         el.style[prop] = val;
+     }
+
+    this.record();
+}
+
+        initResizer(handle, el) {
+    handle.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const startW = el.offsetWidth;
+        const startH = el.offsetHeight;
+        const startX = e.clientX;
+        const startY = e.clientY;
+
+        document.body.style.userSelect = "none";
+        document.body.style.pointerEvents = "none";
+        handle.style.pointerEvents = "all"; // keep handle active
+
+        const move = (me) => {
+            const newW = startW + (me.clientX - startX);
+            const newH = startH + (me.clientY - startY);
+
+            el.style.width = newW + 'px';
+            el.style.height = newH + 'px';
+        };
+
+        const up = () => {
+            window.removeEventListener('mousemove', move);
+            window.removeEventListener('mouseup', up);
+
+            document.body.style.userSelect = "";
+            document.body.style.pointerEvents = "";
+
+            this.record();
+        };
+
+        window.addEventListener('mousemove', move);
+        window.addEventListener('mouseup', up);
+    });
+}
+
+        // Project State Management
+        record() {
+            const snap = {
+                html: this.canvas.innerHTML,
+                globals: { ...this.globals }
+            };
+            const snapStr = JSON.stringify(snap);
+            if (this.history[this.historyIdx] === snapStr) return;
+            
+            this.history = this.history.slice(0, this.historyIdx + 1);
+            this.history.push(snapStr);
+            this.historyIdx++;
+        }
+
+        undo() {
+            if (this.historyIdx > 0) {
+                this.historyIdx--;
+                this.applySnapshot(this.history[this.historyIdx]);
+            }
+        }
+
+        redo() {
+            if (this.historyIdx < this.history.length - 1) {
+                this.historyIdx++;
+                this.applySnapshot(this.history[this.historyIdx]);
+            }
+        }
+
+        applySnapshot(snapStr) {
+            const snap = JSON.parse(snapStr);
+            this.canvas.innerHTML = snap.html;
+            this.globals = snap.globals;
+            document.getElementById('global-css').value = this.globals.css;
+            document.getElementById('global-js').value = this.globals.js;
+            this.deselect();
+        }
+
+        saveToLocal(isAuto = false) {
+    const data = {
+        html: this.canvas.innerHTML,
+        globals: this.globals,
+        classLibrary: this.classLibrary
+    };
+
+    localStorage.setItem('cf_pro_project', JSON.stringify(data));
+
+    if (!isAuto) this.notify("Project Saved Locally");
+}
+
+        loadProject() {
+    const saved = localStorage.getItem('cf_pro_project');
+
+    if (saved) {
+        const data = JSON.parse(saved);
+
+        this.canvas.innerHTML = data.html || '';
+        this.hydrateCanvas();
+
+        this.globals = data.globals || { css: '', js: '' };
+        this.classLibrary = data.classLibrary || {};
+
+        document.getElementById('global-css').value = this.globals.css;
+        document.getElementById('global-js').value = this.globals.js;
+
+        document.getElementById("page-title-input").value = document.title;
+
+        this.renderClasses(); // refresh UI
+    } else {
+        this.canvas.innerHTML = `<section class="editable-element" style="padding:100px 20px; text-align:center;">
+            <h1 class="editable-element">Start Creating</h1>
+            <p class="editable-element">Drag elements from the left panel.</p>
+        </section>`;
+    }
+
+    this.record();
+}
+
+        newProject() {
+            if (confirm("Clear canvas? Current progress will be lost if not saved.")) {
+                this.canvas.innerHTML = "";
+                this.globals = { css: '', js: '' };
+                this.record();
+                this.deselect();
+            }
+        }
+
+        // Globals (Styles & Scripts)
+        applyGlobals() {
+            this.globals.css = document.getElementById('global-css').value;
+            this.globals.js = document.getElementById('global-js').value;
+            this.record();
+            this.notify("Custom Code Applied");
+        }
+
+        exportHTML() {
+    const html = this.getFullHTML();
+
+    const blob = new Blob([html], { type: 'text/html' });
+    const title = document.title || "website";
+
+    const a = document.createElement('a');
+    a.download = `${title}.html`;
+    a.href = URL.createObjectURL(blob);
+    a.click();
+}
+
+        // Helpers
+        switchTab(tab) {
+            document.querySelectorAll('.side-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.prop-content').forEach(c => c.classList.add('hidden'));
+            
+            document.querySelector(`[onclick="editor.switchTab('${tab}')"]`).classList.add('active');
+            document.getElementById('tab-' + tab).classList.remove('hidden');
+        }
+
+        openCode(mode) {
+    document.getElementById('overlay').style.display = 'flex';
+
+    const fullHTML = this.getFullHTML();
+    document.getElementById('code-editor').value = fullHTML;
+document.getElementById('modal-title').innerText = "Source Code Editor";
+    this._codeMode = mode;
+}
+
+        applyCode() {
+    const code = document.getElementById('code-editor').value;
+
+    if (this._mode === "createClass") {
+        const name = this._pendingClassName;
+
+        const css = code.replace(`.${name}`, '').replace(/[{}]/g, '').trim();
+
+        this.classLibrary[name] = css;
+        this.renderClasses();
+document.getElementById('modal-title').innerText = "Source Code Editor";
+
+        this.notify("Class Created");
+    }
+
+    else if (this._mode === "editClass") {
+        const name = this._pendingClassName;
+
+        const css = code.replace(`.${name}`, '').replace(/[{}]/g, '').trim();
+
+        this.classLibrary[name] = css;
+        this.renderClasses();
+document.getElementById('modal-title').innerText = "Source Code Editor";
+
+        this.notify("Class Updated");
+    }
+
+    // NORMAL HTML EDITOR
+    else {
+        this.canvas.innerHTML = code;
+        this.record();
+    }
+
+    this._mode = null;
+    this._pendingClassName = null;
+
+    this.closeModal();
+}
+
+        closeModal() { document.getElementById('overlay').style.display = 'none'; }
+
+        setViewport(w, id, force = false) {
+    const app = document.getElementById('app');
+
+    if (app.classList.contains('preview-mode') && !force) return;
+
+    const container = document.getElementById('canvas-container');
+    container.style.width = w;
+
+    if (id) {
+        document.querySelectorAll('.bp-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+}
+renderOptions() {
+    if (!this.selected || this.selected.tagName !== "SELECT") return;
+
+    const box = document.getElementById("options-list");
+    box.innerHTML = "";
+
+    Array.from(this.selected.options).forEach((opt, index) => {
+        const row = document.createElement("div");
+        row.style.display = "flex";
+        row.style.gap = "6px";
+
+        row.innerHTML = `
+            <input class="input-control" style="flex:1" value="${opt.text}" 
+                onchange="editor.updateOption(${index}, 'text', this.value)">
+            <input class="input-control" style="flex:1" value="${opt.value}" 
+                onchange="editor.updateOption(${index}, 'value', this.value)">
+            <button class="btn" onclick="editor.removeOption(${index})"><i data-lucide="x"></i></button>
+        `;
+
+        box.appendChild(row);
+    });
+    lucide.createIcons();
+}
+addOption() {
+    if (!this.selected || this.selected.tagName !== "SELECT") return;
+
+    const opt = document.createElement("option");
+    opt.text = "New Option";
+    opt.value = "new";
+
+    this.selected.appendChild(opt);
+    this.renderOptions();
+    this.record();
+}
+updateOption(index, type, value) {
+    const opt = this.selected.options[index];
+    if (!opt) return;
+
+    if (type === "text") opt.text = value;
+    if (type === "value") opt.value = value;
+
+    this.record();
+}
+removeOption(index) {
+    this.selected.remove(index);
+    this.renderOptions();
+    this.record();
+}
+        toggleGrid() {
+            this.canvas.classList.toggle('grid-visible');
+            document.getElementById('grid-toggle').classList.toggle('active');
+        }
+
+        deleteSelected() {
+            if (this.selected) { this.selected.remove(); this.deselect(); this.record(); }
+        }
+
+        duplicateSelected() {
+    if (!this.selected) return;
+
+    const clone = this.selected.cloneNode(true);
+
+    clone.classList.remove('selected');
+
+    if (this.selected.nextSibling) {
+        this.selected.parentNode.insertBefore(clone, this.selected.nextSibling);
+    } else {
+        this.selected.parentNode.appendChild(clone);
+    }
+
+    this.hydrateCanvas();
+
+    this.select(clone);
+
+    this.record();
+}
+
+        moveUp() { if(this.selected && this.selected.previousElementSibling) this.selected.parentNode.insertBefore(this.selected, this.selected.previousElementSibling); this.record(); }
+        moveDown() { if(this.selected && this.selected.nextElementSibling) this.selected.parentNode.insertBefore(this.selected.nextElementSibling, this.selected); this.record(); }
+
+        notify(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg; t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 3000);
+        }
+
+        rgbToHex(rgb) {
+            if (!rgb || rgb.includes('rgba(0, 0, 0, 0)')) return "#ffffff";
+            const res = rgb.match(/\d+/g);
+            if (!res) return "#ffffff";
+            return "#" + res.slice(0,3).map(x => parseInt(x).toString(16).padStart(2, '0')).join("");
+        }
+rebindResizers() {
+    const elements = this.canvas.querySelectorAll('.editable-element');
+
+    elements.forEach(el => {
+        // Skip inputs etc
+        if (['INPUT', 'SELECT', 'TEXTAREA'].includes(el.tagName)) return;
+
+        // Avoid duplicating resizer
+        if (!el.querySelector(':scope > .resizer')) {
+            const rs = document.createElement('div');
+            rs.className = 'resizer';
+            el.appendChild(rs);
+            this.initResizer(rs, el);
+        }
+    });
+}
+hydrateCanvas() {
+    const elements = this.canvas.querySelectorAll('.editable-element');
+
+    elements.forEach(el => {
+        // Make selectable again
+        el.addEventListener('mousedown', (e) => {
+            this.select(el);
+            e.stopPropagation();
+        });
+
+        // Make double-click editable again
+        el.addEventListener('dblclick', (e) => {
+            const nonEditable = ['IMG', 'VIDEO', 'INPUT', 'SELECT'];
+            if (!nonEditable.includes(el.tagName)) {
+                el.contentEditable = "true";
+                el.focus();
+
+                el.addEventListener('blur', () => {
+                    el.contentEditable = "false";
+                    this.record();
+                }, { once: true });
+            }
+        });
+
+        // Re-add resizer
+        if (!['INPUT', 'SELECT', 'TEXTAREA'].includes(el.tagName)) {
+            if (!el.querySelector(':scope > .resizer')) {
+                const rs = document.createElement('div');
+                rs.className = 'resizer';
+                el.appendChild(rs);
+                this.initResizer(rs, el);
+            }
+        }
+    });
+this.renderClasses();
+}
+applyOuterHTML() {
+    if (!this.selected) return;
+
+    const html = document.getElementById('val-outerHTML').value.trim();
+    if (!html) return;
+
+    const temp = document.createElement('div');
+    temp.innerHTML = html;
+
+    const newEl = temp.firstElementChild;
+    if (!newEl) return;
+
+    // Preserve editable class
+    newEl.classList.add('editable-element');
+
+    // Replace old element
+    this.selected.replaceWith(newEl);
+
+    // Rebind interactions
+    this.hydrateCanvas();
+
+    // Select the new one
+    this.select(newEl);
+
+    this.record();
+}
+toggleTemplates() {
+    const normal = document.getElementById("sidebar-normal");
+    const templates = document.getElementById("sidebar-templates");
+    const grid = document.getElementById("template-grid");
+
+    this.isTemplatesMode = !this.isTemplatesMode;
+
+    if (this.isTemplatesMode) {
+
+        // hide normal, show templates
+        normal.classList.add("hidden");
+        templates.classList.remove("hidden");
+
+        // build templates ONLY once
+        grid.innerHTML = "";
+
+        this.templates.forEach(t => {
+            const item = document.createElement("div");
+            item.className = "draggable-item";
+            item.draggable = true;
+            item.dataset.template = t.name;
+
+            item.innerHTML = `<i data-lucide="layout-template"></i>${t.name}`;
+
+            item.addEventListener("dragstart", (e) => {
+                e.dataTransfer.setData("template", t.name);
+            });
+
+            grid.appendChild(item);
+        });
+
+        lucide.createIcons();
+        this.initDnDOnce(); // safe
+
+    } else {
+
+        // show normal, hide templates
+        templates.classList.add("hidden");
+        normal.classList.remove("hidden");
+
+        this.initDnDOnce();
+        lucide.createIcons();
+    }
+}
+setPageTitle(title) {
+    document.title = title || "Untitled Page";
+}
+applyFont(font) {
+    document.body.style.fontFamily = font;
+    this.globals.font = font;
+    this.record();
+}
+
+applyBaseFontSize(size) {
+    document.body.style.fontSize = size;
+    this.globals.fontSize = size;
+    this.record();
+}
+addClass(name, css) {
+    this.classLibrary[name] = css;
+    this.renderClasses();
+    this.record();
+}
+
+applyClassToSelected(className) {
+    if (!this.selected) return;
+    this.selected.classList.add(className);
+    this.record();
+}
+
+renderClasses() {
+    const styleTag = document.getElementById("dynamic-classes");
+
+    styleTag.innerHTML = Object.entries(this.classLibrary)
+        .map(([name, css]) => `.${name}{${css}}`)
+        .join("\n");
+
+    // also render UI list
+    const container = document.getElementById("class-list");
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    Object.entries(this.classLibrary).forEach(([name, css]) => {
+        const row = document.createElement("div");
+        row.style.display = "flex";
+        row.style.gap = "6px";
+        row.style.marginTop = "6px";
+
+        row.innerHTML = `
+            <div style="flex:1; font-size:11px; color:#ccc;">.${name}</div>
+            <button class="btn" onclick="editor.editClass('${name}')">Edit</button>
+            <button class="btn" style="background:#ef4444;color:white;" onclick="editor.deleteClass('${name}')">X</button>
+        `;
+
+        container.appendChild(row);
+    });
+}
+setClass(val) {
+    if (!this.selected) return;
+
+    this.selected.classList.remove(...this.selected.classList);
+    this.selected.classList.add("editable-element");
+
+    if (val.trim()) {
+        val.split(" ").forEach(c => this.selected.classList.add(c));
+    }
+
+    this.record();
+}
+createClass() {
+    const name = document.getElementById("new-class-name").value.trim();
+    if (!name) return;
+
+    document.getElementById('overlay').style.display = 'flex';
+    document.getElementById('modal-title').innerText = "Create Class CSS";
+
+    document.getElementById('code-editor').value = `.${name} {\n    \n}`;
+
+    this._pendingClassName = name;
+    this._mode = "createClass";
+}
+deleteClass(name) {
+    delete this.classLibrary[name];
+    this.renderClasses();
+    this.record();
+}
+
+editClass(name) {
+    this._pendingClassName = name;
+    this._mode = "editClass";
+
+    document.getElementById('overlay').style.display = 'flex';
+    document.getElementById('modal-title').innerText = "Edit Class CSS";
+
+    document.getElementById('code-editor').value =
+        `.${name} {\n${this.classLibrary[name] || ""}\n}`;
+}
+getFullHTML() {
+    const clean = this.canvas.cloneNode(true);
+
+    clean.querySelectorAll('.resizer').forEach(r => r.remove());
+    clean.querySelectorAll('.selected').forEach(s => s.classList.remove('selected'));
+
+    return `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${document.title || "Untitled Page"}</title>
+    <style>
+        ${this.globals.css || "body { margin: 0; font-family: sans-serif; }"}
+    </style>
+</head>
+<body>
+    ${clean.innerHTML}
+    <script>${this.globals.js}<\/script>
+</body>
+</html>`;
+}
+    }
+
+    const editor = new ProWebBuilder();
+</script>
+</body>
+</html>
