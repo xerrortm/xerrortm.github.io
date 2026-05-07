@@ -7,11 +7,40 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code&display=swap" rel="stylesheet">
 <style id="dynamic-classes"></style>
+<!-- CodeMirror -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
     <style>
 #app.preview-mode {
     grid-template-columns: 0px 1fr 0px !important;
 }
+.CodeMirror {
+    height: 100% !important;
+    font-size: 14px;
+    font-family: 'Fira Code', monospace;
+    background: #050505;
+}
 
+#modal {
+    overflow: hidden;
+}
+
+#modal-header {
+    gap: 10px;
+}
+
+.tab-btn.active {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
         :root {
             --bg-main: #0a0a0a;
             --bg-side: #141414;
@@ -347,10 +376,6 @@
 <div class="draggable-item" draggable="true" data-type="footer">
     <i data-lucide="layout-template"></i>Footer
 </div>
-
-<div class="draggable-item" draggable="true" data-type="hr">
-    <i data-lucide="minus"></i>Divider
-</div>
         </div>
 
         <div class="sidebar-section-title">Typography</div>
@@ -595,29 +620,30 @@
 
 <label class="code-block-label" style="margin-top:10px;">Base Font Size</label>
 <input id="global-font-size" class="input-control" placeholder="16px" oninput="editor.applyBaseFontSize(this.value)">
-                <label class="code-block-label">Global Styles (CSS)</label>
-                <textarea id="global-css" class="input-control" rows="8" placeholder="body { background: #ffffff }"></textarea>
-                
-                <label class="code-block-label" style="margin-top: 16px;">Global Script (JS)</label>
-                <textarea id="global-js" class="input-control" rows="8" placeholder="console.log('hello world')"></textarea>
-                
-                <button class="btn primary" style="width: 100%; margin-top: 12px;" onclick="editor.applyGlobals()">Apply Custom Code</button>
+               
             </div>
         </div>
     </aside>
 </div>
 
-<!-- Overlays -->
 <div id="overlay">
     <div id="modal">
         <div id="modal-header">
             <h3 id="modal-title" style="font-size: 14px;">Source Code Editor</h3>
+
+            <div style="display:flex; gap:8px;">
+                <button class="btn tab-btn active" onclick="editor.switchCodeTab('html', this)">HTML</button>
+                <button class="btn tab-btn" onclick="editor.switchCodeTab('css', this)">CSS</button>
+                <button class="btn tab-btn" onclick="editor.switchCodeTab('js', this)">JS</button>
+            </div>
+
             <div class="tool-group">
                 <button class="btn primary" onclick="editor.applyCode()">Apply Changes</button>
                 <button class="btn" onclick="editor.closeModal()">Close</button>
             </div>
         </div>
-        <textarea id="code-editor" spellcheck="false"></textarea>
+
+        <textarea id="code-editor"></textarea>
     </div>
 </div>
 
@@ -1125,12 +1151,6 @@ case 'footer':
         text-align:center;
     `;
     break;
-case 'hr':
-    el.style.width = '100%';
-    el.style.border = 'none';
-    el.style.borderTop = '2px solid #ddd';
-    el.style.margin = '20px 0';
-    break;
             }
 
             parent.appendChild(el);
@@ -1142,7 +1162,7 @@ case 'hr':
             const map = {
                 'h1':'h1', 'h2':'h2', 'p':'p', 'span':'span', 'section':'section', 'container':'div', 
                 'row':'div', 'grid':'div', 'img':'img', 'button':'button', 'link':'a', 
-                'video':'iframe', 'input':'input', 'textarea':'textarea', 'select':'select', 'nav': 'nav','form': 'form', 'footer': 'footer', 'hr': 'hr',
+                'video':'iframe', 'input':'input', 'textarea':'textarea', 'select':'select', 'nav': 'nav','form': 'form', 'footer': 'footer',
 
             };
             return map[type] || 'div';
@@ -1339,8 +1359,6 @@ document.getElementById('val-inputType').value = el.type || 'text';
             const snap = JSON.parse(snapStr);
             this.canvas.innerHTML = snap.html;
             this.globals = snap.globals;
-            document.getElementById('global-css').value = this.globals.css;
-            document.getElementById('global-js').value = this.globals.js;
             this.deselect();
         }
 
@@ -1368,8 +1386,6 @@ document.getElementById('val-inputType').value = el.type || 'text';
         this.globals = data.globals || { css: '', js: '' };
         this.classLibrary = data.classLibrary || {};
 
-        document.getElementById('global-css').value = this.globals.css;
-        document.getElementById('global-js').value = this.globals.js;
 
         document.getElementById("page-title-input").value = document.title;
 
@@ -1393,13 +1409,7 @@ document.getElementById('val-inputType').value = el.type || 'text';
             }
         }
 
-        // Globals (Styles & Scripts)
-        applyGlobals() {
-            this.globals.css = document.getElementById('global-css').value;
-            this.globals.js = document.getElementById('global-js').value;
-            this.record();
-            this.notify("Custom Code Applied");
-        }
+       
 
         exportHTML() {
     const html = this.getFullHTML();
@@ -1422,67 +1432,114 @@ document.getElementById('val-inputType').value = el.type || 'text';
             document.getElementById('tab-' + tab).classList.remove('hidden');
         }
 
-        openCode(mode) {
+        openCode() {
     document.getElementById('overlay').style.display = 'flex';
 
-    const fullHTML = this.getFullHTML();
-    document.getElementById('code-editor').value = fullHTML;
-document.getElementById('modal-title').innerText = "Source Code Editor";
-    this._codeMode = mode;
+    this.codeTabs = {
+        html: this.canvas.innerHTML,
+        css: this.globals.css || '',
+        js: this.globals.js || ''
+    };
+
+    this.currentCodeTab = 'html';
+
+    setTimeout(() => {
+
+        if (!this.cm) {
+
+            this.cm = CodeMirror.fromTextArea(
+                document.getElementById('code-editor'),
+                {
+                    mode: 'htmlmixed',
+                    theme: 'material-darker',
+                    lineNumbers: true,
+                    autoCloseTags: true,
+                    autoCloseBrackets: true,
+                    lineWrapping: true
+                }
+            );
+
+            this.cm.setSize("100%", "100%");
+        }
+
+        this.cm.setValue(this.codeTabs.html);
+        this.cm.setOption("mode", "htmlmixed");
+        this.cm.refresh();
+
+    }, 50);
 }
 
         applyCode() {
-    const code = document.getElementById('code-editor').value;
 
+    if (this.cm && this.codeTabs && this.currentCodeTab) {
+    this.codeTabs[this.currentCodeTab] = this.cm.getValue();
+}
+
+    // CLASS CREATION
     if (this._mode === "createClass") {
+
         const name = this._pendingClassName;
 
-        const css = code.replace(`.${name}`, '').replace(/[{}]/g, '').trim();
+        const css = this.cm.getValue()
+            .replace(`.${name}`, '')
+            .replace(/[{}]/g, '')
+            .trim();
 
         this.classLibrary[name] = css;
+
         this.renderClasses();
-document.getElementById('modal-title').innerText = "Source Code Editor";
 
         this.notify("Class Created");
     }
 
-    else if (this._mode === "editClass") {
-        const name = this._pendingClassName;
+    // CLASS EDIT
+else if (this._mode === "editClass") {
 
-        const css = code.replace(`.${name}`, '').replace(/[{}]/g, '').trim();
+    const name = this._pendingClassName;
 
-        this.classLibrary[name] = css;
-        this.renderClasses();
-document.getElementById('modal-title').innerText = "Source Code Editor";
+    const css = this.cm.getValue()
+        .replace(`.${name}`, '')
+        .replace(/[{}]/g, '')
+        .trim();
 
-        this.notify("Class Updated");
-    }
+    this.classLibrary[name] = css;
 
-    // NORMAL HTML EDITOR
+    this.renderClasses();
+
+    this.record();
+    this.saveToLocal(true);
+
+    this.notify("Class Updated");
+}
+
+    // NORMAL SOURCE EDITOR
     else {
-        this.canvas.innerHTML = code;
+
+        this.canvas.innerHTML = this.codeTabs.html;
+
+        this.globals.css = this.codeTabs.css;
+        this.globals.js = this.codeTabs.js;
+
+
+        this.hydrateCanvas();
+
         this.record();
+
+        this.notify("Source Updated");
     }
+
+    this.closeModal();
 
     this._mode = null;
     this._pendingClassName = null;
-
-    this.closeModal();
 }
 
-        closeModal() { document.getElementById('overlay').style.display = 'none'; }
+        closeModal() {
+    document.getElementById('overlay').style.display = 'none';
 
-        setViewport(w, id, force = false) {
-    const app = document.getElementById('app');
-
-    if (app.classList.contains('preview-mode') && !force) return;
-
-    const container = document.getElementById('canvas-container');
-    container.style.width = w;
-
-    if (id) {
-        document.querySelectorAll('.bp-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+    if (this.cm) {
+        this.cm.toTextArea();
+        this.cm = null;
     }
 }
 renderOptions() {
@@ -1769,13 +1826,39 @@ createClass() {
     const name = document.getElementById("new-class-name").value.trim();
     if (!name) return;
 
+    this._pendingClassName = name;
+    this._mode = "createClass";
+
     document.getElementById('overlay').style.display = 'flex';
     document.getElementById('modal-title').innerText = "Create Class CSS";
 
-    document.getElementById('code-editor').value = `.${name} {\n    \n}`;
+    setTimeout(() => {
 
-    this._pendingClassName = name;
-    this._mode = "createClass";
+        if (!this.cm) {
+            this.cm = CodeMirror.fromTextArea(
+                document.getElementById('code-editor'),
+                {
+                    mode: 'css',
+                    theme: 'material-darker',
+                    lineNumbers: true,
+                    lineWrapping: true
+                }
+            );
+
+            this.cm.setSize("100%", "100%");
+        }
+
+        this.cm.setOption("mode", "css");
+
+        this.cm.setValue(
+`.${name} {
+
+}`
+        );
+
+        this.cm.refresh();
+
+    }, 50);
 }
 deleteClass(name) {
     delete this.classLibrary[name];
@@ -1784,14 +1867,40 @@ deleteClass(name) {
 }
 
 editClass(name) {
+
     this._pendingClassName = name;
     this._mode = "editClass";
 
     document.getElementById('overlay').style.display = 'flex';
     document.getElementById('modal-title').innerText = "Edit Class CSS";
 
-    document.getElementById('code-editor').value =
-        `.${name} {\n${this.classLibrary[name] || ""}\n}`;
+    setTimeout(() => {
+
+        if (!this.cm) {
+            this.cm = CodeMirror.fromTextArea(
+                document.getElementById('code-editor'),
+                {
+                    mode: 'css',
+                    theme: 'material-darker',
+                    lineNumbers: true,
+                    lineWrapping: true
+                }
+            );
+
+            this.cm.setSize("100%", "100%");
+        }
+
+        this.cm.setOption("mode", "css");
+
+        this.cm.setValue(
+`.${name} {
+${this.classLibrary[name] || ""}
+}`
+        );
+
+        this.cm.refresh();
+
+    }, 50);
 }
 getFullHTML() {
     const clean = this.canvas.cloneNode(true);
@@ -1815,6 +1924,34 @@ getFullHTML() {
     <script>${this.globals.js}<\/script>
 </body>
 </html>`;
+}
+switchCodeTab(tab, btn) {
+
+    if (!this.cm) return;
+
+    // save current tab
+    this.codeTabs[this.currentCodeTab] = this.cm.getValue();
+
+    this.currentCodeTab = tab;
+
+    // update buttons
+    document.querySelectorAll('.tab-btn')
+        .forEach(b => b.classList.remove('active'));
+
+    btn.classList.add('active');
+
+    // set editor mode
+    let mode = "htmlmixed";
+
+    if (tab === "css") mode = "css";
+    if (tab === "js") mode = "javascript";
+
+    this.cm.setOption("mode", mode);
+
+    // load content
+    this.cm.setValue(this.codeTabs[tab]);
+
+    this.cm.refresh();
 }
     }
 
