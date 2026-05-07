@@ -27,6 +27,9 @@ togglePreview() {
             this.classLibrary = {};
             this.projects = JSON.parse(localStorage.getItem("cf_projects") || "{}");
             this.currentProject = localStorage.getItem("cf_current_project");
+this.plugins = JSON.parse(
+    localStorage.getItem("cf_plugins") || "[]"
+);
 this.init();
 if (Object.keys(this.projects).length === 0) {
 
@@ -55,6 +58,148 @@ if (!this.currentProject || !this.projects[this.currentProject]) {
 }
 
 this.loadProject(this.currentProject);
+this.pluginLibrary = [
+
+{
+    name:"Lucide",
+    tag:`<script src="https://unpkg.com/lucide@latest"><\/script>`
+},
+
+{
+    name:"Font Awesome",
+    tag:`<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">`
+},
+
+{
+    name:"Bootstrap",
+    tag:`
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"><\/script>
+`
+},
+
+{
+    name:"Tailwind CSS",
+    tag:`<script src="https://cdn.tailwindcss.com"><\/script>`
+},
+
+{
+    name:"Leaflet",
+    tag:`
+<link rel="stylesheet"
+href="https://unpkg.com/leaflet/dist/leaflet.css">
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"><\/script>
+`
+},
+
+{
+    name:"CodeMirror",
+    tag:`
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"><\/script>
+`
+},
+
+{
+    name:"GSAP",
+    tag:`<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"><\/script>`
+},
+
+{
+    name:"Anime.js",
+    tag:`<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.2/anime.min.js"><\/script>`
+},
+
+{
+    name:"Three.js",
+    tag:`<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"><\/script>`
+},
+
+{
+    name:"Chart.js",
+    tag:`<script src="https://cdn.jsdelivr.net/npm/chart.js"><\/script>`
+},
+
+{
+    name:"AOS Animate",
+    tag:`
+<link rel="stylesheet"
+href="https://unpkg.com/aos@2.3.1/dist/aos.css">
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"><\/script>
+`
+},
+
+{
+    name:"Swiper",
+    tag:`
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css">
+
+<script src="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.js"><\/script>
+`
+},
+
+{
+    name:"Typed.js",
+    tag:`<script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"><\/script>`
+},
+
+{
+    name:"Particles.js",
+    tag:`<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"><\/script>`
+},
+
+{
+    name:"Firebase",
+    tag:`
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"><\/script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js"><\/script>
+`
+},
+
+{
+    name:"jQuery",
+    tag:`<script src="https://code.jquery.com/jquery-3.7.1.min.js"><\/script>`
+},
+
+{
+    name:"React",
+    tag:`
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"><\/script>
+
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"><\/script>
+`
+},
+
+{
+    name:"Vue",
+    tag:`<script src="https://unpkg.com/vue@3/dist/vue.global.js"><\/script>`
+},
+
+{
+    name:"Alpine.js",
+    tag:`<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"><\/script>`
+},
+
+{
+    name:"Socket.IO",
+    tag:`<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"><\/script>`
+},
+
+{
+    name:"Lottie",
+    tag:`<script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.12.2/lottie.min.js"><\/script>`
+}
+
+];
 this.templates = [
 
 {
@@ -68,6 +213,9 @@ this.templates = [
         header.style.padding = "20px 40px";
         header.style.background = "#ffffff";
         header.style.borderBottom = "1px solid #e5e7eb";
+        header.style.position = 'sticky';
+        header.style.top = '0';
+        header.style.zIndex = '999';
 
         const logo = document.createElement("div");
         logo.className = "editable-element";
@@ -103,6 +251,11 @@ this.templates = [
         header.appendChild(nav);
         header.appendChild(btn);
 
+        this.canvas.prepend(header);
+
+        this.select(header);
+        this.record();
+        return;
         return header;
     }
 },
@@ -733,7 +886,6 @@ document.getElementById('val-inputType').value = el.type || 'text';
 
         
 
-
         newProject() {
             if (confirm("Clear canvas? Current progress will be lost if not saved.")) {
                 this.canvas.innerHTML = "";
@@ -822,22 +974,14 @@ document.getElementById('val-inputType').value = el.type || 'text';
     this.codeTabs[this.currentCodeTab] = this.cm.getValue();
 }
 
-    // CLASS CREATION
     if (this._mode === "createClass") {
 
-        const name = this._pendingClassName;
+    const css = this.cm.getValue().trim();
 
-        const css = this.cm.getValue()
-            .replace(`.${name}`, '')
-            .replace(/[{}]/g, '')
-            .trim();
+    this.globals.css += "\n\n" + css;
 
-        this.classLibrary[name] = css;
-
-        this.renderClasses();
-
-        this.notify("Class Created");
-    }
+    this.notify("Class Created");
+}
 
     // CLASS EDIT
 else if (this._mode === "editClass") {
@@ -849,7 +993,7 @@ else if (this._mode === "editClass") {
         .replace(/[{}]/g, '')
         .trim();
 
-    this.classLibrary[name] = css;
+    this.globals.css += "\n\n" + this.cm.getValue().trim();
 
     this.renderClasses();
 
@@ -866,7 +1010,6 @@ else if (this._mode === "editClass") {
 
         this.globals.css = this.codeTabs.css;
         this.globals.js = this.codeTabs.js;
-
 
         this.hydrateCanvas();
 
@@ -1107,13 +1250,11 @@ setPageTitle(title) {
     document.title = title || "Untitled Page";
 }
 applyFont(font) {
-    document.body.style.fontFamily = font;
     this.globals.font = font;
     this.record();
 }
 
 applyBaseFontSize(size) {
-    document.body.style.fontSize = size;
     this.globals.fontSize = size;
     this.record();
 }
@@ -1254,6 +1395,8 @@ getFullHTML() {
 
     clean.querySelectorAll('.resizer').forEach(r => r.remove());
     clean.querySelectorAll('.selected').forEach(s => s.classList.remove('selected'));
+const pluginTags =
+    this.plugins.map(p => p.tag).join("\n");
 
     return `
 <!DOCTYPE html>
@@ -1262,8 +1405,14 @@ getFullHTML() {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${document.title || "Untitled Page"}</title>
-    <style>
-        ${this.globals.css || "body { margin: 0; font-family: sans-serif; }"}
+${pluginTags}
+        <style>
+        body {
+            margin: 0;
+            font-family: ${this.globals.font || "sans-serif"};
+            font-size: ${this.globals.fontSize || "16px"};
+        }
+        ${this.globals.css || ""}
     </style>
 </head>
 <body>
@@ -1276,18 +1425,15 @@ switchCodeTab(tab, btn) {
 
     if (!this.cm) return;
 
-    // save current tab
     this.codeTabs[this.currentCodeTab] = this.cm.getValue();
 
     this.currentCodeTab = tab;
 
-    // update buttons
     document.querySelectorAll('.tab-btn')
         .forEach(b => b.classList.remove('active'));
 
     btn.classList.add('active');
 
-    // set editor mode
     let mode = "htmlmixed";
 
     if (tab === "css") mode = "css";
@@ -1295,7 +1441,6 @@ switchCodeTab(tab, btn) {
 
     this.cm.setOption("mode", mode);
 
-    // load content
     this.cm.setValue(this.codeTabs[tab]);
 
     this.cm.refresh();
@@ -1506,7 +1651,150 @@ refreshIcons() {
         lucide.createIcons();
     }
 }
+openPluginLibrary() {
 
+    document
+        .getElementById("plugin-overlay")
+        .classList.remove("hidden");
+
+    this.renderPlugins();
+}
+
+closePluginLibrary() {
+
+    document
+        .getElementById("plugin-overlay")
+        .classList.add("hidden");
+}
+
+renderPlugins() {
+
+    const list = document.getElementById("plugin-list");
+
+    const search =
+        document.getElementById("plugin-search")
+        .value
+        .toLowerCase();
+
+    list.innerHTML = "";
+
+    this.pluginLibrary
+        .filter(p =>
+            p.name.toLowerCase().includes(search)
+        )
+        .forEach(plugin => {
+
+            const installed =
+                this.plugins.some(x => x.name === plugin.name);
+
+            const card = document.createElement("div");
+
+            card.className = "project-card";
+
+            card.innerHTML = `
+                <div class="project-name">
+                    ${plugin.name}
+                </div>
+
+                <div class="project-date">
+                    Plugin Library
+                </div>
+
+                <div class="project-actions">
+
+                    <button class="btn ${installed ? '' : 'primary'}"
+                        onclick="editor.togglePlugin('${plugin.name}')">
+
+                        ${installed ? 'Uninstall' : 'Install'}
+
+                    </button>
+
+                </div>
+            `;
+
+            list.appendChild(card);
+        });
+}
+
+togglePlugin(name) {
+
+    const plugin =
+        this.pluginLibrary.find(p => p.name === name);
+
+    if (!plugin) return;
+
+    const exists =
+        this.plugins.some(x => x.name === name);
+
+    if (exists) {
+
+        this.plugins =
+            this.plugins.filter(x => x.name !== name);
+
+    } else {
+
+        this.plugins.push(plugin);
     }
 
+    localStorage.setItem(
+        "cf_plugins",
+        JSON.stringify(this.plugins)
+    );
+
+    this.renderPlugins();
+
+    this.applyPluginsToPreview();
+}
+
+createCustomPlugin() {
+
+    const name =
+        document.getElementById("custom-plugin-name")
+        .value.trim();
+
+    const tag =
+        document.getElementById("custom-plugin-tag")
+        .value.trim();
+
+    if (!name || !tag) return;
+
+    this.pluginLibrary.push({
+        name,
+        tag
+    });
+
+    this.renderPlugins();
+}
+applyPluginsToPreview() {
+
+    var old = document.querySelectorAll('[data-plugin]');
+    for (var i = 0; i < old.length; i++) {
+        old[i].parentNode.removeChild(old[i]);
+    }
+
+    for (var p = 0; p < this.plugins.length; p++) {
+
+        var plugin = this.plugins[p];
+
+        var wrapper = document.createElement("div");
+        wrapper.innerHTML = plugin.tag;
+
+        var nodes = wrapper.childNodes;
+
+        for (var i = 0; i < nodes.length; i++) {
+
+            var node = nodes[i];
+
+            if (!node || !node.tagName) continue;
+
+            node.setAttribute("data-plugin", plugin.name);
+
+            document.head.appendChild(node);
+        }
+    }
+
+    this.refreshPluginsRuntime();
+}
+
+    }
 const editor = new ProWebBuilder();
