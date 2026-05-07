@@ -6,41 +6,35 @@
     <title>CanvasFlow Pro - Advanced Website Builder</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code&display=swap" rel="stylesheet">
-<style id="dynamic-classes"></style>
-<!-- CodeMirror -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+	<style id="dynamic-classes"></style>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
     <style>
-#app.preview-mode {
-    grid-template-columns: 0px 1fr 0px !important;
-}
-.CodeMirror {
-    height: 100% !important;
-    font-size: 14px;
-    font-family: 'Fira Code', monospace;
-    background: #050505;
-}
-
-#modal {
-    overflow: hidden;
-}
-
-#modal-header {
-    gap: 10px;
-}
-
-.tab-btn.active {
-    background: var(--accent);
-    color: white;
-    border-color: var(--accent);
-}
+		#app.preview-mode {
+    		grid-template-columns: 0px 1fr 0px !important;
+		}
+		.CodeMirror {
+    		height: 100% !important;
+    		font-size: 14px;
+    		font-family: 'Fira Code', monospace;
+    		background: #050505;
+		}
+		#modal {
+    		overflow: hidden;
+		}
+		#modal-header {
+    		gap: 10px;
+		}
+		.tab-btn.active {
+    		background: var(--accent);
+    		color: white;
+    		border-color: var(--accent);
+		}
         :root {
             --bg-main: #0a0a0a;
             --bg-side: #141414;
@@ -65,17 +59,15 @@
         }
 
         #app {
-    display: grid;
-    grid-template-areas:
-        "header header header"
-        "left main right";
-    grid-template-columns: var(--panel-width-left) 1fr var(--panel-width-right);
-    grid-template-rows: var(--toolbar-height) 1fr;
-    height: 100vh;
-    overflow: hidden;
-}
-
-        /* Top Toolbar */
+    		display: grid;
+    		grid-template-areas:
+        		"header header header"
+        		"left main right";
+    		grid-template-columns: var(--panel-width-left) 1fr var(--panel-width-right);
+    		grid-template-rows: var(--toolbar-height) 1fr;
+    		height: 100vh;
+    		overflow: hidden;
+		}
         header {
             grid-area: header;
             background: var(--bg-side);
@@ -86,10 +78,8 @@
             justify-content: space-between;
             z-index: 1000;
         }
-
         .tool-group { display: flex; gap: 8px; align-items: center; }
         .logo { font-weight: 800; color: var(--accent); font-size: 1rem; letter-spacing: 0.1em; margin-right: 16px;}
-
         .btn {
             background: var(--bg-input);
             border: 1px solid var(--border);
@@ -187,7 +177,6 @@
             background-size: 20px 20px;
         }
 
-        /* Elements on Canvas */
         .editable-element {
             position: relative;
             transition: outline 0.1s ease;
