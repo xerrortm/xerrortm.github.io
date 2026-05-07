@@ -1,5 +1,4 @@
-<script>
-    class ProWebBuilder {
+class ProWebBuilder {
 toggleLeft() {
     const left = document.getElementById('left-sidebar');
     left.classList.toggle('hidden-left');
@@ -1510,5 +1509,4 @@ refreshIcons() {
 
     }
 
-    const editor = new ProWebBuilder();
-</script>
+const editor = new ProWebBuilder();
