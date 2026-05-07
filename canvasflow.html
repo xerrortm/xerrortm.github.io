@@ -1,40 +1,46 @@
 <!DOCTYPE html>
 <html lang="en">
+ 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CanvasFlow Pro - Advanced Website Builder</title>
     <script src="https://unpkg.com/lucide@latest"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Fira+Code&display=swap" rel="stylesheet">
-	<style id="dynamic-classes"></style>
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+    <style id="dynamic-classes"></style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-darker.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
     <style>
-		#app.preview-mode {
-    		grid-template-columns: 0px 1fr 0px !important;
-		}
-		.CodeMirror {
-    		height: 100% !important;
-    		font-size: 14px;
-    		font-family: 'Fira Code', monospace;
-    		background: #050505;
-		}
-		#modal {
-    		overflow: hidden;
-		}
-		#modal-header {
-    		gap: 10px;
-		}
-		.tab-btn.active {
-    		background: var(--accent);
-    		color: white;
-    		border-color: var(--accent);
-		}
+        #app.preview-mode {
+            grid-template-columns: 0px 1fr 0px !important;
+        }
+ 
+        .CodeMirror {
+            height: 100% !important;
+            font-size: 14px;
+            font-family: 'Fira Code', monospace;
+            background: #050505;
+        }
+ 
+        #modal {
+            overflow: hidden;
+        }
+ 
+        #modal-header {
+            gap: 10px;
+        }
+ 
+        .tab-btn.active {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+ 
         :root {
             --bg-main: #0a0a0a;
             --bg-side: #141414;
@@ -47,27 +53,33 @@
             --panel-width-right: 320px;
             --toolbar-height: 56px;
         }
-
-        * { box-sizing: border-box; }
-        body, html {
-            margin: 0; padding: 0;
+ 
+        * {
+            box-sizing: border-box;
+        }
+ 
+        body,
+        html {
+            margin: 0;
+            padding: 0;
             height: 100%;
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-main);
             color: var(--text-main);
             overflow: hidden;
         }
-
+ 
         #app {
-    		display: grid;
-    		grid-template-areas:
-        		"header header header"
-        		"left main right";
-    		grid-template-columns: var(--panel-width-left) 1fr var(--panel-width-right);
-    		grid-template-rows: var(--toolbar-height) 1fr;
-    		height: 100vh;
-    		overflow: hidden;
-		}
+            display: grid;
+            grid-template-areas:
+                "header header header"
+                "left main right";
+            grid-template-columns: var(--panel-width-left) 1fr var(--panel-width-right);
+            grid-template-rows: var(--toolbar-height) 1fr;
+            height: 100vh;
+            overflow: hidden;
+        }
+ 
         header {
             grid-area: header;
             background: var(--bg-side);
@@ -78,8 +90,21 @@
             justify-content: space-between;
             z-index: 1000;
         }
-        .tool-group { display: flex; gap: 8px; align-items: center; }
-        .logo { font-weight: 800; color: var(--accent); font-size: 1rem; letter-spacing: 0.1em; margin-right: 16px;}
+ 
+        .tool-group {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+ 
+        .logo {
+            font-weight: 800;
+            color: var(--accent);
+            font-size: 1rem;
+            letter-spacing: 0.1em;
+            margin-right: 16px;
+        }
+ 
         .btn {
             background: var(--bg-input);
             border: 1px solid var(--border);
@@ -94,11 +119,29 @@
             font-weight: 500;
             transition: 0.2s;
         }
-        .btn:hover { background: #2a2a2a; color: #fff; border-color: #444; }
-        .btn.active { color: var(--accent); border-color: var(--accent); background: rgba(59, 130, 246, 0.1); }
-        .btn.primary { background: var(--accent); border: none; color: white; }
-        .btn.primary:hover { background: #2563eb; }
-
+ 
+        .btn:hover {
+            background: #2a2a2a;
+            color: #fff;
+            border-color: #444;
+        }
+ 
+        .btn.active {
+            color: var(--accent);
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.1);
+        }
+ 
+        .btn.primary {
+            background: var(--accent);
+            border: none;
+            color: white;
+        }
+ 
+        .btn.primary:hover {
+            background: #2563eb;
+        }
+ 
         /* Left Sidebar: Library */
         #left-sidebar {
             grid-area: left;
@@ -108,7 +151,7 @@
             display: flex;
             flex-direction: column;
         }
-
+ 
         .sidebar-section-title {
             padding: 16px 16px 8px;
             font-size: 10px;
@@ -117,14 +160,14 @@
             color: #555;
             font-weight: 800;
         }
-
+ 
         .element-grid {
             padding: 0 12px 12px;
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 8px;
         }
-
+ 
         .draggable-item {
             background: var(--bg-input);
             border: 1px solid var(--border);
@@ -139,9 +182,19 @@
             align-items: center;
             gap: 4px;
         }
-        .draggable-item:hover { border-color: var(--accent); transform: translateY(-1px); background: #252525; }
-        .draggable-item svg { width: 16px; height: 16px; opacity: 0.8; }
-
+ 
+        .draggable-item:hover {
+            border-color: var(--accent);
+            transform: translateY(-1px);
+            background: #252525;
+        }
+ 
+        .draggable-item svg {
+            width: 16px;
+            height: 16px;
+            opacity: 0.8;
+        }
+ 
         /* Main Canvas Wrapper */
         #canvas-wrapper {
             grid-area: main;
@@ -153,14 +206,14 @@
             align-items: center;
             padding: 0px;
         }
-
+ 
         #canvas-container {
             width: 100%;
             transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             max-width: 100%;
             min-height: 100%;
         }
-
+ 
         #canvas {
             background: white;
             min-height: 800px;
@@ -171,43 +224,49 @@
             outline: none;
             overflow: hidden;
         }
-
+ 
         #canvas.grid-visible {
             background-image: radial-gradient(#d1d1d1 1px, transparent 1px);
             background-size: 20px 20px;
         }
-
+ 
         .editable-element {
             position: relative;
             transition: outline 0.1s ease;
         }
-        
+ 
         .drop-target {
             outline: 2px dashed var(--accent) !important;
             background: rgba(59, 130, 246, 0.08) !important;
         }
-
+ 
         .editable-element:hover {
             outline: 1px solid rgba(59, 130, 246, 0.4);
         }
-
+ 
         .editable-element.selected {
             outline: 2px solid var(--accent) !important;
             outline-offset: -1px;
         }
-
+ 
         .resizer {
             position: absolute;
-            width: 16px; height: 16px;
-            background: white; border: 2px solid var(--accent);
-            right: -5px; bottom: -5px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border: 2px solid var(--accent);
+            right: -5px;
+            bottom: -5px;
             cursor: nwse-resize;
             display: none;
             z-index: 100;
             border-radius: 50%;
         }
-        .selected > .resizer { display: block; }
-
+ 
+        .selected>.resizer {
+            display: block;
+        }
+ 
         /* Right Sidebar: Properties */
         #right-sidebar {
             grid-area: right;
@@ -218,608 +277,722 @@
             display: flex;
             flex-direction: column;
         }
-
+ 
         .side-tabs {
             display: flex;
             border-bottom: 1px solid var(--border);
         }
+ 
         .side-tab {
-            flex: 1; padding: 12px; text-align: center; font-size: 12px; cursor: pointer; color: var(--text-dim); border-bottom: 2px solid transparent;
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            font-size: 12px;
+            cursor: pointer;
+            color: var(--text-dim);
+            border-bottom: 2px solid transparent;
         }
-        .side-tab.active { color: var(--accent); border-bottom-color: var(--accent); background: rgba(255,255,255,0.02); }
-
-        .prop-content { padding: 16px; }
-        .prop-group { margin-bottom: 20px; }
-        .prop-label { display: block; font-size: 10px; color: #666; margin-bottom: 6px; text-transform: uppercase; font-weight: 700; }
-        .prop-row { display: flex; gap: 6px; margin-bottom: 6px; }
-        .prop-col { flex: 1; }
-
+ 
+        .side-tab.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            background: rgba(255, 255, 255, 0.02);
+        }
+ 
+        .prop-content {
+            padding: 16px;
+        }
+ 
+        .prop-group {
+            margin-bottom: 20px;
+        }
+ 
+        .prop-label {
+            display: block;
+            font-size: 10px;
+            color: #666;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            font-weight: 700;
+        }
+ 
+        .prop-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+ 
+        .prop-col {
+            flex: 1;
+        }
+ 
         .input-control {
-            width: 100%; background: var(--bg-input); border: 1px solid var(--border);
-            color: #fff; padding: 6px 8px; border-radius: 4px; font-size: 12px;
+            width: 100%;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            color: #fff;
+            padding: 6px 8px;
+            border-radius: 4px;
+            font-size: 12px;
             transition: border 0.2s;
         }
-        .input-control:focus { outline: none; border-color: var(--accent); }
-
+ 
+        .input-control:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+ 
         /* Modal */
         #overlay {
-            position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.9); z-index: 2000;
-            display: none; justify-content: center; align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            display: none;
+            justify-content: center;
+            align-items: center;
         }
+ 
         #modal {
-            background: var(--bg-side); width: 80%; height: 80%;
-            border-radius: 12px; display: flex; flex-direction: column;
+            background: var(--bg-side);
+            width: 80%;
+            height: 80%;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
             border: 1px solid var(--border);
         }
-        #modal-header { padding: 12px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-        #code-editor { flex: 1; background: #050505; color: #10b981; font-family: 'Fira Code', monospace; padding: 20px; border: none; resize: none; font-size: 13px; line-height: 1.5; outline: none; }
-
+ 
+        #modal-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+ 
+        #code-editor {
+            flex: 1;
+            background: #050505;
+            color: #10b981;
+            font-family: 'Fira Code', monospace;
+            padding: 20px;
+            border: none;
+            resize: none;
+            font-size: 13px;
+            line-height: 1.5;
+            outline: none;
+        }
+ 
         /* Toast */
         #toast {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: #22c55e; color: white; padding: 8px 16px; border-radius: 6px;
-            display: none; font-size: 12px; z-index: 4000; font-weight: 600;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #22c55e;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            display: none;
+            font-size: 12px;
+            z-index: 4000;
+            font-weight: 600;
         }
-
+ 
         #context-menu {
-            position: fixed; background: #1a1a1a; border: 1px solid #333;
-            display: none; flex-direction: column; min-width: 150px; z-index: 3000;
-            border-radius: 4px; padding: 4px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            position: fixed;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            display: none;
+            flex-direction: column;
+            min-width: 150px;
+            z-index: 3000;
+            border-radius: 4px;
+            padding: 4px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
         }
-        .menu-item { padding: 6px 10px; cursor: pointer; font-size: 12px; color: #ccc; border-radius: 3px; display: flex; align-items: center; gap: 8px; }
-        .menu-item:hover { background: var(--accent); color: white; }
-
-        .hidden { display: none !important; }
-
+ 
+        .menu-item {
+            padding: 6px 10px;
+            cursor: pointer;
+            font-size: 12px;
+            color: #ccc;
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+ 
+        .menu-item:hover {
+            background: var(--accent);
+            color: white;
+        }
+ 
+        .hidden {
+            display: none !important;
+        }
+ 
         /* Inject Panel */
-        #inject-panel { padding: 16px; }
-        .code-block-label { font-size: 11px; color: #888; margin-bottom: 8px; display: block; }
-        
+        #inject-panel {
+            padding: 16px;
+        }
+ 
+        .code-block-label {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 8px;
+            display: block;
+        }
+ 
         /* Custom UI for specific tags */
-        button.editable-element:active { transform: scale(0.98); }
-#left-sidebar,
-#right-sidebar {
-    transition: transform 0.5s ease, opacity 0.4s ease;
-}
-
-/* Hidden states */
-#left-sidebar.hidden-left {
-    transform: translateX(-100%);
-    opacity: 0;
-    pointer-events: none;
-}
-
-#right-sidebar.hidden-right {
-    transform: translateX(100%);
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* Preview mode */
-.preview-mode #left-sidebar {
-    transform: translateX(-100%);
-    opacity: 0;
-    pointer-events: none;
-}
-.preview-mode #right-sidebar {
-    transform: translateX(100%);
-    opacity: 0;
-    pointer-events: none;
-}
-.projects-overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,0.6);
-    z-index:5000;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-}
-
-.projects-modal{
-    width:850px;
-    max-width:95%;
-    height:700px;
-    max-height:90vh;
-    background:#151515;
-    border:1px solid #2a2a2a;
-    border-radius:10px;
-    overflow:hidden;
-    display:flex;
-    flex-direction:column;
-}
-
-.projects-header{
-    padding:18px 20px;
-    border-bottom:1px solid #242424;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    background:#181818;
-}
-
-.projects-header h2{
-    margin:0;
-    font-size:22px;
-    color:white;
-    font-weight:600;
-}
-
-.projects-header p{
-    margin:3px 0 0;
-    color:#888;
-    font-size:12px;
-}
-
-.projects-topbar{
-    padding:14px 20px;
-    border-bottom:1px solid #222;
-    display:flex;
-    gap:10px;
-    background:#141414;
-}
-
-.projects-list{
-    flex:1;
-    overflow:auto;
-    padding:18px;
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-    gap:12px;
-    background:#101010;
-}
-
-.project-card{
-    background:#181818;
-    border:1px solid #262626;
-    border-radius:8px;
-    padding:14px;
-    transition:0.15s;
-    cursor:pointer;
-    position:relative;
-}
-
-.project-card:hover{
-    border-color:#3b82f6;
-    background:#1c1c1c;
-}
-
-.project-card.active{
-    border-color:#3b82f6;
-    background:#1b2230;
-}
-
-.project-name{
-    font-size:16px;
-    font-weight:600;
-    color:white;
-    margin-bottom:8px;
-}
-
-.project-date{
-    color:#888;
-    font-size:12px;
-}
-
-.project-actions{
-    display:flex;
-    gap:6px;
-    margin-top:14px;
-}
-
-.project-actions .btn{
-    flex:1;
-    justify-content:center;
-}
-
-.hidden{
-    display:none !important;
-}
+        button.editable-element:active {
+            transform: scale(0.98);
+        }
+ 
+        #left-sidebar,
+        #right-sidebar {
+            transition: transform 0.5s ease, opacity 0.4s ease;
+        }
+ 
+        /* Hidden states */
+        #left-sidebar.hidden-left {
+            transform: translateX(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+ 
+        #right-sidebar.hidden-right {
+            transform: translateX(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+ 
+        /* Preview mode */
+        .preview-mode #left-sidebar {
+            transform: translateX(-100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+ 
+        .preview-mode #right-sidebar {
+            transform: translateX(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+ 
+        .projects-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 5000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+ 
+        .projects-modal {
+            width: 850px;
+            max-width: 95%;
+            height: 700px;
+            max-height: 90vh;
+            background: #151515;
+            border: 1px solid #2a2a2a;
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+ 
+        .projects-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #242424;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #181818;
+        }
+ 
+        .projects-header h2 {
+            margin: 0;
+            font-size: 22px;
+            color: white;
+            font-weight: 600;
+        }
+ 
+        .projects-header p {
+            margin: 3px 0 0;
+            color: #888;
+            font-size: 12px;
+        }
+ 
+        .projects-topbar {
+            padding: 14px 20px;
+            border-bottom: 1px solid #222;
+            display: flex;
+            gap: 10px;
+            background: #141414;
+        }
+ 
+        .projects-list {
+            flex: 1;
+            overflow: auto;
+            padding: 18px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            background: #101010;
+        }
+ 
+        .project-card {
+            background: #181818;
+            border: 1px solid #262626;
+            border-radius: 8px;
+            padding: 14px;
+            transition: 0.15s;
+            cursor: pointer;
+            position: relative;
+        }
+ 
+        .project-card:hover {
+            border-color: #3b82f6;
+            background: #1c1c1c;
+        }
+ 
+        .project-card.active {
+            border-color: #3b82f6;
+            background: #1b2230;
+        }
+ 
+        .project-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 8px;
+        }
+ 
+        .project-date {
+            color: #888;
+            font-size: 12px;
+        }
+ 
+        .project-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 14px;
+        }
+ 
+        .project-actions .btn {
+            flex: 1;
+            justify-content: center;
+        }
+ 
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
+ 
 <body>
-
-<div id="app">
-    <header>
-        <div class="tool-group">
-<i class="logo" data-lucide="component"></i>
-<button class="btn" title="Projects" onclick="editor.openProjects()">
-    <i data-lucide="folder"></i>
-</button>
-
-<button class="btn" title="Save" onclick="editor.saveCurrentProject()">
-    <i data-lucide="save"></i>
-</button>
-<button class="btn" id="toggle-elements" onclick="editor.toggleLeft()">
-    <i data-lucide="box"></i>
-</button>
-
-<button class="btn" id="toggle-editor" onclick="editor.toggleRight()">
-    <i data-lucide="sliders"></i>
-</button>
-            <button class="btn" title="Undo" onclick="editor.undo()"><i data-lucide="undo-2"></i></button>
-            <button class="btn" title="Redo" onclick="editor.redo()"><i data-lucide="redo-2"></i></button>
-        </div>
-
-        <div class="tool-group">
-            <button class="btn bp-btn active" id="bp-desktop" onclick="editor.setViewport('100%', 'bp-desktop')"><i data-lucide="monitor"></i></button>
-            <button class="btn bp-btn" id="bp-tablet" onclick="editor.setViewport('768px', 'bp-tablet')"><i data-lucide="tablet"></i></button>
-            <button class="btn bp-btn" id="bp-mobile" onclick="editor.setViewport('375px', 'bp-mobile')"><i data-lucide="smartphone"></i></button>
-        </div>
-
-<div class="tool-group">
-    <button class="btn" id="preview-btn" onclick="editor.togglePreview()">
-        <i data-lucide="eye"></i>
-    </button>
-    <button class="btn" onclick="editor.openCode('html')">
-        <i data-lucide="code"></i> Code
-    </button>
-    <button class="btn primary" onclick="editor.exportHTML()">
-        <i data-lucide="external-link"></i> Publish
-    </button>
-</div>
-    </header>
-
-    <aside id="left-sidebar">
-<div id="sidebar-normal">
-<div style="padding:12px;">
-    <button class="btn" style="width:100%; justify-content:center;" onclick="editor.toggleTemplates()">
-        <i data-lucide="layout-template"></i> Templates
-    </button>
-</div>
-        <div class="sidebar-section-title">Layout</div>
-        <div class="element-grid">
-            <div class="draggable-item" draggable="true" data-type="section"><i data-lucide="layout"></i>Section</div>
-            <div class="draggable-item" draggable="true" data-type="container"><i data-lucide="container"></i>Container</div>
-            <div class="draggable-item" draggable="true" data-type="row"><i data-lucide="columns-2"></i>Flex Row</div>
-            <div class="draggable-item" draggable="true" data-type="grid"><i data-lucide="layout-grid"></i>Grid</div>
-<div class="draggable-item" draggable="true" data-type="nav">
-    <i data-lucide="menu"></i>Navbar
-</div>
-<div class="draggable-item" draggable="true" data-type="footer">
-    <i data-lucide="panel-bottom"></i>Footer
-</div>
-        </div>
-
-        <div class="sidebar-section-title">Typography</div>
-        <div class="element-grid">
-            <div class="draggable-item" draggable="true" data-type="h1"><i data-lucide="heading-1"></i>H1</div>
-            <div class="draggable-item" draggable="true" data-type="h2"><i data-lucide="heading-2"></i>H2</div>
-            <div class="draggable-item" draggable="true" data-type="p"><i data-lucide="text-align-start"></i>Text Block</div>
-            <div class="draggable-item" draggable="true" data-type="span"><i data-lucide="type"></i>Inline Span</div>
-        </div>
-
-        <div class="sidebar-section-title">Media & Buttons</div>
-        <div class="element-grid">
-            <div class="draggable-item" draggable="true" data-type="img"><i data-lucide="image"></i>Image</div>
-            <div class="draggable-item" draggable="true" data-type="button"><i data-lucide="square"></i>Button</div>
-            <div class="draggable-item" draggable="true" data-type="link"><i data-lucide="link"></i>Hyperlink</div>
-            <div class="draggable-item" draggable="true" data-type="video"><i data-lucide="video"></i>Video</div>
-        </div>
-
-        <div class="sidebar-section-title">Forms</div>
-        <div class="element-grid">
-<div class="draggable-item" draggable="true" data-type="form">
-    <i data-lucide="form"></i>Form
-</div>
-            <div class="draggable-item" draggable="true" data-type="input"><i data-lucide="rectangle-ellipsis"></i>Input</div>
-            <div class="draggable-item" draggable="true" data-type="textarea"><i data-lucide="square-dashed-text"></i>Textarea</div>
-            <div class="draggable-item" draggable="true" data-type="select"><i data-lucide="chevron-down-square"></i>Select</div>
-        </div>
-</div>
- <div id="sidebar-templates" class="hidden">
-        <div style="padding:12px;">
-            <button class="btn" style="width:100%;" onclick="editor.toggleTemplates()">
-                ← Back
-            </button>
-        </div>
-        <div class="sidebar-section-title">Templates</div>
-        <div id="template-grid" class="element-grid"></div>
-    </div>
-    </aside>
-
-    <main id="canvas-wrapper">
-        <div id="canvas-container">
-            <div id="canvas" class="grid-visible">
-            </div>
-        </div>
-    </main>
-
-    <aside id="right-sidebar">
-        <div class="side-tabs">
-            <div class="side-tab active" onclick="editor.switchTab('style')">Design</div>
-            <div class="side-tab" onclick="editor.switchTab('config')">Config</div>
-            <div class="side-tab" onclick="editor.switchTab('code')">Settings</div>
-        </div>
-
-        <div id="tab-style" class="prop-content">
-            <div id="prop-empty" style="text-align: center; padding-top: 60px; color: #444;">
-                <i data-lucide="mouse-pointer-2" style="width: 32px; height: 32px; margin-bottom: 12px;"></i>
-                <p style="font-size: 11px;">Select an element to customize</p>
-            </div>
-
-            <div id="prop-editor" class="hidden">
-                <div class="prop-group">
-                    <span class="prop-label">Layout & Size</span>
-                    <div class="prop-row">
-                        <div class="prop-col">
-                            <span class="prop-label" style="font-size: 9px;">Display</span>
-                            <select id="val-display" class="input-control">
-                                <option value="block">Block</option>
-                                <option value="flex">Flex</option>
-                                <option value="grid">Grid</option>
-                                <option value="inline-block">Inline</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="prop-row">
-                        <div class="prop-col"><input type="text" id="val-width" class="input-control" placeholder="W (e.g. 100%)"></div>
-                        <div class="prop-col"><input type="text" id="val-height" class="input-control" placeholder="H (e.g. auto)"></div>
-                    </div>
-                </div>
-
-                <div class="prop-group">
-                    <span class="prop-label">Spacing</span>
-                    <div class="prop-row">
-                        <div class="prop-col"><input type="text" id="val-padding" class="input-control" placeholder="Padding"></div>
-                        <div class="prop-col"><input type="text" id="val-margin" class="input-control" placeholder="Margin"></div>
-                    </div>
-                </div>
-
-                <div class="prop-group">
-                    <span class="prop-label">Typography</span>
-                    <div class="prop-row">
-                        <div class="prop-col"><input type="text" id="val-fontSize" class="input-control" placeholder="Font Size"></div>
-                        <div class="prop-col">
-                            <select id="val-fontWeight" class="input-control">
-                                <option value="400">Regular</option>
-                                <option value="500">Medium</option>
-                                <option value="700">Bold</option>
-                                <option value="900">Black</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="prop-row">
-                        <div class="prop-col"><input type="color" id="val-color" class="input-control" style="height:32px; padding:2px"></div>
-                        <div class="prop-col">
-                            <div class="prop-group">
-    <span class="prop-label">Text Align</span>
-    <select id="val-textAlign" class="input-control">
-        <option value="left">Left</option>
-        <option value="center">Center</option>
-        <option value="right">Right</option>
-    </select>
-</div>
-
-<div class="prop-group">
-    <span class="prop-label">Element Align</span>
-    <select id="val-alignSelf" class="input-control">
-        <option value="left">Left</option>
-        <option value="center">Center</option>
-        <option value="right">Right</option>
-    </select>
-</div>
-                        </div>
-                    </div>
-                    <input type="text" id="val-lineHeight" class="input-control" placeholder="Line Height" style="margin-top:6px">
-                </div>
-
-                <div class="prop-group">
-                    <span class="prop-label">Appearance</span>
-                    <div class="prop-row">
-                        <div class="prop-col"><input type="color" id="val-backgroundColor" class="input-control" style="height:32px; padding:2px"></div>
-                        <div class="prop-col"><input type="text" id="val-borderRadius" class="input-control" placeholder="Radius"></div>
-                    </div>
-                    <div class="prop-row">
-                        <div class="prop-col"><input type="text" id="val-border" class="input-control" placeholder="Border (1px solid #000)"></div>
-                    </div>
-                    <div class="prop-row">
-                        <div class="prop-col"><input type="text" id="val-boxShadow" class="input-control" placeholder="Shadow (0 4px 6px ...)"></div>
-                    </div>
-                </div>
-
-                <div class="prop-group">
-                    <span class="prop-label">Transitions</span>
-                    <input type="text" id="val-transition" class="input-control" placeholder="all 0.3s ease">
-                    <input type="text" id="val-opacity" class="input-control" placeholder="Opacity (0-1)" style="margin-top:6px">
-                </div>
-<button class="btn" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="editor.duplicateSelected()">
-    <i data-lucide="copy"></i> Duplicate Element
-</button>
-                <button class="btn" style="width: 100%; justify-content: center; background: #ef4444; color: white; border: none; margin-top: 10px;" onclick="editor.deleteSelected()">
-                    <i data-lucide="trash-2"></i> Delete Element
-                </button>
-            </div>
-        </div>
-
-        <div id="tab-config" class="prop-content hidden">
-            <div id="config-editor">
-                <div class="prop-group">
-                    <span class="prop-label">Attributes</span>
-<div style="margin-top: 8px;">
-    <span class="prop-label" style="font-size: 9px;">CSS Class</span>
-    <input id="val-class" class="input-control" placeholder="e.g. highlight"
-        oninput="editor.setClass(this.value)">
-</div>
-
-<div style="margin-top: 8px; display:flex; gap:6px;">
-    <input id="new-class-name" class="input-control" placeholder="class name">
-    <button class="btn" onclick="editor.createClass()">+</button>
-</div>
-<br>
-<div class="prop-group">
-    <span class="prop-label">Saved Classes</span>
-    <div id="class-list" style="display:flex; flex-direction:column; gap:6px;"></div>
-</div>
-                    <div id="attr-src-box" class="hidden">
-                        <span class="prop-label" style="font-size: 9px;">Source URL (Image/Video)</span>
-                        <input type="text" id="val-src" class="input-control" placeholder="https://...">
-                    </div>
-                    <div id="attr-href-box" class="hidden" style="margin-top: 8px;">
-                        <span class="prop-label" style="font-size: 9px;">Link Target (href)</span>
-                        <input type="text" id="val-href" class="input-control" placeholder="/home or https://...">
-                    </div>
-<div id="attr-onclick-box" class="hidden" style="margin-top: 8px;">
-    <span class="prop-label" style="font-size: 9px;">On Click</span>
-    <input type="text" id="val-onclick" class="input-control" placeholder="alert('clicked')">
-</div>
-                    <div style="margin-top: 8px;">
-                        <span class="prop-label" style="font-size: 9px;">Element ID</span>
-                        <input type="text" id="val-id" class="input-control" placeholder="my-element">
-                    </div>
-<div id="attr-options-box" class="hidden" style="margin-top: 12px;">
-    <span class="prop-label" style="font-size: 9px;">Options</span>
-
-    <div id="options-list" style="display:flex; flex-direction:column; gap:6px;"></div>
-
-    <button class="btn" style="margin-top:8px; width:100%;" onclick="editor.addOption()">
-      <i data-lucide="plus"></i> Add Option
-    </button>
-</div>
-                </div>
-<div id="attr-input-type-box" class="hidden" style="margin-top: 8px;">
-    <span class="prop-label" style="font-size: 9px;">Input Type</span>
-    <select id="val-inputType" class="input-control">
-        <option value="text">Text</option>
-        <option value="password">Password</option>
-        <option value="email">Email</option>
-        <option value="number">Number</option>
-        <option value="color">Color</option>
-        <option value="checkbox">Checkbox</option>
-        <option value="radio">Radio</option>
-        <option value="range">Range</option>
-        <option value="date">Date</option>
-        <option value="file">File</option>
-    </select>
-</div>
-                <div class="prop-group">
-                    <span class="prop-label">Text Content</span>
-                    <textarea id="val-innerText" class="input-control" rows="6" placeholder="Enter text content..."></textarea>
-                </div>
-<div class="prop-group">
-    <span class="prop-label">Element HTML</span>
-    <textarea id="val-outerHTML" class="input-control" rows="10"
-        placeholder="Full HTML here..."></textarea>
-
-    <button class="btn primary" style="margin-top:8px; width:100%;" onclick="editor.applyOuterHTML()">
-        Apply HTML Changes
-    </button>
-</div>
-            </div>
-        </div>
-
-        <div id="tab-code" class="prop-content hidden">
-            <div id="inject-panel">
-<label class="code-block-label" style="margin-top:10px;">Title</label>
-<input id="page-title-input" class="input-control" placeholder="Page Title" oninput="editor.setPageTitle(this.value)">
-
-<label class="code-block-label">Global Font</label>
-<select id="global-font" class="input-control" onchange="editor.applyFont(this.value)">
-    <option value="Inter">Inter</option>
-    <option value="Arial">Arial</option>
-    <option value="Fira Code">Fira Code</option>
-    <option value="Georgia">Georgia</option>
-</select>
-
-<label class="code-block-label" style="margin-top:10px;">Base Font Size</label>
-<input id="global-font-size" class="input-control" placeholder="16px" oninput="editor.applyBaseFontSize(this.value)">
-<label class="code-block-label" style="margin-top:10px;">Plugins</label>
-<button class="btn"
-    style="width:100%;justify-content:center;margin-bottom:12px;"
-    onclick="editor.openPluginLibrary()">
-
-    <i data-lucide="plug"></i>
-    Plugin Library
-
-</button>
-               
-            </div>
-        </div>
-    </aside>
-</div>
-<div id="projects-overlay" class="projects-overlay hidden">
-    <div class="projects-modal">
-        
-        <div class="projects-header">
-            <div>
-                <h2>Projects</h2>
-                <p>Manage all your websites</p>
-            </div>
-
-            <button class="btn" onclick="editor.closeProjects()">
-                <i data-lucide="x"></i>
-            </button>
-        </div>
-
-        <div class="projects-topbar">
-            <input id="new-project-name"
-                   class="input-control"
-                   placeholder="New project name...">
-
-            <button class="btn primary" onclick="editor.createProject()">
-                <i data-lucide="plus"></i>
-                Create
-            </button>
-        </div>
-
-        <div id="projects-list" class="projects-list"></div>
-
-    </div>
-</div>
-<div id="overlay">
-    <div id="modal">
-        <div id="modal-header">
-            <h3 id="modal-title" style="font-size: 14px;">Source Code Editor</h3>
-
-            <div style="display:flex; gap:8px;">
-                <button class="btn tab-btn active" onclick="editor.switchCodeTab('html', this)">HTML</button>
-                <button class="btn tab-btn" onclick="editor.switchCodeTab('css', this)">CSS</button>
-                <button class="btn tab-btn" onclick="editor.switchCodeTab('js', this)">JS</button>
-            </div>
-
+ 
+    <div id="app">
+        <header>
             <div class="tool-group">
-                <button class="btn primary" onclick="editor.applyCode()">Apply Changes</button>
-                <button class="btn" onclick="editor.closeModal()">Close</button>
+                <i class="logo" data-lucide="component"></i>
+                <button class="btn" title="Projects" onclick="editor.openProjects()">
+                    <i data-lucide="folder"></i>
+                </button>
+ 
+                <button class="btn" title="Save" onclick="editor.saveCurrentProject()">
+                    <i data-lucide="save"></i>
+                </button>
+                <button class="btn" id="toggle-elements" onclick="editor.toggleLeft()">
+                    <i data-lucide="box"></i>
+                </button>
+ 
+                <button class="btn" id="toggle-editor" onclick="editor.toggleRight()">
+                    <i data-lucide="sliders"></i>
+                </button>
+                <button class="btn" title="Undo" onclick="editor.undo()"><i data-lucide="undo-2"></i></button>
+                <button class="btn" title="Redo" onclick="editor.redo()"><i data-lucide="redo-2"></i></button>
             </div>
-        </div>
-
-        <textarea id="code-editor"></textarea>
-    </div>
-</div>
-<div id="plugin-overlay" class="projects-overlay hidden">
-    <div class="projects-modal">
-        <div class="projects-header">
-            <div>
-                <h2>Plugin Library</h2>
-                <p>Install libraries into your website</p>
+ 
+            <div class="tool-group">
+                <button class="btn bp-btn active" id="bp-desktop" onclick="editor.setViewport('100%', 'bp-desktop')"><i data-lucide="monitor"></i></button>
+                <button class="btn bp-btn" id="bp-tablet" onclick="editor.setViewport('768px', 'bp-tablet')"><i data-lucide="tablet"></i></button>
+                <button class="btn bp-btn" id="bp-mobile" onclick="editor.setViewport('375px', 'bp-mobile')"><i data-lucide="smartphone"></i></button>
             </div>
-            <button class="btn" onclick="editor.closePluginLibrary()">
-                <i data-lucide="x"></i>
-            </button>
-        </div>
-        <div class="projects-topbar">
-            <input id="plugin-search"class="input-control"placeholder="Search plugins..."oninput="editor.renderPlugins()">
-        </div>
-        <div style="padding:20px;border-bottom:1px solid #222;">
-            <div style="display:flex;gap:10px;">
-                <input id="custom-plugin-name" class="input-control" placeholder="Plugin name">
-                <input id="custom-plugin-tag" class="input-control" placeholder='<script src="..."></script>'>
-                <button class="btn primary" onclick="editor.createCustomPlugin()">
-                    Add
+ 
+            <div class="tool-group">
+                <button class="btn" id="preview-btn" onclick="editor.togglePreview()">
+                    <i data-lucide="eye"></i>
+                </button>
+                <button class="btn" onclick="editor.openCode('html')">
+                    <i data-lucide="code"></i> Code
+                </button>
+                <button class="btn primary" onclick="editor.exportHTML()">
+                    <i data-lucide="external-link"></i> Publish
                 </button>
             </div>
-        </div>
-        <div id="plugin-list" class="projects-list"></div>
+        </header>
+ 
+        <aside id="left-sidebar">
+            <div id="sidebar-normal">
+                <div style="padding:12px;">
+                    <button class="btn" style="width:100%; justify-content:center;" onclick="editor.toggleTemplates()">
+                        <i data-lucide="layout-template"></i> Templates
+                    </button>
+                </div>
+                <div class="sidebar-section-title">Layout</div>
+                <div class="element-grid">
+                    <div class="draggable-item" draggable="true" data-type="section"><i data-lucide="layout"></i>Section</div>
+                    <div class="draggable-item" draggable="true" data-type="container"><i data-lucide="container"></i>Container</div>
+                    <div class="draggable-item" draggable="true" data-type="row"><i data-lucide="columns-2"></i>Flex Row</div>
+                    <div class="draggable-item" draggable="true" data-type="grid"><i data-lucide="layout-grid"></i>Grid</div>
+                    <div class="draggable-item" draggable="true" data-type="nav">
+                        <i data-lucide="menu"></i>Navbar
+                    </div>
+                    <div class="draggable-item" draggable="true" data-type="footer">
+                        <i data-lucide="panel-bottom"></i>Footer
+                    </div>
+                </div>
+ 
+                <div class="sidebar-section-title">Typography</div>
+                <div class="element-grid">
+                    <div class="draggable-item" draggable="true" data-type="h1"><i data-lucide="heading-1"></i>H1</div>
+                    <div class="draggable-item" draggable="true" data-type="h2"><i data-lucide="heading-2"></i>H2</div>
+                    <div class="draggable-item" draggable="true" data-type="p"><i data-lucide="text-align-start"></i>Text Block</div>
+                    <div class="draggable-item" draggable="true" data-type="span"><i data-lucide="type"></i>Inline Span</div>
+                </div>
+ 
+                <div class="sidebar-section-title">Media & Buttons</div>
+                <div class="element-grid">
+                    <div class="draggable-item" draggable="true" data-type="img"><i data-lucide="image"></i>Image</div>
+                    <div class="draggable-item" draggable="true" data-type="button"><i data-lucide="square"></i>Button</div>
+                    <div class="draggable-item" draggable="true" data-type="link"><i data-lucide="link"></i>Hyperlink</div>
+                    <div class="draggable-item" draggable="true" data-type="video"><i data-lucide="video"></i>Video</div>
+                </div>
+ 
+                <div class="sidebar-section-title">Forms</div>
+                <div class="element-grid">
+                    <div class="draggable-item" draggable="true" data-type="form">
+                        <i data-lucide="form"></i>Form
+                    </div>
+                    <div class="draggable-item" draggable="true" data-type="input"><i data-lucide="rectangle-ellipsis"></i>Input</div>
+                    <div class="draggable-item" draggable="true" data-type="textarea"><i data-lucide="square-dashed-text"></i>Textarea</div>
+                    <div class="draggable-item" draggable="true" data-type="select"><i data-lucide="chevron-down-square"></i>Select</div>
+                </div>
+            </div>
+            <div id="sidebar-templates" class="hidden">
+                <div style="padding:12px;">
+                    <button class="btn" style="width:100%;" onclick="editor.toggleTemplates()">
+                        ← Back
+                    </button>
+                </div>
+                <div class="sidebar-section-title">Templates</div>
+                <div id="template-grid" class="element-grid"></div>
+            </div>
+        </aside>
+ 
+        <main id="canvas-wrapper">
+            <div id="canvas-container">
+                <div id="canvas" class="grid-visible">
+                </div>
+            </div>
+        </main>
+ 
+        <aside id="right-sidebar">
+            <div class="side-tabs">
+                <div class="side-tab active" onclick="editor.switchTab('style')">Design</div>
+                <div class="side-tab" onclick="editor.switchTab('config')">Config</div>
+                <div class="side-tab" onclick="editor.switchTab('code')">Settings</div>
+            </div>
+ 
+            <div id="tab-style" class="prop-content">
+                <div id="prop-empty" style="text-align: center; padding-top: 60px; color: #444;">
+                    <i data-lucide="mouse-pointer-2" style="width: 32px; height: 32px; margin-bottom: 12px;"></i>
+                    <p style="font-size: 11px;">Select an element to customize</p>
+                </div>
+ 
+                <div id="prop-editor" class="hidden">
+                    <div class="prop-group">
+                        <span class="prop-label">Layout & Size</span>
+                        <div class="prop-row">
+                            <div class="prop-col">
+                                <span class="prop-label" style="font-size: 9px;">Display</span>
+                                <select id="val-display" class="input-control">
+                                    <option value="block">Block</option>
+                                    <option value="flex">Flex</option>
+                                    <option value="grid">Grid</option>
+                                    <option value="inline-block">Inline</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="prop-row">
+                            <div class="prop-col"><input type="text" id="val-width" class="input-control" placeholder="W (e.g. 100%)"></div>
+                            <div class="prop-col"><input type="text" id="val-height" class="input-control" placeholder="H (e.g. auto)"></div>
+                        </div>
+                    </div>
+ 
+                    <div class="prop-group">
+                        <span class="prop-label">Spacing</span>
+                        <div class="prop-row">
+                            <div class="prop-col"><input type="text" id="val-padding" class="input-control" placeholder="Padding"></div>
+                            <div class="prop-col"><input type="text" id="val-margin" class="input-control" placeholder="Margin"></div>
+                        </div>
+                    </div>
+ 
+                    <div class="prop-group">
+                        <span class="prop-label">Typography</span>
+                        <div class="prop-row">
+                            <div class="prop-col"><input type="text" id="val-fontSize" class="input-control" placeholder="Font Size"></div>
+                            <div class="prop-col">
+                                <select id="val-fontWeight" class="input-control">
+                                    <option value="400">Regular</option>
+                                    <option value="500">Medium</option>
+                                    <option value="700">Bold</option>
+                                    <option value="900">Black</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="prop-row">
+                            <div class="prop-col"><input type="color" id="val-color" class="input-control" style="height:32px; padding:2px"></div>
+                            <div class="prop-col">
+                                <div class="prop-group">
+                                    <span class="prop-label">Text Align</span>
+                                    <select id="val-textAlign" class="input-control">
+                                        <option value="left">Left</option>
+                                        <option value="center">Center</option>
+                                        <option value="right">Right</option>
+                                    </select>
+                                </div>
+ 
+                                <div class="prop-group">
+                                    <span class="prop-label">Element Align</span>
+                                    <select id="val-alignSelf" class="input-control">
+                                        <option value="left">Left</option>
+                                        <option value="center">Center</option>
+                                        <option value="right">Right</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="text" id="val-lineHeight" class="input-control" placeholder="Line Height" style="margin-top:6px">
+                    </div>
+ 
+                    <div class="prop-group">
+                        <span class="prop-label">Appearance</span>
+                        <div class="prop-row">
+                            <div class="prop-col"><input type="color" id="val-backgroundColor" class="input-control" style="height:32px; padding:2px"></div>
+                            <div class="prop-col"><input type="text" id="val-borderRadius" class="input-control" placeholder="Radius"></div>
+                        </div>
+                        <div class="prop-row">
+                            <div class="prop-col"><input type="text" id="val-border" class="input-control" placeholder="Border (1px solid #000)"></div>
+                        </div>
+                        <div class="prop-row">
+                            <div class="prop-col"><input type="text" id="val-boxShadow" class="input-control" placeholder="Shadow (0 4px 6px ...)"></div>
+                        </div>
+                    </div>
+ 
+                    <div class="prop-group">
+                        <span class="prop-label">Transitions</span>
+                        <input type="text" id="val-transition" class="input-control" placeholder="all 0.3s ease">
+                        <input type="text" id="val-opacity" class="input-control" placeholder="Opacity (0-1)" style="margin-top:6px">
+                    </div>
+                    <button class="btn" style="width: 100%; justify-content: center; margin-top: 10px;" onclick="editor.duplicateSelected()">
+                        <i data-lucide="copy"></i> Duplicate Element
+                    </button>
+                    <button class="btn" style="width: 100%; justify-content: center; background: #ef4444; color: white; border: none; margin-top: 10px;" onclick="editor.deleteSelected()">
+                        <i data-lucide="trash-2"></i> Delete Element
+                    </button>
+                </div>
+            </div>
+ 
+            <div id="tab-config" class="prop-content hidden">
+                <div id="config-editor">
+                    <div class="prop-group">
+                        <span class="prop-label">Attributes</span>
+                        <div style="margin-top: 8px;">
+                            <span class="prop-label" style="font-size: 9px;">CSS Class</span>
+                            <input id="val-class" class="input-control" placeholder="e.g. highlight" oninput="editor.setClass(this.value)">
+                        </div>
+ 
+                        <div style="margin-top: 8px; display:flex; gap:6px;">
+                            <input id="new-class-name" class="input-control" placeholder="class name">
+                            <button class="btn" onclick="editor.createClass()">+</button>
+                        </div>
+                        <br>
+                        <div class="prop-group">
+                            <span class="prop-label">Saved Classes</span>
+                            <div id="class-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+                        </div>
+                        <div id="attr-src-box" class="hidden">
+                            <span class="prop-label" style="font-size: 9px;">Source URL (Image/Video)</span>
+                            <input type="text" id="val-src" class="input-control" placeholder="https://...">
+                        </div>
+                        <div id="attr-href-box" class="hidden" style="margin-top: 8px;">
+                            <span class="prop-label" style="font-size: 9px;">Link Target (href)</span>
+                            <input type="text" id="val-href" class="input-control" placeholder="/home or https://...">
+                        </div>
+                        <div id="attr-onclick-box" class="hidden" style="margin-top: 8px;">
+                            <span class="prop-label" style="font-size: 9px;">On Click</span>
+                            <input type="text" id="val-onclick" class="input-control" placeholder="alert('clicked')">
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <span class="prop-label" style="font-size: 9px;">Element ID</span>
+                            <input type="text" id="val-id" class="input-control" placeholder="my-element">
+                        </div>
+                        <div id="attr-options-box" class="hidden" style="margin-top: 12px;">
+                            <span class="prop-label" style="font-size: 9px;">Options</span>
+ 
+                            <div id="options-list" style="display:flex; flex-direction:column; gap:6px;"></div>
+ 
+                            <button class="btn" style="margin-top:8px; width:100%;" onclick="editor.addOption()">
+                                <i data-lucide="plus"></i> Add Option
+                            </button>
+                        </div>
+                    </div>
+                    <div id="attr-input-type-box" class="hidden" style="margin-top: 8px;">
+                        <span class="prop-label" style="font-size: 9px;">Input Type</span>
+                        <select id="val-inputType" class="input-control">
+                            <option value="text">Text</option>
+                            <option value="password">Password</option>
+                            <option value="email">Email</option>
+                            <option value="number">Number</option>
+                            <option value="color">Color</option>
+                            <option value="checkbox">Checkbox</option>
+                            <option value="radio">Radio</option>
+                            <option value="range">Range</option>
+                            <option value="date">Date</option>
+                            <option value="file">File</option>
+                        </select>
+                    </div>
+                    <div class="prop-group">
+                        <span class="prop-label">Text Content</span>
+                        <textarea id="val-innerText" class="input-control" rows="6" placeholder="Enter text content..."></textarea>
+                    </div>
+                    <div class="prop-group">
+                        <span class="prop-label">Element HTML</span>
+                        <textarea id="val-outerHTML" class="input-control" rows="10" placeholder="Full HTML here..."></textarea>
+ 
+                        <button class="btn primary" style="margin-top:8px; width:100%;" onclick="editor.applyOuterHTML()">
+                            Apply HTML Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+ 
+            <div id="tab-code" class="prop-content hidden">
+                <div id="inject-panel">
+                    <label class="code-block-label" style="margin-top:10px;">Title</label>
+                    <input id="page-title-input" class="input-control" placeholder="Page Title" oninput="editor.setPageTitle(this.value)">
+ 
+                    <label class="code-block-label">Global Font</label>
+                    <select id="global-font" class="input-control" onchange="editor.applyFont(this.value)">
+                        <option value="Inter">Inter</option>
+                        <option value="Arial">Arial</option>
+                        <option value="Fira Code">Fira Code</option>
+                        <option value="Georgia">Georgia</option>
+                    </select>
+ 
+                    <label class="code-block-label" style="margin-top:10px;">Base Font Size</label>
+                    <input id="global-font-size" class="input-control" placeholder="16px" oninput="editor.applyBaseFontSize(this.value)">
+                    <label class="code-block-label" style="margin-top:10px;">Plugins</label>
+                    <button class="btn" style="width:100%;justify-content:center;margin-bottom:12px;" onclick="editor.openPluginLibrary()">
+ 
+                        <i data-lucide="plug"></i>
+                        Plugin Library
+ 
+                    </button>
+ 
+                </div>
+            </div>
+        </aside>
     </div>
-</div>
-<div id="context-menu">
-    <div class="menu-item" onclick="editor.duplicateSelected()"><i data-lucide="copy" style="width:14px"></i> Duplicate</div>
-    <div class="menu-item" onclick="editor.deleteSelected()"><i data-lucide="trash-2" style="width:14px"></i> Delete</div>
-    <div class="menu-item" onclick="editor.moveUp()"><i data-lucide="chevron-up" style="width:14px"></i> Move Up</div>
-    <div class="menu-item" onclick="editor.moveDown()"><i data-lucide="chevron-down" style="width:14px"></i> Move Down</div>
-</div>
-<div id="toast">Changes Saved</div>
-<script src="scripts/canvasflow.js"></script>
+    <div id="projects-overlay" class="projects-overlay hidden">
+        <div class="projects-modal">
+ 
+            <div class="projects-header">
+                <div>
+                    <h2>Projects</h2>
+                    <p>Manage all your websites</p>
+                </div>
+ 
+                <button class="btn" onclick="editor.closeProjects()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+ 
+            <div class="projects-topbar">
+                <input id="new-project-name" class="input-control" placeholder="New project name...">
+ 
+                <button class="btn primary" onclick="editor.createProject()">
+                    <i data-lucide="plus"></i>
+                    Create
+                </button>
+            </div>
+ 
+            <div id="projects-list" class="projects-list"></div>
+ 
+        </div>
+    </div>
+    <div id="overlay">
+        <div id="modal">
+            <div id="modal-header">
+                <h3 id="modal-title" style="font-size: 14px;">Source Code Editor</h3>
+ 
+                <div style="display:flex; gap:8px;">
+                    <button class="btn tab-btn active" onclick="editor.switchCodeTab('html', this)">HTML</button>
+                    <button class="btn tab-btn" onclick="editor.switchCodeTab('css', this)">CSS</button>
+                    <button class="btn tab-btn" onclick="editor.switchCodeTab('js', this)">JS</button>
+                </div>
+ 
+                <div class="tool-group">
+                    <button class="btn primary" onclick="editor.applyCode()">Apply Changes</button>
+                    <button class="btn" onclick="editor.closeModal()">Close</button>
+                </div>
+            </div>
+ 
+            <textarea id="code-editor"></textarea>
+        </div>
+    </div>
+    <div id="plugin-overlay" class="projects-overlay hidden">
+        <div class="projects-modal">
+            <div class="projects-header">
+                <div>
+                    <h2>Plugin Library</h2>
+                    <p>Install libraries into your website</p>
+                </div>
+                <button class="btn" onclick="editor.closePluginLibrary()">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+            <div class="projects-topbar">
+                <input id="plugin-search" class="input-control" placeholder="Search plugins..." oninput="editor.renderPlugins()">
+            </div>
+            <div style="padding:20px;border-bottom:1px solid #222;">
+                <div style="display:flex;gap:10px;">
+                    <input id="custom-plugin-name" class="input-control" placeholder="Plugin name">
+                    <input id="custom-plugin-tag" class="input-control" placeholder='<script src="..."></script>'>
+                    <button class="btn primary" onclick="editor.createCustomPlugin()">
+                        Add
+                    </button>
+                </div>
+            </div>
+            <div id="plugin-list" class="projects-list"></div>
+        </div>
+    </div>
+    <div id="context-menu">
+        <div class="menu-item" onclick="editor.duplicateSelected()"><i data-lucide="copy" style="width:14px"></i> Duplicate</div>
+        <div class="menu-item" onclick="editor.deleteSelected()"><i data-lucide="trash-2" style="width:14px"></i> Delete</div>
+        <div class="menu-item" onclick="editor.moveUp()"><i data-lucide="chevron-up" style="width:14px"></i> Move Up</div>
+        <div class="menu-item" onclick="editor.moveDown()"><i data-lucide="chevron-down" style="width:14px"></i> Move Down</div>
+    </div>
+    <div id="toast">Changes Saved</div>
+    <script src="scripts/canvasflow.js"></script>
 </body>
+ 
 </html>
