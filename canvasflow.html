@@ -310,8 +310,7 @@
 .projects-overlay{
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,0.82);
-    backdrop-filter:blur(10px);
+    background:rgba(0,0,0,0.6);
     z-index:5000;
     display:flex;
     align-items:center;
@@ -323,88 +322,90 @@
     max-width:95%;
     height:700px;
     max-height:90vh;
-    background:#111;
+    background:#151515;
     border:1px solid #2a2a2a;
-    border-radius:24px;
+    border-radius:10px;
     overflow:hidden;
     display:flex;
     flex-direction:column;
-    box-shadow:0 30px 80px rgba(0,0,0,0.7);
 }
 
 .projects-header{
-    padding:24px;
-    border-bottom:1px solid #222;
+    padding:18px 20px;
+    border-bottom:1px solid #242424;
     display:flex;
     align-items:center;
     justify-content:space-between;
+    background:#181818;
 }
 
 .projects-header h2{
     margin:0;
-    font-size:28px;
+    font-size:22px;
     color:white;
+    font-weight:600;
 }
 
 .projects-header p{
-    margin:4px 0 0;
-    color:#777;
-    font-size:13px;
+    margin:3px 0 0;
+    color:#888;
+    font-size:12px;
 }
 
 .projects-topbar{
-    padding:20px 24px;
-    border-bottom:1px solid #1d1d1d;
+    padding:14px 20px;
+    border-bottom:1px solid #222;
     display:flex;
-    gap:12px;
+    gap:10px;
+    background:#141414;
 }
 
 .projects-list{
     flex:1;
     overflow:auto;
-    padding:24px;
+    padding:18px;
     display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-    gap:16px;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:12px;
+    background:#101010;
 }
 
 .project-card{
-    background:linear-gradient(145deg,#191919,#101010);
-    border:1px solid #252525;
-    border-radius:18px;
-    padding:18px;
-    transition:0.25s;
+    background:#181818;
+    border:1px solid #262626;
+    border-radius:8px;
+    padding:14px;
+    transition:0.15s;
     cursor:pointer;
     position:relative;
 }
 
 .project-card:hover{
-    transform:translateY(-3px);
     border-color:#3b82f6;
-    box-shadow:0 15px 35px rgba(59,130,246,0.18);
+    background:#1c1c1c;
 }
 
 .project-card.active{
     border-color:#3b82f6;
-    background:linear-gradient(145deg,#162235,#101826);
+    background:#1b2230;
 }
 
 .project-name{
-    font-size:18px;
-    font-weight:700;
+    font-size:16px;
+    font-weight:600;
     color:white;
-    margin-bottom:10px;
+    margin-bottom:8px;
 }
 
 .project-date{
-    color:#777;
+    color:#888;
     font-size:12px;
 }
 
 .project-actions{
     display:flex;
-    gap:8px;
-    margin-top:18px;
+    gap:6px;
+    margin-top:14px;
 }
 
 .project-actions .btn{
@@ -422,7 +423,7 @@
 <div id="app">
     <header>
         <div class="tool-group">
-            <div class="logo">CF</div>
+<i class="logo" data-lucide="component"></i>
 <button class="btn" title="Projects" onclick="editor.openProjects()">
     <i data-lucide="folder"></i>
 </button>
@@ -430,8 +431,6 @@
 <button class="btn" title="Save" onclick="editor.saveCurrentProject()">
     <i data-lucide="save"></i>
 </button>
-            <button class="btn" title="Undo" onclick="editor.undo()"><i data-lucide="undo-2"></i></button>
-            <button class="btn" title="Redo" onclick="editor.redo()"><i data-lucide="redo-2"></i></button>
 <button class="btn" id="toggle-elements" onclick="editor.toggleLeft()">
     <i data-lucide="box"></i>
 </button>
@@ -439,6 +438,8 @@
 <button class="btn" id="toggle-editor" onclick="editor.toggleRight()">
     <i data-lucide="sliders"></i>
 </button>
+            <button class="btn" title="Undo" onclick="editor.undo()"><i data-lucide="undo-2"></i></button>
+            <button class="btn" title="Redo" onclick="editor.redo()"><i data-lucide="redo-2"></i></button>
         </div>
 
         <div class="tool-group">
@@ -477,7 +478,7 @@
     <i data-lucide="menu"></i>Navbar
 </div>
 <div class="draggable-item" draggable="true" data-type="footer">
-    <i data-lucide="layout-template"></i>Footer
+    <i data-lucide="panel-bottom"></i>Footer
 </div>
         </div>
 
@@ -485,7 +486,7 @@
         <div class="element-grid">
             <div class="draggable-item" draggable="true" data-type="h1"><i data-lucide="heading-1"></i>H1</div>
             <div class="draggable-item" draggable="true" data-type="h2"><i data-lucide="heading-2"></i>H2</div>
-            <div class="draggable-item" draggable="true" data-type="p"><i data-lucide="pilcrow"></i>Text Block</div>
+            <div class="draggable-item" draggable="true" data-type="p"><i data-lucide="text-align-start"></i>Text Block</div>
             <div class="draggable-item" draggable="true" data-type="span"><i data-lucide="type"></i>Inline Span</div>
         </div>
 
@@ -500,10 +501,10 @@
         <div class="sidebar-section-title">Forms</div>
         <div class="element-grid">
 <div class="draggable-item" draggable="true" data-type="form">
-    <i data-lucide="file-text"></i>Form
+    <i data-lucide="form"></i>Form
 </div>
-            <div class="draggable-item" draggable="true" data-type="input"><i data-lucide="form-input"></i>Input</div>
-            <div class="draggable-item" draggable="true" data-type="textarea"><i data-lucide="align-left"></i>Textarea</div>
+            <div class="draggable-item" draggable="true" data-type="input"><i data-lucide="rectangle-ellipsis"></i>Input</div>
+            <div class="draggable-item" draggable="true" data-type="textarea"><i data-lucide="square-dashed-text"></i>Textarea</div>
             <div class="draggable-item" draggable="true" data-type="select"><i data-lucide="chevron-down-square"></i>Select</div>
         </div>
 </div>
@@ -723,6 +724,14 @@
 
 <label class="code-block-label" style="margin-top:10px;">Base Font Size</label>
 <input id="global-font-size" class="input-control" placeholder="16px" oninput="editor.applyBaseFontSize(this.value)">
+<button class="btn"
+    style="width:100%;justify-content:center;margin-bottom:12px;"
+    onclick="editor.openPluginLibrary()">
+
+    <i data-lucide="plug"></i>
+    Plugin Library
+
+</button>
                
             </div>
         </div>
@@ -777,14 +786,38 @@
         <textarea id="code-editor"></textarea>
     </div>
 </div>
-
+<div id="plugin-overlay" class="projects-overlay hidden">
+    <div class="projects-modal">
+        <div class="projects-header">
+            <div>
+                <h2>Plugin Library</h2>
+                <p>Install libraries into your website</p>
+            </div>
+            <button class="btn" onclick="editor.closePluginLibrary()">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+        <div class="projects-topbar">
+            <input id="plugin-search"class="input-control"placeholder="Search plugins..."oninput="editor.renderPlugins()">
+        </div>
+        <div style="padding:20px;border-bottom:1px solid #222;">
+            <div style="display:flex;gap:10px;">
+                <input id="custom-plugin-name" class="input-control" placeholder="Plugin name">
+                <input id="custom-plugin-tag" class="input-control" placeholder='<script src="..."></script>'>
+                <button class="btn primary" onclick="editor.createCustomPlugin()">
+                    Add
+                </button>
+            </div>
+        </div>
+        <div id="plugin-list" class="projects-list"></div>
+    </div>
+</div>
 <div id="context-menu">
     <div class="menu-item" onclick="editor.duplicateSelected()"><i data-lucide="copy" style="width:14px"></i> Duplicate</div>
     <div class="menu-item" onclick="editor.deleteSelected()"><i data-lucide="trash-2" style="width:14px"></i> Delete</div>
     <div class="menu-item" onclick="editor.moveUp()"><i data-lucide="chevron-up" style="width:14px"></i> Move Up</div>
     <div class="menu-item" onclick="editor.moveDown()"><i data-lucide="chevron-down" style="width:14px"></i> Move Down</div>
 </div>
-
 <div id="toast">Changes Saved</div>
 <script src="scripts/canvasflow.js"></script>
 </body>
