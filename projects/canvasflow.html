@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanvasFlow Pro | The Future of Design</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #6366f1;
+            --secondary: #a855f7;
+            --accent: #ec4899;
+            --bg: #030712;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, #fff 30%, #6366f1 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .canvas-grid {
+            background-image: radial-gradient(rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .glow-orb {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .reveal-text {
+            overflow: hidden;
+            display: block;
+        }
+
+.horizontal-section {
+    width: 300%;
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.panel {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+    </style>
+</head>
+<body>
+    <nav class="fixed top-0 w-full z-50 glass py-4 px-8 flex justify-between items-center">
+        <div class="flex items-center gap-2 text-2xl font-bold">
+            <i data-lucide="component" class="text-indigo-500"></i>
+            <span>CanvasFlow <span class="text-indigo-400">Pro</span></span>
+        </div>
+        <div class="hidden md:flex gap-8 text-sm font-medium opacity-70">
+            <a href="#" class="hover:text-indigo-400 transition text-white border-b border-indigo-500">Home</a>
+            <a href="/projects" class="hover:text-indigo-400 transition">Projects</a>
+            <a href="/community" class="hover:text-indigo-400 transition">Community</a>
+            <a href="/profile" class="hover:text-indigo-400 transition">Profile</a>
+        </div>
+        <button onclick="location.href='/signup'"class="bg-indigo-600 hover:bg-indigo-700 px-6 py-2 rounded-full font-semibold transition-all">Try Free</button>
+    </nav>
+
+    <section class="relative min-h-screen flex items-center justify-center pt-20 canvas-grid overflow-hidden">
+        <div class="glow-orb" id="orb-1"></div>
+        <div class="glow-orb" id="orb-2"></div>
+        
+        <div class="container mx-auto px-6 relative z-10 text-center">
+
+            <h1 class="text-6xl md:text-8xl font-extrabold mb-8 gradient-text leading-tight" id="hero-title">
+                Redefining the <br/>Digital Canvas
+            </h1>
+            <p class="max-w-2xl mx-auto text-xl opacity-60 mb-10 leading-relaxed" id="hero-sub">
+                We're building more than a tool. We're creating a seamless flow between visual creativity and digital code. CanvasFlow Pro is where both vision meet.
+            </p>
+            
+            <div class="relative w-full max-w-5xl mx-auto rounded-2xl overflow-hidden glass p-4 shadow-2xl" id="hero-canvas">
+                <div class="bg-gray-900/80 rounded-xl aspect-video flex flex-col">
+                    <div class="h-8 border-b border-white/5 flex items-center px-4 gap-2">
+                        <div class="w-3 h-3 rounded-full bg-red-500/50"></div>
+                        <div class="w-3 h-3 rounded-full bg-yellow-500/50"></div>
+                        <div class="w-3 h-3 rounded-full bg-green-500/50"></div>
+                    </div>
+                    <div class="flex-grow flex items-center justify-center">
+                        <div class="text-center">
+                            <img src="https://xerrortm.github.io/media/IMG_0898.jpeg"></img>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+<div class="horizontal-overflow-wrapper overflow-hidden bg-black/40">
+        <div class="horizontal-section" id="horizontal-track">
+            <!-- Panel 1 -->
+            <section id="panel1" class="panel px-12 border-r border-white/5">
+                <div class="grid md:grid-cols-2 gap-20 items-center max-w-7xl mx-auto w-full">
+                    <div class="h-panel-content">
+                        <span class="text-indigo-500 font-mono text-lg mb-4 block">INTERFACE</span>
+                        <h2 class="text-8xl font-bold mb-8 leading-none">Visual <br/><span class="text-indigo-400">Editing.</span></h2>
+                        <p class="text-2xl opacity-50 max-w-lg">Move elements across the website and customise almost everything with the element editor while keeping the HTML logic</p>
+                    </div>
+                    <div class="relative">
+                        <div class="w-96 h-96 border-2 border-indigo-500/20 rounded-full absolute -top-20 -left-20 animate-pulse"></div>
+                        <div class="glass aspect-square rounded-[3rem] flex items-center justify-center p-16 rotate-6 transform hover:rotate-0 transition-transform duration-1000">
+                            <i data-lucide="mouse-pointer-2" class="w-40 h-40 text-indigo-500"></i>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel 2 -->
+            <section class="panel px-12 bg-indigo-950/20 border-r border-white/5">
+                <div class="grid md:grid-cols-2 gap-20 items-center max-w-7xl mx-auto w-full">
+                    <div class="relative order-2 md:order-1">
+                        <div class="glass p-10 rounded-3xl font-mono text-sm border-l-8 border-purple-500">
+                            <div class="flex gap-2 mb-6"><div class="w-3 h-3 rounded-full bg-red-500"></div><div class="w-3 h-3 rounded-full bg-yellow-500"></div><div class="w-3 h-3 rounded-full bg-green-500"></div></div>
+                            <code class="text-purple-300">
+                                <span class="text-gray-500">// Real-time Node Manipulation</span><br/>
+                                <span class="text-pink-400">export</span> <span class="text-blue-400">default</span> <span class="text-yellow-300">function</span> <span class="text-blue-400">Editor</span>() {<br/>
+                                &nbsp;&nbsp;<span class="text-pink-400">const</span> { nodes } = <span class="text-blue-300">useCanvas</span>();<br/>
+                                &nbsp;&nbsp;<span class="text-pink-400">return</span> nodes.<span class="text-blue-300">map</span>(n => (<br/>
+                                &nbsp;&nbsp;&nbsp;&nbsp;&lt;<span class="text-green-400">LiveComponent</span> key={n.id} /&gt;<br/>
+                                &nbsp;&nbsp;));<br/>
+                                }
+                            </code>
+                        </div>
+                    </div>
+                    <div class="h-panel-content order-1 md:order-2">
+                        <span class="text-purple-400 font-mono text-lg mb-4 block">LOGIC</span>
+                        <h2 class="text-8xl font-bold mb-8 leading-none">Code <br/><span class="text-purple-400">Included.</span></h2>
+                        <p class="text-2xl opacity-50 max-w-lg">Every visual change is converted directly to a clean code editor. Still needs code? No problem.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Panel 3 -->
+            <section class="panel px-12">
+                <div class="text-center max-w-5xl mx-auto">
+                    <span class="text-pink-500 font-mono text-lg mb-4 block">PRODUCTION</span>
+                    <h2 class="text-9xl font-bold mb-10 leading-none">Ship to the <br/><span class="text-pink-500 italic">Edge.</span></h2>
+                    <p class="text-2xl opacity-50 mb-16 max-w-2xl mx-auto">Instant deployment to ERROR Inc. with less than 2 second delay.</p>
+                    <div class="flex justify-center gap-8">
+                        <div class="glass px-8 py-4 rounded-2xl flex items-center gap-4">
+                            <i data-lucide="zap" class="text-yellow-400"></i>
+                            <span class="font-bold">1s Build Time</span>
+                        </div>
+                        <div class="glass px-8 py-4 rounded-2xl flex items-center gap-4">
+                            <i data-lucide="cloud-upload" class="text-blue-400"></i>
+                            <span class="font-bold">Direct Deployment</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+
+    <section id="mission-section"class="py-32 relative">
+        <div class="container mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-20 items-center">
+                <div>
+                    <h2 class="text-4xl md:text-5xl font-bold mb-8 scroll-reveal-left">
+                        Our Mission: <br/><span class="text-indigo-400">Website building without boundaries.</span>
+                    </h2>
+                    <p class="text-lg opacity-70 mb-6 leading-relaxed scroll-reveal-left">
+                        CanvasFlow Pro was born from a simple frustration: why does the bridge between visual and code have to be so fragile?
+                    </p>
+                    <p class="text-lg opacity-70 mb-8 leading-relaxed scroll-reveal-left">
+                        We spent months refining an engine that doesn't just "export" code, but makes it visually. The result is a visual environment that is as precise as HTML and as fluid as JavaScript.
+                    </p>
+                    <div class="flex gap-12 scroll-reveal-left">
+                        <div>
+                            <p class="text-4xl font-bold">10th</p>
+                            <p class="text-sm opacity-50 uppercase">Project in ERROR Inc.</p>
+                        </div>
+                        <div>
+                            <p class="text-4xl font-bold">1.2M+</p>
+                            <p class="text-sm opacity-50 uppercase">Users Worldwide</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="relative group">
+                    <div class="absolute inset-0 bg-indigo-500/20 blur-[100px] rounded-full group-hover:bg-indigo-500/30 transition-all duration-700"></div>
+                    <div class="glass p-8 rounded-3xl relative border border-white/10" id="feature-box">
+                        <div class="space-y-6">
+                            <div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl">
+                                <div class="w-10 h-10 rounded-lg bg-indigo-500/20 flex items-center justify-center text-indigo-400">
+                                    <i data-lucide="zap"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold">CodeMirror Engine</h4>
+                                    <p class="text-xs opacity-50">Powered by advanced HTML, CSS and JavaScript</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl">
+                                <div class="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center text-purple-400">
+                                    <i data-lucide="layers"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold">Build Websute with Blocks</h4>
+                                    <p class="text-xs opacity-50">Insert sections, buttons and more in just a click.</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4 bg-white/5 p-4 rounded-xl">
+                                <div class="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center text-pink-400">
+                                    <i data-lucide="share-2"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold">Community Sync</h4>
+                                    <p class="text-xs opacity-50">Publish your website and share it with others on ERROR Inc.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-32 bg-indigo-600/5">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl md:text-5xl font-bold mb-20 scroll-reveal-up">Engineered by Designers.<br/>Designed by Engineers.</h2>
+            
+            <div id="cardss"class="grid md:grid-cols-3 gap-8">
+                <!-- Value 1 -->
+                <div class="glass p-10 rounded-3xl border-t-2 border-indigo-500/50 text-left hover:bg-white/10 transition-colors group">
+                    <i data-lucide="mouse-pointer-2" class="w-12 h-12 text-indigo-400 mb-6 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="text-2xl font-bold mb-4">Tactile Experience</h3>
+                    <p class="opacity-60">We believe design should feel physical. Our interface responds to your intent, not just your clicks.</p>
+                </div>
+                <!-- Value 2 -->
+                <div class="glass p-10 rounded-3xl border-t-2 border-purple-500/50 text-left hover:bg-white/10 transition-colors group">
+                    <i data-lucide="cpu" class="w-12 h-12 text-purple-400 mb-6 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="text-2xl font-bold mb-4">Zero-Loss Logic</h3>
+                    <p class="opacity-60">No bloated code. No proprietary formats. Just clean, production-ready preview as you insert new elements</p>
+                </div>
+                <!-- Value 3 -->
+                <div class="glass p-10 rounded-3xl border-t-2 border-pink-500/50 text-left hover:bg-white/10 transition-colors group">
+                    <i data-lucide="globe" class="w-12 h-12 text-pink-400 mb-6 group-hover:scale-110 transition-transform"></i>
+                    <h3 class="text-2xl font-bold mb-4">The Open Web</h3>
+                    <p class="opacity-60">CanvasFlow is built on open standards. We don't lock you in; we set your creativity free.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="py-32 relative overflow-hidden">
+        <div class="container mx-auto px-6 text-center">
+            <div class="glass p-20 rounded-[4rem] relative z-10">
+                <h2 class="text-5xl md:text-7xl font-bold mb-8">Ready to start the flow?</h2>
+                <p class="text-xl opacity-60 mb-12 max-w-xl mx-auto">Join thousands of creators building the next generation of the web with CanvasFlow Pro.</p>
+                <div class="flex flex-col md:flex-row gap-4 justify-center items-center">
+                    <button onclick="location.href='/signup'"class="bg-white text-black px-10 py-4 rounded-full font-bold text-lg hover:bg-indigo-500 hover:text-white transition-all transform hover:scale-105">Get Started for Free</button>
+                    <button onclick="location.href='/login'"class="glass px-10 py-4 rounded-full font-bold text-lg hover:border-white/40 transition-all">Log In</button>
+                </div>
+            </div>
+            
+            <div class="mt-32 pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8">
+                <div class="flex items-center gap-2 text-xl font-bold opacity-50">
+                    <i data-lucide="component"></i>
+                    <span>CanvasFlow Pro</span>
+                </div>
+                <div class="flex gap-8 opacity-40 text-sm">
+                    <a href="https://www.youtube.com/@xerrortm">YouTube</a>
+                    <a href="https://www.github.com/xerrortm">GitHub</a>
+                    <a href="https://discord.gg/7zYft8mxY">Discord</a>
+                    <a href="/projects">Projects</a>
+                </div>
+                <p class="opacity-30 text-sm">© 2026 ERROR Inc.</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Orb Floating Animation
+            gsap.to("#orb-1", {
+                x: 100,
+                y: -50,
+                duration: 20,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+            gsap.to("#orb-2", {
+                x: -100,
+                y: 100,
+                duration: 25,
+                repeat: -1,
+                yoyo: true,
+                ease: "sine.inOut"
+            });
+
+            // Hero Animation Sequence
+            const heroTl = gsap.timeline();
+            heroTl.from("#hero-title", {
+                y: 100,
+                opacity: 0,
+                duration: 1.2,
+                ease: "power4.out"
+            })
+            .from("#hero-sub", {
+                y: 30,
+                opacity: 0,
+                duration: 0.8,
+            }, "-=0.8")
+            .from("#hero-canvas", {
+                y: 100,
+                scale: 0.95,
+                opacity: 0,
+                duration: 1,
+                ease: "back.out(1.7)"
+            }, "-=0.4");
+
+            // Scroll Reveals
+            gsap.utils.toArray('.scroll-reveal-left').forEach(el => {
+                gsap.from(el, {
+                    scrollTrigger: {
+                        trigger: el,
+                        start: "top 85%",
+                    },
+                    x: -50,
+                    opacity: 0,
+                    duration: 1,
+                    ease: "power3.out"
+                });
+            });
+
+            gsap.from("#feature-box", {
+                scrollTrigger: {
+                    trigger: "#feature-box",
+                    start: "top 75%",
+                },
+                x: 100,
+                rotateY: 20,
+                opacity: 0,
+                duration: 1.5,
+                ease: "power4.out"
+            });
+
+            gsap.from(".scroll-reveal-up", {
+                scrollTrigger: {
+                    trigger: ".scroll-reveal-up",
+                    start: "top 90%",
+                },
+                y: 60,
+                opacity: 0,
+                duration: 1,
+                ease: "power2.out"
+            });
+
+            // Parallax effect for the hero canvas on scroll
+            gsap.to("#hero-canvas", {
+                scrollTrigger: {
+                    trigger: "section",
+                    start: "top top",
+                    end: "bottom top",
+                    scrub: true
+                },
+                y: -150,
+                rotateX: 10,
+                scale: 0.9
+            });
+
+            // Staggered value cards
+            gsap.from(".glass.p-10", {
+                scrollTrigger: {
+                    trigger: ".grid.md\\:grid-cols-3",
+                    start: "top 80%",
+                },
+                y: 50,
+                opacity: 0,
+                stagger: 0.2,
+                duration: 0.8,
+                ease: "back.out(1.2)"
+            });
+gsap.from("nav", {
+                y: -100,
+                opacity: 0,
+                duration: 1,
+                delay: 0.5
+            });
+const horizontalSection = document.getElementById('horizontal-track');
+
+gsap.to(horizontalSection, {
+    x: () => -(horizontalSection.scrollWidth - window.innerWidth),
+    ease: "none",
+    scrollTrigger: {
+        trigger: ".horizontal-overflow-wrapper",
+        start: "top top",
+        end: () => "+=" + horizontalSection.scrollWidth,
+        scrub: 1,
+        pin: true,
+        invalidateOnRefresh: true
+    }
+});
+gsap.from("#mission-section", {
+    scrollTrigger: {
+        trigger: "#mission-section",
+        start: "top 80%",
+        toggleActions: "play none none none"
+    },
+    x: -80,
+    opacity: 0,
+    duration: 2,
+    stagger: 0.25,
+    ease: "power4.out"
+});
+            gsap.from("#cardss", {
+                scrollTrigger: {
+                    trigger: ".scroll-reveal-up",
+                    start: "top 80%",
+                },
+                y: 60,
+                opacity: 0,
+                duration: 1,
+delay:0.2,
+                ease: "power2.out"
+            });
+
+        });
+
+window.addEventListener("load", () => {
+    requestAnimationFrame(() => {
+        ScrollTrigger.refresh();
+    });
+});
+    </script>
+</body>
+</html>
