@@ -453,7 +453,7 @@
         });
         document.querySelectorAll('#join').forEach(button => {
             button.addEventListener('click', () => {
-                const user = localStorage.getItem('errorinc-user');
+                const user = localStorage.getItem('errorinc_user');
 
                 if (user) {
                     window.location.href = '../canvasflow';
