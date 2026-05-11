@@ -1314,7 +1314,7 @@ href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css">
             });
  
             lucide.createIcons();
-            this.initDnDOnce(); // safe
+            this.bindDnD(); // safe
  
         } else {
  
@@ -1322,7 +1322,7 @@ href="https://cdn.jsdelivr.net/npm/swiper/swiper-bundle.min.css">
             templates.classList.add("hidden");
             normal.classList.remove("hidden");
  
-            this.initDnDOnce();
+            this.bindDnD();
             lucide.createIcons();
         }
     }
