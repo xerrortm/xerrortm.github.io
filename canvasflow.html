@@ -949,7 +949,39 @@
     </div>
 
 </div>
+<div id="publish-popup" class="projects-overlay" style="display:none;">
+    <div class="projects-modal">
+        <div class="projects-header">
+            <div>
+                <h2 id="publish-title">Publish Website</h2>
+                <p id="publish-subtitle">Publish your website to the web 🚀</p>
+            </div>
 
+            <button class="btn" id="close-publish-popup">
+                <i data-lucide="x"></i>
+            </button>
+        </div>
+
+        <div style="padding:32px;text-align:center;">
+            <div style="width:84px;height:84px;margin:0 auto 24px;border-radius:50%;background:rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;color:#3b82f6;">
+                <i data-lucide="rocket" style="width:42px;height:42px;"></i>
+            </div>
+
+            <h3 id="publish-status-title">Ready to publish</h3>
+
+            <p id="publish-description" style="color:#888;"></p>
+
+            <a id="publish-link" target="_blank" style="display:none;"></a>
+
+            <div style="margin-top:20px;">
+                <button class="btn primary" id="confirm-publish-btn">
+                    <i data-lucide="rocket"></i>
+                    Publish Website
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 <div id="context-menu">
     <div class="menu-item" onclick="editor.duplicateSelected()"><i data-lucide="copy" style="width:14px"></i> Duplicate</div>
     <div class="menu-item" onclick="editor.deleteSelected()"><i data-lucide="trash-2" style="width:14px"></i> Delete</div>
