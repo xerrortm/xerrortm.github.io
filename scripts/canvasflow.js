@@ -13,133 +13,120 @@ if (!window.firebaseApp) {
     window.firebaseDB = firebase.database();
 }
 
-function publish() {
+let publishId = null;
+let isPublished = false;
+
+function openPublishPopup() {
     const currentProject = JSON.parse(localStorage.getItem("currentProject") || "{}");
-    let publishId = currentProject.publishId || null;
-    const isPublished = !!publishId;
-    const publishURL = publishId
+
+    publishId = currentProject.publishId || null;
+    isPublished = !!publishId;
+
+    const popup = document.getElementById("publish-popup");
+    const title = document.getElementById("publish-title");
+    const subtitle = document.getElementById("publish-subtitle");
+    const statusTitle = document.getElementById("publish-status-title");
+    const desc = document.getElementById("publish-description");
+    const link = document.getElementById("publish-link");
+    const btn = document.getElementById("confirm-publish-btn");
+
+    popup.style.display = "flex";
+
+    const url = publishId
         ? "https://xerrortm.github.io/u/usercontent?p=" + publishId
         : "";
-    
-    const existingPopup = document.getElementById("publish-popup");
-    if (existingPopup) existingPopup.remove();
 
-    const popup = document.createElement("div");
-    popup.id = "publish-popup";
-    popup.className = "projects-overlay";
+    title.textContent = isPublished ? "Update Website" : "Publish Website";
+    subtitle.textContent = isPublished
+        ? "Your website is already live"
+        : "Publish your website on ERROR Inc.";
 
-    popup.innerHTML = `
-        <div class="projects-modal" style="width:620px;max-width:92%;height:auto;max-height:90vh;">
-            <div class="projects-header">
-                <div>
-                    <h2>${isPublished ? "Update Published Website" : "Publish Website"}</h2>
-                    <p>${isPublished ? "Your website is already live" : "Publish your website to ERROR Inc."}</p>
-                </div>
+    statusTitle.textContent = isPublished
+        ? "Your website is live"
+        : "Ready to publish";
 
-                <button class="btn" id="close-publish-popup">
-                    <i data-lucide="x"></i>
-                </button>
-            </div>
+    desc.textContent = isPublished
+        ? "You can update your existing live site anytime."
+        : "Your project will get a permanent public link.";
 
-            <div style="padding:32px;text-align:center;">
-                <div style="width:84px;height:84px;margin:0 auto 24px;border-radius:50%;background:rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;color:#3b82f6;">
-                    <i data-lucide="rocket" style="width:42px;height:42px;"></i>
-                </div>
-
-                <h3 style="margin:0 0 12px;color:white;font-size:26px;font-weight:700;">
-                    ${isPublished ? "Your website is live" : "Ready to publish"}
-                </h3>
-
-                <p style="margin:0 0 24px;color:#888;line-height:1.6;">
-                    ${isPublished
-                        ? "Publishing again will update the existing link."
-                        : "Your project will get a permanent public link."}
-                </p>
-
-                ${isPublished ? `
-                    <a href="${publishURL}" target="_blank" style="display:block;padding:14px 16px;border-radius:12px;background:#0f172a;border:1px solid #1e40af;color:#60a5fa;text-decoration:none;word-break:break-all;font-size:13px;margin-bottom:20px;">
-                        ${publishURL}
-                    </a>
-                ` : ""}
-
-                <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-                    ${isPublished ? `
-                        <button class="btn" id="copy-publish-link">
-                            <i data-lucide="copy"></i>
-                            Copy Link
-                        </button>
-                    ` : ""}
-
-                    <button class="btn primary" id="confirm-publish-btn">
-                        <i data-lucide="rocket"></i>
-                        ${isPublished ? "Update Website" : "Publish Website"}
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-
-    document.body.appendChild(popup);
-
-    document.getElementById("close-publish-popup").onclick = function () {
-        popup.remove();
-    };
-
-    popup.onclick = function (e) {
-        if (e.target === popup) {
-            popup.remove();
-        }
-    };
-
-    const copyBtn = document.getElementById("copy-publish-link");
-    if (copyBtn) {
-        copyBtn.onclick = function () {
-            navigator.clipboard.writeText(publishURL);
-            copyBtn.innerHTML = '<i data-lucide="check"></i> Copied!';
-            if (window.lucide) lucide.createIcons();
-        };
+    if (isPublished) {
+        link.style.display = "block";
+        link.href = url;
+        link.textContent = url;
+    } else {
+        link.style.display = "none";
     }
 
-    document.getElementById("confirm-publish-btn").onclick = function () {
-        if (!publishId) {
-            publishId = Math.floor(10000000 + Math.random() * 90000000).toString();
+    btn.disabled = false;
+    btn.innerHTML = `<i data-lucide="rocket"></i> ${isPublished ? "Update Website" : "Publish Website"}`;
 
-            currentProject.publishId = publishId;
-            localStorage.setItem(
-                "currentProject",
-                JSON.stringify(currentProject)
-            );
-        }
+    if (window.lucide) lucide.createIcons();
 
-        popup.remove();
-        publishToFirebase(publishId);
+    document.getElementById("close-publish-popup").onclick = () => {
+        popup.style.display = "none";
     };
 
-    if (window.lucide) {
-        lucide.createIcons();
-    }
+    popup.onclick = (e) => {
+        if (e.target === popup) popup.style.display = "none";
+    };
 }
 
-function publishToFirebase(id) {
+document.getElementById("confirm-publish-btn").onclick = function () {
+    const btn = this;
+
+    btn.disabled = true;
+    btn.innerHTML = `
+        <span style="display:inline-flex;align-items:center;gap:8px;">
+            <span style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;"></span>
+            Publishing...
+        </span>
+    `;
+
+    if (!document.getElementById("spin-style")) {
+        const style = document.createElement("style");
+        style.id = "spin-style";
+        style.textContent = `
+            @keyframes spin {
+                from { transform: rotate(0deg); }
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    const currentProject = JSON.parse(localStorage.getItem("currentProject") || "{}");
+
+    if (!currentProject.publishId) {
+        publishId = Math.floor(10000000 + Math.random() * 90000000).toString();
+        currentProject.publishId = publishId;
+        localStorage.setItem("currentProject", JSON.stringify(currentProject));
+    } else {
+        publishId = currentProject.publishId;
+    }
+
     const fullHTML = editor.getFullHTML();
-    const publishURL = "https://xerrortm.github.io/u/usercontent?p=" + id;
 
     const data = {
-        name: id,
+        name: publishId,
         content: fullHTML,
         createdAt: Date.now()
     };
 
     window.firebaseDB
-        .ref("usercontent/" + id)
+        .ref("usercontent/" + publishId)
         .set(data)
-        .then(function () {
-            console.log("Published successfully:", publishURL);
+        .then(() => {
+            btn.disabled = false;
+            openPublishPopup(); // refresh popup state
         })
-        .catch(function (error) {
-            alert("Publish failed: " + error.message);
+        .catch((err) => {
+            btn.disabled = false;
+            btn.innerHTML = `<i data-lucide="rocket"></i> Retry`;
+            if (window.lucide) lucide.createIcons();
+            alert("Publish failed: " + err.message);
         });
-}
+};
+
 class ProWebBuilder {
     toggleLeft() {
         const left = document.getElementById('left-sidebar');
