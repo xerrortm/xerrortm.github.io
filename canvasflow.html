@@ -570,10 +570,13 @@
     <button class="btn" id="preview-btn" onclick="editor.togglePreview()">
         <i data-lucide="eye"></i>
     </button>
+	<button class="btn" onclick="editor.exportHTML()">
+        <i data-lucide="download"></i>
+    </button>
     <button class="btn" onclick="editor.openCode('html')">
         <i data-lucide="code"></i> Code
     </button>
-    <button class="btn primary" onclick="editor.exportHTML()">
+    <button class="btn primary" onclick="publish()">
         <i data-lucide="external-link"></i> Publish
     </button>
 </div>
