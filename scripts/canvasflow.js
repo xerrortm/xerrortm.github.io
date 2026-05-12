@@ -16,7 +16,7 @@ if (!window.firebaseApp) {
 let publishId = null;
 let isPublished = false;
 
-function openPublishPopup() {
+function publish() {
     const currentProject = JSON.parse(localStorage.getItem("currentProject") || "{}");
 
     publishId = currentProject.publishId || null;
