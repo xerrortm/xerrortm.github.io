@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ERROR Inc.</title>
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#0a0a0a;
+    color:white;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    height:100vh;
+}
+
+#status{
+    text-align:center;
+    max-width:500px;
+    padding:40px;
+}
+
+.spinner{
+    width:48px;
+    height:48px;
+    border:4px solid rgba(255,255,255,0.1);
+    border-top:4px solid #3b82f6;
+    border-radius:50%;
+    margin:0 auto 20px;
+    animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+    to{
+        transform:rotate(360deg);
+    }
+}
+</style>
+</head>
+<body>
+
+<div id="status">
+    <div class="spinner"></div>
+    <h2>Loading website...</h2>
+    <p>Please wait while we fetch your published project.</p>
+</div>
+
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+var firebaseConfig = {
+    apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
+    authDomain: "error-inc.firebaseapp.com",
+    databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
+    projectId: "error-inc",
+    storageBucket: "error-inc.firebasestorage.app",
+    messagingSenderId: "876188868410",
+    appId: "1:876188868410:web:ca7de451707bd9975c7a03"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+function getParam(name){
+    var params = new URLSearchParams(window.location.search);
+    return params.get(name);
+}
+
+var projectId = getParam("p");
+
+if(!projectId){
+    document.getElementById("status").innerHTML = `
+        <h1>⚠️ Missing Project ID</h1>
+        <p>Use the URL like:</p>
+        <code>?p=12345678</code>
+    `;
+}else{
+    firebase.database()
+        .ref("usercontent/" + projectId)
+        .once("value")
+        .then(function(snapshot){
+
+            if(!snapshot.exists()){
+                document.getElementById("status").innerHTML = `
+                    <h1>❌ Project Not Found</h1>
+                    <p>No published website exists with ID <b>${projectId}</b>.</p>
+                `;
+                return;
+            }
+
+            var data = snapshot.val();
+
+            if(!data.content){
+                document.getElementById("status").innerHTML = `
+                    <h1>⚠️ Invalid Project</h1>
+                    <p>This project contains no HTML.</p>
+                `;
+                return;
+            }
+
+            // Replace the entire document with the stored full HTML
+            document.open();
+            document.write(data.content);
+            document.close();
+
+        })
+        .catch(function(error){
+
+            document.getElementById("status").innerHTML = `
+                <h1>🔥 Error</h1>
+                <p>${error.message}</p>
+            `;
+
+        });
+}
+</script>
+
+</body>
+</html>
