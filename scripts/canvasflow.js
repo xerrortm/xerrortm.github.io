@@ -13,55 +13,60 @@ if (!window.firebaseApp) {
     window.firebaseDB = firebase.database();
 }
 
-let publishId = null;
 let isPublished = false;
+let publishId = null;
 
-function publish() {
-    const currentProject = JSON.parse(localStorage.getItem("currentProject") || "{}");
+function openPublishPopup() {
+    const project = JSON.parse(localStorage.getItem("currentProject") || "{}");
 
-    publishId = currentProject.publishId || null;
-    isPublished = !!publishId;
+    publishId = project.publishId || null;
+    const isPublished = !!publishId;
 
     const popup = document.getElementById("publish-popup");
     const title = document.getElementById("publish-title");
     const subtitle = document.getElementById("publish-subtitle");
     const statusTitle = document.getElementById("publish-status-title");
     const desc = document.getElementById("publish-description");
-    const link = document.getElementById("publish-link");
-    const btn = document.getElementById("confirm-publish-btn");
 
-    popup.style.display = "flex";
+    const linkBox = document.getElementById("link-box");
+    const copyBtn = document.getElementById("copy-link-btn");
+    const publishBtn = document.getElementById("confirm-publish-btn");
 
     const url = publishId
         ? "https://xerrortm.github.io/u/usercontent?p=" + publishId
         : "";
 
+    popup.style.display = "flex";
+
     title.textContent = isPublished ? "Update Website" : "Publish Website";
     subtitle.textContent = isPublished
-        ? "Your website is already live"
-        : "Publish your website on ERROR Inc.";
+        ? "Your site is already live 🌍"
+        : "Turn your project into a live site 🚀";
 
     statusTitle.textContent = isPublished
-        ? "Your website is live"
-        : "Ready to publish";
+        ? "Already Live!"
+        : "Ready to go live";
 
     desc.textContent = isPublished
-        ? "You can update your existing live site anytime."
-        : "Your project will get a permanent public link.";
+        ? "You can update your live site anytime."
+        : "This will generate a permanent public link.";
 
     if (isPublished) {
-        link.style.display = "block";
-        link.href = url;
-        link.textContent = url;
+        linkBox.style.display = "block";
+        linkBox.textContent = url;
+
+        copyBtn.style.display = "inline-flex";
     } else {
-        link.style.display = "none";
+        linkBox.style.display = "none";
+        copyBtn.style.display = "none";
     }
 
-    btn.disabled = false;
-    btn.innerHTML = `<i data-lucide="rocket"></i> ${isPublished ? "Update Website" : "Publish Website"}`;
+    publishBtn.disabled = false;
+    publishBtn.innerHTML = `<i data-lucide="rocket"></i> ${isPublished ? "Update" : "Publish"}`;
 
     if (window.lucide) lucide.createIcons();
 
+    // close
     document.getElementById("close-publish-popup").onclick = () => {
         popup.style.display = "none";
     };
@@ -69,15 +74,33 @@ function publish() {
     popup.onclick = (e) => {
         if (e.target === popup) popup.style.display = "none";
     };
+
+    // copy link
+    copyBtn.onclick = () => {
+        navigator.clipboard.writeText(url);
+        copyBtn.innerHTML = `<i data-lucide="check"></i> Copied`;
+        if (window.lucide) lucide.createIcons();
+        setTimeout(() => {
+            copyBtn.innerHTML = `<i data-lucide="copy"></i> Copy Link`;
+            if (window.lucide) lucide.createIcons();
+        }, 1500);
+    };
 }
 
-document.getElementById("confirm-publish-btn").onclick = function () {
+// publish logic
+document.getElementById("confirm-publish-btn").onclick = async function () {
     const btn = this;
 
     btn.disabled = true;
     btn.innerHTML = `
         <span style="display:inline-flex;align-items:center;gap:8px;">
-            <span style="width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite;"></span>
+            <span style="
+                width:16px;height:16px;
+                border:2px solid rgba(255,255,255,0.3);
+                border-top-color:white;
+                border-radius:50%;
+                animation:spin 0.8s linear infinite;
+            "></span>
             Publishing...
         </span>
     `;
@@ -86,47 +109,34 @@ document.getElementById("confirm-publish-btn").onclick = function () {
         const style = document.createElement("style");
         style.id = "spin-style";
         style.textContent = `
-            @keyframes spin {
-                from { transform: rotate(0deg); }
-                to { transform: rotate(360deg); }
-            }
+            @keyframes spin { from { transform:rotate(0); } to { transform:rotate(360deg); } }
         `;
         document.head.appendChild(style);
     }
 
-    const currentProject = JSON.parse(localStorage.getItem("currentProject") || "{}");
+    const project = JSON.parse(localStorage.getItem("currentProject") || "{}");
 
-    if (!currentProject.publishId) {
+    if (!project.publishId) {
         publishId = Math.floor(10000000 + Math.random() * 90000000).toString();
-        currentProject.publishId = publishId;
-        localStorage.setItem("currentProject", JSON.stringify(currentProject));
+        project.publishId = publishId;
+        localStorage.setItem("currentProject", JSON.stringify(project));
     } else {
-        publishId = currentProject.publishId;
+        publishId = project.publishId;
     }
 
     const fullHTML = editor.getFullHTML();
 
-    const data = {
-        name: publishId,
-        content: fullHTML,
-        createdAt: Date.now()
-    };
-
-    window.firebaseDB
+    await window.firebaseDB
         .ref("usercontent/" + publishId)
-        .set(data)
-        .then(() => {
-            btn.disabled = false;
-            openPublishPopup(); // refresh popup state
-        })
-        .catch((err) => {
-            btn.disabled = false;
-            btn.innerHTML = `<i data-lucide="rocket"></i> Retry`;
-            if (window.lucide) lucide.createIcons();
-            alert("Publish failed: " + err.message);
+        .set({
+            name: publishId,
+            content: fullHTML,
+            createdAt: Date.now()
         });
-};
 
+    btn.disabled = false;
+    openPublishPopup();
+};
 class ProWebBuilder {
     toggleLeft() {
         const left = document.getElementById('left-sidebar');
