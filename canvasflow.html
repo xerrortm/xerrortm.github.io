@@ -950,11 +950,12 @@
 
 </div>
 <div id="publish-popup" class="projects-overlay" style="display:none;">
-    <div class="projects-modal">
+    <div class="projects-modal" style="max-width:640px;border-radius:18px;overflow:hidden;">
+
         <div class="projects-header">
             <div>
                 <h2 id="publish-title">Publish Website</h2>
-                <p id="publish-subtitle">Publish your website to the web 🚀</p>
+                <p id="publish-subtitle">Make your site live in one click 🚀</p>
             </div>
 
             <button class="btn" id="close-publish-popup">
@@ -962,22 +963,38 @@
             </button>
         </div>
 
-        <div style="padding:32px;text-align:center;">
-            <div style="width:84px;height:84px;margin:0 auto 24px;border-radius:50%;background:rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;color:#3b82f6;">
-                <i data-lucide="rocket" style="width:42px;height:42px;"></i>
+        <div style="padding:34px;text-align:center;">
+
+            <!-- Icon glow -->
+            <div style="width:90px;height:90px;margin:0 auto 18px;border-radius:50%;background: radial-gradient(circle, rgba(59,130,246,0.25), transparent 70%);display:flex;align-items:center;justify-content:center;color:#3b82f6;
+            ">
+                <i data-lucide="rocket" style="width:44px;height:44px;"></i>
             </div>
 
-            <h3 id="publish-status-title">Ready to publish</h3>
+            <h3 id="publish-status-title" style="margin:0;font-size:24px;color:white;">
+                Ready to publish
+            </h3>
 
-            <p id="publish-description" style="color:#888;"></p>
+            <p id="publish-description" style="color:#9ca3af;margin:10px 0 22px;">
+                Your project will be deployed instantly.
+            </p>
 
-            <a id="publish-link" target="_blank" style="display:none;"></a>
+            <!-- Link box -->
+            <div id="link-box" style="display:none;background:#0f172a;border:1px solid #1e40af;padding:12px;border-radius:12px;margin-bottom:18px;color:#60a5fa;font-size:13px;word-break:break-all;"></div>
 
-            <div style="margin-top:20px;">
+            <!-- Buttons -->
+            <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+
+                <button class="btn" id="copy-link-btn" style="display:none;">
+                    <i data-lucide="copy"></i>
+                    Copy Link
+                </button>
+
                 <button class="btn primary" id="confirm-publish-btn">
                     <i data-lucide="rocket"></i>
-                    Publish Website
+                    Publish
                 </button>
+
             </div>
         </div>
     </div>
