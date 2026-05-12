@@ -73,7 +73,7 @@ function publish() {
     popup.onclick = (e) => {
         if (e.target === popup) popup.style.display = "none";
     };
-    linkbox.onclick = () => {
+    linkBox.onclick = () => {
         window.open(url, "_blank");
     };
 
