@@ -18,7 +18,7 @@ function publish() {
 
     var id = Math.floor(10000000 + Math.random() * 90000000).toString();
     var fullHTML = editor.getFullHTML();
-    var publishURL = "https://xerrortm.github.io/usercontent?p=" + id;
+    var publishURL = "https://xerrortm.github.io/u/usercontent?p=" + id;
 
     var data = {
         name: id,
