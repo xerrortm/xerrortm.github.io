@@ -40,8 +40,8 @@ function publish() {
 
     title.textContent = isPublished ? "Update Website" : "Publish Website";
     subtitle.textContent = isPublished
-        ? "Your site is already live 🌍"
-        : "Turn your project into a live site 🚀";
+        ? "Your site is already live"
+        : "Turn your project into a live site";
 
     statusTitle.textContent = isPublished
         ? "Already Live!"
@@ -66,7 +66,6 @@ function publish() {
 
     if (window.lucide) lucide.createIcons();
 
-    // close
     document.getElementById("close-publish-popup").onclick = () => {
         popup.style.display = "none";
     };
@@ -74,8 +73,10 @@ function publish() {
     popup.onclick = (e) => {
         if (e.target === popup) popup.style.display = "none";
     };
+    linkbox.onclick = () => {
+        window.open(url, "_blank");
+    };
 
-    // copy link
     copyBtn.onclick = () => {
         navigator.clipboard.writeText(url);
         copyBtn.innerHTML = `<i data-lucide="check"></i> Copied`;
@@ -87,7 +88,6 @@ function publish() {
     };
 }
 
-// publish logic
 document.getElementById("confirm-publish-btn").onclick = async function () {
     const btn = this;
 
@@ -135,7 +135,10 @@ document.getElementById("confirm-publish-btn").onclick = async function () {
         });
 
     btn.disabled = false;
-    openPublishPopup();
+    btn.innerHTML = `
+    <i data-lucide="rocket"></i>Published
+    `
+    publish();
 };
 class ProWebBuilder {
     toggleLeft() {
