@@ -8,19 +8,123 @@ const firebaseConfig = {
     appId: "1:876188868410:web:ca7de451707bd9975c7a03"
 };
 
-// Initialize Firebase once
 if (!window.firebaseApp) {
     window.firebaseApp = firebase.initializeApp(firebaseConfig);
     window.firebaseDB = firebase.database();
 }
 
 function publish() {
+    const currentProject = JSON.parse(localStorage.getItem("currentProject") || "{}");
+    let publishId = currentProject.publishId || null;
+    const isPublished = !!publishId;
+    const publishURL = publishId
+        ? "https://xerrortm.github.io/u/usercontent?p=" + publishId
+        : "";
+    
+    const existingPopup = document.getElementById("publish-popup");
+    if (existingPopup) existingPopup.remove();
 
-    var id = Math.floor(10000000 + Math.random() * 90000000).toString();
-    var fullHTML = editor.getFullHTML();
-    var publishURL = "https://xerrortm.github.io/u/usercontent?p=" + id;
+    const popup = document.createElement("div");
+    popup.id = "publish-popup";
+    popup.className = "projects-overlay";
 
-    var data = {
+    popup.innerHTML = `
+        <div class="projects-modal" style="width:620px;max-width:92%;height:auto;max-height:90vh;">
+            <div class="projects-header">
+                <div>
+                    <h2>${isPublished ? "Update Published Website" : "Publish Website"}</h2>
+                    <p>${isPublished ? "Your website is already live" : "Publish your website to ERROR Inc."}</p>
+                </div>
+
+                <button class="btn" id="close-publish-popup">
+                    <i data-lucide="x"></i>
+                </button>
+            </div>
+
+            <div style="padding:32px;text-align:center;">
+                <div style="width:84px;height:84px;margin:0 auto 24px;border-radius:50%;background:rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;color:#3b82f6;">
+                    <i data-lucide="rocket" style="width:42px;height:42px;"></i>
+                </div>
+
+                <h3 style="margin:0 0 12px;color:white;font-size:26px;font-weight:700;">
+                    ${isPublished ? "Your website is live" : "Ready to publish"}
+                </h3>
+
+                <p style="margin:0 0 24px;color:#888;line-height:1.6;">
+                    ${isPublished
+                        ? "Publishing again will update the existing link."
+                        : "Your project will get a permanent public link."}
+                </p>
+
+                ${isPublished ? `
+                    <a href="${publishURL}" target="_blank" style="display:block;padding:14px 16px;border-radius:12px;background:#0f172a;border:1px solid #1e40af;color:#60a5fa;text-decoration:none;word-break:break-all;font-size:13px;margin-bottom:20px;">
+                        ${publishURL}
+                    </a>
+                ` : ""}
+
+                <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+                    ${isPublished ? `
+                        <button class="btn" id="copy-publish-link">
+                            <i data-lucide="copy"></i>
+                            Copy Link
+                        </button>
+                    ` : ""}
+
+                    <button class="btn primary" id="confirm-publish-btn">
+                        <i data-lucide="rocket"></i>
+                        ${isPublished ? "Update Website" : "Publish Website"}
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    document.getElementById("close-publish-popup").onclick = function () {
+        popup.remove();
+    };
+
+    popup.onclick = function (e) {
+        if (e.target === popup) {
+            popup.remove();
+        }
+    };
+
+    const copyBtn = document.getElementById("copy-publish-link");
+    if (copyBtn) {
+        copyBtn.onclick = function () {
+            navigator.clipboard.writeText(publishURL);
+            copyBtn.innerHTML = '<i data-lucide="check"></i> Copied!';
+            if (window.lucide) lucide.createIcons();
+        };
+    }
+
+    document.getElementById("confirm-publish-btn").onclick = function () {
+        if (!publishId) {
+            publishId = Math.floor(10000000 + Math.random() * 90000000).toString();
+
+            currentProject.publishId = publishId;
+            localStorage.setItem(
+                "currentProject",
+                JSON.stringify(currentProject)
+            );
+        }
+
+        popup.remove();
+        publishToFirebase(publishId);
+    };
+
+    if (window.lucide) {
+        lucide.createIcons();
+    }
+}
+
+function publishToFirebase(id) {
+    const fullHTML = editor.getFullHTML();
+    const publishURL = "https://xerrortm.github.io/u/usercontent?p=" + id;
+
+    const data = {
         name: id,
         content: fullHTML,
         createdAt: Date.now()
@@ -30,118 +134,12 @@ function publish() {
         .ref("usercontent/" + id)
         .set(data)
         .then(function () {
-
-            // Wait one tick so Firebase finishes before building popup
-            setTimeout(function () {
-
-                var popup = document.createElement("div");
-                popup.id = "publish-popup";
-                popup.className = "projects-overlay";
-
-                popup.innerHTML = `
-                    <div class="projects-modal" style="width:620px;max-width:92%;height:auto;max-height:90vh;">
-                        <div class="projects-header">
-                            <div>
-                                <h2>Website Published</h2>
-                                <p>Your website is now live 🚀</p>
-                            </div>
-
-                            <button class="btn" id="close-publish-popup">
-                                <i data-lucide="x"></i>
-                            </button>
-                        </div>
-
-                        <div style="padding:32px;text-align:center;">
-                            <div style="width:84px;height:84px;margin:0 auto 24px;border-radius:50%;background:rgba(59,130,246,0.12);display:flex;align-items:center;justify-content:center;color:#3b82f6;">
-                                <i data-lucide="rocket"style="width:42px;height:42px;"></i>
-                            </div>
-
-                            <h3 style="margin:0 0 12px;color:white;font-size:26px;font-weight:700;">
-                                Your website is live
-                            </h3>
-
-                            <p style="
-                                margin:0 0 20px;
-                                color:#888;
-                                line-height:1.6;
-                            ">
-                                Your project was successfully published.
-                            </p>
-
-                            <a href="${publishURL}"
-                               target="_blank"
-                               style="
-                                   display:block;
-                                   padding:14px 16px;
-                                   border-radius:12px;
-                                   background:#0f172a;
-                                   border:1px solid #1e40af;
-                                   color:#60a5fa;
-                                   text-decoration:none;
-                                   word-break:break-all;
-                                   font-size:13px;
-                                   margin-bottom:18px;
-                               ">
-                                ${publishURL}
-                            </a>
-
-                            <button class="btn primary"
-                                    id="copy-publish-link">
-                                <i data-lucide="copy"></i>
-                                Copy Link
-                            </button>
-                        </div>
-                    </div>
-                `;
-
-                // Add popup to page
-                document.body.appendChild(popup);
-
-                // Close button
-                var closeBtn =
-                    document.getElementById("close-publish-popup");
-
-                if (closeBtn) {
-                    closeBtn.onclick = function () {
-                        popup.remove();
-                    };
-                }
-
-                // Click outside
-                popup.onclick = function (e) {
-                    if (e.target === popup) {
-                        popup.remove();
-                    }
-                };
-
-                // Copy button
-                var copyBtn =
-                    document.getElementById("copy-publish-link");
-
-                if (copyBtn) {
-                    copyBtn.onclick = function () {
-                        navigator.clipboard.writeText(publishURL);
-                        copyBtn.innerHTML =
-                            '<i data-lucide="check"></i> Copied!';
-                        if (window.lucide) {
-                            lucide.createIcons();
-                        }
-                    };
-                }
-
-                // Render icons after popup is in DOM
-                if (window.lucide) {
-                    lucide.createIcons();
-                }
-
-            }, 50);
-
+            console.log("Published successfully:", publishURL);
         })
         .catch(function (error) {
             alert("Publish failed: " + error.message);
         });
 }
-
 class ProWebBuilder {
     toggleLeft() {
         const left = document.getElementById('left-sidebar');
