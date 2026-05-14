@@ -309,7 +309,6 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, onSnapshot, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -326,17 +325,7 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
         const appId = "hypedum_community_v2";
-
-// Your Firestore rules likely allow writes only if
-// request.auth.uid == documentId.
-//
-// Since you are signing in anonymously, Firebase gives a random UID,
-// but your profile document ID is the Error Inc username.
-// That causes "Missing or insufficient permissions".
-//
-// Fix: use the REAL Firebase UID for Firestore permissions,
-// and store the Error Inc username separately in the profile.
-
+        
 import {
     getAuth,
     signInAnonymously
@@ -350,11 +339,10 @@ let allProfiles = {};
 let currentVisionId = null;
 let searchTerm = "";
 
-// Start authentication
 initErrorIncAuth();
 
 async function initErrorIncAuth() {
-    // localStorage.errorinc_user contains the username
+
     const username = localStorage.getItem("errorinc_user");
 
     if (!username || !username.trim()) {
@@ -370,20 +358,16 @@ async function initErrorIncAuth() {
     const cleanUsername = username.trim();
 
     try {
-        // Sign into Firebase anonymously
+
         const credential = await signInAnonymously(auth);
         const firebaseUser = credential.user;
 
-        // IMPORTANT:
-        // Use Firebase UID for security-sensitive operations
         currentUser = firebaseUser;
 
-        // Show Error Inc username in the UI
         document.getElementById("userBadge").classList.remove("hidden");
         document.getElementById("displayUserName").innerText =
             cleanUsername.toUpperCase();
 
-        // Profile document ID = Firebase UID (matches security rules)
         const profRef = doc(
             db,
             "artifacts",
@@ -399,12 +383,11 @@ async function initErrorIncAuth() {
         if (!profSnap.exists()) {
             await setDoc(profRef, {
                 uid: firebaseUser.uid,
-                name: cleanUsername,      // public username
+                name: cleanUsername,
                 errorIncUser: cleanUsername,
                 createdAt: Date.now()
             });
         } else {
-            // Keep username updated in case it changed
             await setDoc(
                 profRef,
                 {
@@ -415,7 +398,6 @@ async function initErrorIncAuth() {
             );
         }
 
-        // Start realtime sync
         syncProfiles();
         syncData();
 
