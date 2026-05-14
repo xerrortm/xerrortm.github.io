@@ -229,7 +229,9 @@
             </div>
             <div class="space-y-8 p-4">
                 <div class="flex items-center space-x-3">
-                    <span class="px-4 py-1 bg-orange-100 text-orange-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-full">FULL PREVIEW</span>
+                    <span id="visionBadge" class="px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full bg-black text-white">
+    IMAGE
+</span>
                     <span id="visionLikes" class="text-gray-900 font-black text-sm uppercase tracking-widest"></span>
                 </div>
                 <h2 id="visionTitle" class="text-6xl md:text-8xl font-display uppercase italic italic leading-none tracking-tighter">TITLE</h2>
@@ -332,6 +334,11 @@
         let allProfiles = {};
         let currentVisionId = null;
         let searchTerm = "";
+let badgeMap = {
+    featured: null,
+    week: null,
+    year: null
+};
 
         signInAnonymously(auth).catch(err => console.error("Auth Failed", err));
 
@@ -339,11 +346,12 @@
             if (user) {
                 currentUser = user;
                 document.getElementById('userBadge').classList.remove('hidden');
-
+                
+                // Fetch/Initialize Profile
                 const profRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', user.uid);
                 const profSnap = await getDoc(profRef);
                 if (!profSnap.exists()) {
-                    await setDoc(profRef, { name: localStorage.getItem("errorinc_user")||`USER_${user.uid.substring(0, 4)}`, uid: user.uid });
+                    await setDoc(profRef, { name: `USER_${user.uid.substring(0, 4)}`, uid: user.uid });
                 }
                 syncData();
                 syncProfiles();
@@ -383,9 +391,6 @@
         function renderFeatured() {
     if (allPosts.length === 0) return;
 
-    // Pick one image from ALL posts.
-    // The same image is shown for the whole day,
-    // but it changes automatically every day.
     const today = new Date();
 
     // Create a number like 20260514
@@ -394,11 +399,9 @@
         (today.getMonth() + 1) * 100 +
         today.getDate();
 
-    // Use the day number to select a "random" image
     const featuredIndex = daySeed % allPosts.length;
     const featured = allPosts[featuredIndex];
-
-    // Build smart title
+badgeMap.featured = featured.id;
     const cleanTitle = (featured.title || "").trim();
     const hasMultipleWords = cleanTitle.includes(" ");
 
@@ -447,6 +450,8 @@
 
             const weeklyBest = [...(weeklyPosts.length ? weeklyPosts : allPosts)].sort((a,b) => (b.likes||0) - (a.likes||0))[0];
             const yearlyBest = [...(yearlyPosts.length ? yearlyPosts : allPosts)].sort((a,b) => (b.likes||0) - (a.likes||0))[0];
+badgeMap.week = weeklyBest?.id || null;
+badgeMap.year = yearlyBest?.id || null;
 
             if (weeklyBest) {
                 document.getElementById('weeklyBestContainer').innerHTML = `
@@ -475,14 +480,22 @@
             const feed = document.getElementById('feedGrid');
             const filtered = allPosts.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase()));
             const sorted = [...filtered].sort((a, b) => b.timestamp - a.timestamp);
+
             
-            feed.innerHTML = sorted.map(post => `
+            feed.innerHTML = sorted.map(post => {
+const badge = getPostBadge(post);
+return `
                 <div class="img-card glass rounded-[2.5rem] aura-shadow overflow-hidden group cursor-pointer" onclick="openVision('${post.id}')">
                     <div class="h-64 overflow-hidden relative">
                         <img src="${post.url}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-                        <div class="absolute top-4 left-4">
-                            <span class="px-3 py-1 bg-black/60 backdrop-blur-md text-white text-[8px] font-black uppercase tracking-widest rounded-full">LIVE</span>
-                        </div>
+${badge ? `
+<div class="absolute top-4 left-4">
+    <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest
+    ${badge.color === "orange" ? "bg-orange-500 text-white" : "bg-purple-500 text-white"}">
+        ${badge.text}
+    </span>
+</div>
+` : ""}
                     </div>
                     <div class="p-8">
                         <div class="flex justify-between items-start mb-4">
@@ -498,7 +511,7 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
         }
 
         function renderLeaderboard() {
@@ -554,7 +567,23 @@
     if (!post) return;
 
     currentVisionId = postId;
+const badge = getPostBadge(post);
 
+document.getElementById("visionModal").dataset.badge = badge ? badge.text : "";
+const badgeEl = document.getElementById("visionBadge");
+
+if (badge) {
+    badgeEl.innerText = badge.text;
+    badgeEl.className =
+        "px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full " +
+        (badge.color === "orange"
+            ? "bg-orange-500 text-white"
+            : "bg-purple-600 text-white");
+} else {
+    badgeEl.innerText = "IMAGE";
+    badgeEl.className =
+        "px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full bg-gray-200 text-black";
+}
     document.getElementById('visionImg').src = post.url;
     document.getElementById('visionTitle').innerText = post.title;
     document.getElementById('visionAuthor').innerText =
@@ -750,6 +779,7 @@ async function deletePost(postId) {
             doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId)
         );
 
+        // Close preview if the deleted image is open
         if (currentVisionId === postId) {
             document.getElementById('visionModal').classList.add('hidden');
             currentVisionId = null;
@@ -760,6 +790,23 @@ async function deletePost(postId) {
         console.error(error);
         showToast("DELETE FAILED");
     }
+}
+function getPostBadge(post) {
+    if (!post?.id) return null;
+
+    if (post.id === badgeMap.featured) {
+        return { text: "TODAY'S FEATURED", color: "orange" };
+    }
+
+    if (post.id === badgeMap.week) {
+        return { text: "IMG OF THE WEEK", color: "orange" };
+    }
+
+    if (post.id === badgeMap.year) {
+        return { text: "IMG OF THE YEAR", color: "purple" };
+    }
+
+    return null;
 }
 
         function showToast(msg) {
