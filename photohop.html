@@ -286,7 +286,7 @@
             <div class="space-y-6">
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">IMAGE URL</label>
-                    <input id="imgUrl" type="text" placeholder="Paste link from Unsplash, Pexels, etc." class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg">
+                    <input id="imgFile" type="file" accept="image/*" placeholder="Paste link from Unsplash, Pexels, etc." class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg">
                     <button onclick="document.getElementById('imgUrl').value = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&q=80'" class="mt-2 text-[10px] font-black text-orange-500 uppercase tracking-widest ml-4 hover:underline">USE AUTO-GEN IMAGE</button>
                 </div>
                 <div>
@@ -304,7 +304,7 @@
     <!-- TOAST NOTIFICATION -->
     <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] hidden">
         <div class="bg-black text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl flex items-center">
-            <i class="fa-solid fa-heart text-orange-500 mr-3 animate-pulse"></i>
+            <i class="fa-solid fa-bell text-orange-500 mr-3 animate-pulse"></i>
             <span id="toastMsg">ACTION SUCCESSFUL</span>
         </div>
     </div>
@@ -393,7 +393,6 @@ let badgeMap = {
 
     const today = new Date();
 
-    // Create a number like 20260514
     const daySeed =
         today.getFullYear() * 10000 +
         (today.getMonth() + 1) * 100 +
@@ -408,10 +407,8 @@ badgeMap.featured = featured.id;
     let headline;
 
     if (hasMultipleWords) {
-        // Example: THE GOLDEN SUNSET
         headline = `THE <span class="hype-text-gradient">${cleanTitle}</span>`;
     } else {
-        // Example: AURORA BY XERRORTM
         const authorName =
             allProfiles[featured.authorId]?.name || "UNKNOWN";
 
@@ -422,17 +419,14 @@ badgeMap.featured = featured.id;
         `;
     }
 
-    // Update featured section
     document.getElementById('spotlightImg').src = featured.url;
     document.getElementById('spotlightTitle').innerHTML = headline;
     document.getElementById('spotlightLikes').innerHTML =
         `<i class="fa-solid fa-heart text-orange-500 mr-1"></i> ${featured.likes || 0} LIKES`;
 
-    // Open image preview
     document.getElementById('spotlightContainer').onclick = () =>
         openVision(featured.id);
-
-    // Like button
+            
     document.getElementById('mainLikeBtn').onclick = (e) => {
         e.stopPropagation();
         likePost(featured.id);
@@ -593,21 +587,18 @@ if (badge) {
 
     document.getElementById('visionModal').classList.remove('hidden');
 
-    // Like button
     document.getElementById('visionLikeBtn').onclick = () => likePost(postId);
 
-    // Share button
     document.getElementById('visionShare').onclick = () => {
         navigator.clipboard.writeText(post.url);
         showToast("URL COPIED TO CLIPBOARD");
     };
 
-    // Delete button
     const deleteBtn = document.getElementById('visionDeleteBtn');
 
     if (post.authorId === currentUser?.uid) {
         deleteBtn.classList.remove('hidden');
-        deleteBtn.onclick = () => deletePost(postId); // 👈 passes the correct ID
+        deleteBtn.onclick = () => deletePost(postId);
     } else {
         deleteBtn.classList.add('hidden');
         deleteBtn.onclick = null;
@@ -634,7 +625,6 @@ if (badge) {
         return;
     }
 
-    // Optional validation
     if (name.length < 3) {
         showToast("USERNAME TOO SHORT");
         return;
@@ -645,7 +635,6 @@ if (badge) {
         return;
     }
 
-    // Check if another user already uses this name (case-insensitive)
     const lowerName = name.toLowerCase();
 
     const nameTaken = Object.values(allProfiles).some(profile =>
@@ -701,38 +690,61 @@ if (badge) {
         };
 
         document.getElementById('uploadBtn').onclick = async () => {
-            const url = document.getElementById('imgUrl').value.trim();
-            const title = document.getElementById('imgTitle').value.trim();
-            const btn = document.getElementById('uploadBtn');
+    const fileInput = document.getElementById('imgFile');
+    const title = document.getElementById('imgTitle').value.trim();
+    const btn = document.getElementById('uploadBtn');
 
-            if (!url || !title || !currentUser) return;
+    const file = fileInput.files[0];
 
-            btn.disabled = true;
-            btn.innerText = "UPLOADING...";
+    if (!file || !title || !currentUser) return;
 
-            try {
-                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'posts'), {
-                    url,
-                    title,
-                    authorId: currentUser.uid,
-                    likes: 0,
-                    likedBy: [],
-                    timestamp: Date.now()
-                });
-                
-                document.getElementById('imgUrl').value = "";
-                document.getElementById('imgTitle').value = "";
-                document.getElementById('uploadModal').classList.add('hidden');
-                showToast("POST UPLOADED SUCCESSFULLY");
-            } catch (e) {
-                console.error(e);
-                showToast("UPLOAD FAILED");
-            } finally {
-                btn.disabled = false;
-                btn.innerText = "UPLOAD TO FEED";
+    btn.disabled = true;
+    btn.innerText = "UPLOADING...";
+
+    const formData = new FormData();
+
+    formData.append("file", file);
+
+    formData.append("upload_preset", "error-inc");
+
+    try {
+        const res = await fetch(
+            "https://api.cloudinary.com/v1_1/drqkilrfl/image/upload",
+            {
+                method: "POST",
+                body: formData
             }
-        };
+        );
 
+        const data = await res.json();
+
+        const url = data.secure_url;
+
+        if (!url) throw new Error("Upload failed");
+
+        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'posts'), {
+            url,
+            title,
+            authorId: currentUser.uid,
+            likes: 0,
+            likedBy: [],
+            timestamp: Date.now()
+        });
+
+        fileInput.value = "";
+        document.getElementById('imgTitle').value = "";
+        document.getElementById('uploadModal').classList.add('hidden');
+
+        showToast("UPLOAD SUCCESS");
+
+    } catch (err) {
+        console.error(err);
+        showToast("UPLOAD FAILED");
+    }
+
+    btn.disabled = false;
+    btn.innerText = "UPLOAD NOW";
+};
         async function likePost(postId) {
             if (!currentUser) return;
             const postRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId);
@@ -754,7 +766,6 @@ if (badge) {
             await updateDoc(postRef, { likes: newLikes, likedBy: newLikedBy });
             showToast(likedBy.includes(currentUser.uid) ? "UNLIKED" : "LIKED");
         }
-// Add this function anywhere in your script (for example below likePost())
 
 import { deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -764,13 +775,11 @@ async function deletePost(postId) {
     const post = allPosts.find(p => p.id === postId);
     if (!post) return;
 
-    // Only allow the uploader to delete their own image
     if (post.authorId !== currentUser.uid) {
         showToast("YOU CAN ONLY DELETE YOUR OWN IMAGES");
         return;
     }
 
-    // Confirm before deleting
     const confirmed = confirm(`Delete "${post.title}"?`);
     if (!confirmed) return;
 
@@ -779,7 +788,6 @@ async function deletePost(postId) {
             doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId)
         );
 
-        // Close preview if the deleted image is open
         if (currentVisionId === postId) {
             document.getElementById('visionModal').classList.add('hidden');
             currentVisionId = null;
