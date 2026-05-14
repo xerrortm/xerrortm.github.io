@@ -309,6 +309,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, onSnapshot, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -325,87 +326,30 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
         const appId = "hypedum_community_v2";
-        
-import {
-    getAuth,
-    signInAnonymously
-} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-const auth = getAuth(app);
+        let currentUser = null;
+        let allPosts = [];
+        let allProfiles = {};
+        let currentVisionId = null;
+        let searchTerm = "";
 
-let currentUser = null;
-let allPosts = [];
-let allProfiles = {};
-let currentVisionId = null;
-let searchTerm = "";
+        signInAnonymously(auth).catch(err => console.error("Auth Failed", err));
 
-initErrorIncAuth();
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('userBadge').classList.remove('hidden');
 
-async function initErrorIncAuth() {
+                const profRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', user.uid);
+                const profSnap = await getDoc(profRef);
+                if (!profSnap.exists()) {
+                    await setDoc(profRef, { name: localStorage.getItem("errorinc_user")||`USER_${user.uid.substring(0, 4)}`, uid: user.uid });
+                }
+                syncData();
+                syncProfiles();
+            }
+        });
 
-    const username = localStorage.getItem("errorinc_user");
-
-    if (!username || !username.trim()) {
-        showToast("SIGN IN WITH ERROR INC");
-
-        setTimeout(() => {
-            window.location.href = "/signup";
-        }, 1000);
-
-        return;
-    }
-
-    const cleanUsername = username.trim();
-
-    try {
-
-        const credential = await signInAnonymously(auth);
-        const firebaseUser = credential.user;
-
-        currentUser = firebaseUser;
-
-        document.getElementById("userBadge").classList.remove("hidden");
-        document.getElementById("displayUserName").innerText =
-            cleanUsername.toUpperCase();
-
-        const profRef = doc(
-            db,
-            "artifacts",
-            appId,
-            "public",
-            "data",
-            "profiles",
-            firebaseUser.uid
-        );
-
-        const profSnap = await getDoc(profRef);
-
-        if (!profSnap.exists()) {
-            await setDoc(profRef, {
-                uid: firebaseUser.uid,
-                name: cleanUsername,
-                errorIncUser: cleanUsername,
-                createdAt: Date.now()
-            });
-        } else {
-            await setDoc(
-                profRef,
-                {
-                    name: cleanUsername,
-                    errorIncUser: cleanUsername
-                },
-                { merge: true }
-            );
-        }
-
-        syncProfiles();
-        syncData();
-
-    } catch (error) {
-        console.error("Error Inc authentication failed:", error);
-        showToast("AUTH FAILED");
-    }
-}
         function syncProfiles() {
             const q = collection(db, 'artifacts', appId, 'public', 'data', 'profiles');
             onSnapshot(q, (snap) => {
@@ -781,6 +725,7 @@ async function initErrorIncAuth() {
             await updateDoc(postRef, { likes: newLikes, likedBy: newLikedBy });
             showToast(likedBy.includes(currentUser.uid) ? "UNLIKED" : "LIKED");
         }
+// Add this function anywhere in your script (for example below likePost())
 
 import { deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -805,7 +750,6 @@ async function deletePost(postId) {
             doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId)
         );
 
-        // Close preview if the deleted image is open
         if (currentVisionId === postId) {
             document.getElementById('visionModal').classList.add('hidden');
             currentVisionId = null;
