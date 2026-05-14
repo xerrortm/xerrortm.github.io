@@ -1611,14 +1611,20 @@ ${this.classLibrary[name] || ""}
         }, 50);
     }
     getFullHTML() {
-        const clean = this.canvas.cloneNode(true);
- 
-        clean.querySelectorAll('.resizer').forEach(r => r.remove());
-        clean.querySelectorAll('.selected').forEach(s => s.classList.remove('selected'));
-        const pluginTags =
-            this.plugins.map(p => p.tag).join("\n");
- 
-        return `
+    const clean = this.canvas.cloneNode(true);
+
+    clean.querySelectorAll('.resizer').forEach(r => r.remove());
+    clean.querySelectorAll('.selected').forEach(s => s.classList.remove('selected'));
+    clean.querySelectorAll('[contenteditable]').forEach(el => {
+        el.removeAttribute('contenteditable');
+    });
+    clean.querySelectorAll('.editable-element').forEach(el => {
+        el.classList.remove('editable-element');
+    });
+
+    const pluginTags = this.plugins.map(p => p.tag).join("\n");
+
+    return `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1626,7 +1632,7 @@ ${this.classLibrary[name] || ""}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${document.title || "Untitled Page"}</title>
 ${pluginTags}
-        <style>
+    <style>
         body {
             margin: 0;
             font-family: ${this.globals.font || "sans-serif"};
@@ -1640,7 +1646,7 @@ ${pluginTags}
     <script>${this.globals.js}<\/script>
 </body>
 </html>`;
-    }
+}
     switchCodeTab(tab, btn) {
  
         if (!this.cm) return;
