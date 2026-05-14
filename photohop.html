@@ -327,6 +327,23 @@
         const auth = getAuth(app);
         const appId = "hypedum_community_v2";
 
+// Your Firestore rules likely allow writes only if
+// request.auth.uid == documentId.
+//
+// Since you are signing in anonymously, Firebase gives a random UID,
+// but your profile document ID is the Error Inc username.
+// That causes "Missing or insufficient permissions".
+//
+// Fix: use the REAL Firebase UID for Firestore permissions,
+// and store the Error Inc username separately in the profile.
+
+import {
+    getAuth,
+    signInAnonymously
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+const auth = getAuth(app);
+
 let currentUser = null;
 let allPosts = [];
 let allProfiles = {};
@@ -337,10 +354,9 @@ let searchTerm = "";
 initErrorIncAuth();
 
 async function initErrorIncAuth() {
-    // Read username directly from localStorage
+    // localStorage.errorinc_user contains the username
     const username = localStorage.getItem("errorinc_user");
 
-    // If no Error Inc account is found, redirect to signup
     if (!username || !username.trim()) {
         showToast("SIGN IN WITH ERROR INC");
 
@@ -354,21 +370,20 @@ async function initErrorIncAuth() {
     const cleanUsername = username.trim();
 
     try {
-        // Firebase still needs a signed-in user
-        await signInAnonymously(auth);
+        // Sign into Firebase anonymously
+        const credential = await signInAnonymously(auth);
+        const firebaseUser = credential.user;
 
-        // Public user object uses the Error Inc username as UID
-        currentUser = {
-            uid: cleanUsername,
-            displayName: cleanUsername
-        };
+        // IMPORTANT:
+        // Use Firebase UID for security-sensitive operations
+        currentUser = firebaseUser;
 
-        // Show badge
+        // Show Error Inc username in the UI
         document.getElementById("userBadge").classList.remove("hidden");
         document.getElementById("displayUserName").innerText =
             cleanUsername.toUpperCase();
 
-        // Create profile if it does not exist
+        // Profile document ID = Firebase UID (matches security rules)
         const profRef = doc(
             db,
             "artifacts",
@@ -376,17 +391,28 @@ async function initErrorIncAuth() {
             "public",
             "data",
             "profiles",
-            cleanUsername
+            firebaseUser.uid
         );
 
         const profSnap = await getDoc(profRef);
 
         if (!profSnap.exists()) {
             await setDoc(profRef, {
-                uid: cleanUsername,
-                name: cleanUsername,
+                uid: firebaseUser.uid,
+                name: cleanUsername,      // public username
+                errorIncUser: cleanUsername,
                 createdAt: Date.now()
             });
+        } else {
+            // Keep username updated in case it changed
+            await setDoc(
+                profRef,
+                {
+                    name: cleanUsername,
+                    errorIncUser: cleanUsername
+                },
+                { merge: true }
+            );
         }
 
         // Start realtime sync
@@ -398,7 +424,6 @@ async function initErrorIncAuth() {
         showToast("AUTH FAILED");
     }
 }
-
         function syncProfiles() {
             const q = collection(db, 'artifacts', appId, 'public', 'data', 'profiles');
             onSnapshot(q, (snap) => {
