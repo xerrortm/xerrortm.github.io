@@ -1,0 +1,831 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PHOTOHOP</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Outfit:wght@900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --hype-orange: #ff4d00;
+            --hype-purple: #8a2be2;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            overflow-x: hidden;
+        }
+
+        .font-display { font-family: 'Outfit', sans-serif; }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .aura-shadow {
+            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08);
+        }
+
+        .hype-gradient {
+            background: linear-gradient(135deg, var(--hype-orange) 0%, var(--hype-purple) 100%);
+        }
+
+        .hype-text-gradient {
+            background: linear-gradient(135deg, var(--hype-orange) 0%, var(--hype-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .tab-btn {
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        .tab-btn.active {
+            color: black;
+        }
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 4px;
+            background: var(--hype-orange);
+            border-radius: 10px;
+        }
+
+        .btn-premium {
+            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-premium:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 30px -10px rgba(255, 77, 0, 0.3);
+        }
+
+        .img-card {
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .img-card:hover {
+            transform: scale(1.02);
+        }
+
+        #visionModal { transition: all 0.4s ease; }
+
+        @keyframes reveal {
+            from { transform: scale(0.9); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .animate-reveal { animation: reveal 0.4s ease forwards; }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 3px solid #f1f5f9; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <nav class="fixed top-0 w-full z-50 glass border-b border-gray-100 py-4 px-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
+                <div class="w-10 h-10 hype-gradient rounded-xl flex items-center justify-center font-display text-white text-xl shadow-lg rotate-3">H</div>
+                <span class="text-2xl font-display uppercase tracking-tight italic">PHOTO<span class="hype-text-gradient">HOP</span></span>
+            </div>
+            
+            <div class="flex items-center space-x-8">
+                <button onclick="switchTab('home')" id="tab-home" class="tab-btn active text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black">HOME</button>
+                <button onclick="switchTab('feed')" id="tab-feed" class="tab-btn text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black">ALL IMAGES</button>
+            </div>
+
+            <div class="flex items-center space-x-4">
+                <div id="userBadge" class="hidden flex items-center bg-white px-4 py-2 rounded-2xl border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors" onclick="openProfileModal()">
+                    <div class="w-2 h-2 bg-orange-500 rounded-full animate-pulse mr-2"></div>
+                    <span id="displayUserName" class="text-[10px] font-black text-gray-500 uppercase tracking-widest">GUEST_ID</span>
+                </div>
+                <button id="openUpload" class="bg-black text-white px-6 py-3 rounded-2xl font-black text-xs btn-premium tracking-widest flex items-center">
+                    <i class="fa-solid fa-plus mr-2"></i> UPLOAD
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="pt-32 px-6 max-w-7xl mx-auto space-y-20 pb-32">
+        
+        <!-- HOME VIEW -->
+        <div id="view-home" class="space-y-20">
+            <!-- TODAY'S FEATURED SECTION -->
+            <section id="spotlightContainer" class="relative w-full h-[500px] md:h-[600px] rounded-[3rem] overflow-hidden group aura-shadow cursor-pointer">
+                <div class="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent z-10 opacity-90"></div>
+                <img id="spotlightImg" src="https://placehold.co/1200x800/eee/999?text=Featured+Photo" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Featured">
+                
+                <div class="absolute bottom-0 left-0 p-8 md:p-12 z-20 w-full">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <span class="px-4 py-1.5 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl">TODAY'S FEATURED</span>
+                        <span id="spotlightLikes" class="text-gray-900 text-xs font-black uppercase tracking-widest"><i class="fa-solid fa-heart text-orange-500 mr-1"></i> 0 LIKES</span>
+                    </div>
+                    <h1 id="spotlightTitle" class="text-5xl md:text-8xl font-display uppercase italic tracking-tighter mb-8 leading-none">THE <span class="hype-text-gradient">BEST</span> OF TODAY</h1>
+                    <div class="flex space-x-4">
+                        <button id="mainLikeBtn" class="bg-white text-black border border-gray-200 px-8 py-4 rounded-3xl font-black text-sm uppercase shadow-xl btn-premium">
+                            LIKE IMAGE
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HALL OF FAME & LEADERBOARD GRID -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-12">
+                <div class="lg:col-span-3 space-y-16">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="glass p-10 rounded-[2.5rem] aura-shadow relative group border-orange-100">
+                            <div class="absolute -top-4 -right-4 w-12 h-12 bg-orange-100 rounded-2xl flex items-center justify-center text-orange-500 transform rotate-12">
+                                <i class="fa-solid fa-crown text-xl"></i>
+                            </div>
+                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-6">IMAGE OF THE WEEK</h3>
+                            <div id="weeklyBestContainer"></div>
+                        </div>
+
+                        <div class="glass p-10 rounded-[2.5rem] aura-shadow relative group border-purple-100">
+                            <div class="absolute -top-4 -right-4 w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center text-purple-500 transform -rotate-12">
+                                <i class="fa-solid fa-trophy text-xl"></i>
+                            </div>
+                            <h3 class="text-xs font-black text-gray-400 uppercase tracking-[0.3em] mb-6">IMAGE OF THE YEAR</h3>
+                            <div id="yearlyBestContainer"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-black text-white p-12 rounded-[3.5rem] shadow-2xl flex flex-col md:flex-row justify-between items-center gap-8">
+                        <div>
+                            <h2 class="text-4xl font-display uppercase italic italic leading-none">JOIN THE <span class="hype-text-gradient">COMMUNITY</span></h2>
+                            <p class="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em] mt-2">Upload your best work and climb the leaderboards</p>
+                        </div>
+                        <button onclick="document.getElementById('uploadModal').classList.remove('hidden')" class="px-10 py-5 bg-white text-black rounded-3xl font-black uppercase text-xs tracking-widest hover:scale-105 transition-transform">Get Started</button>
+                    </div>
+                </div>
+
+                <div class="space-y-12">
+                    <div class="glass p-10 rounded-[3rem] aura-shadow">
+                        <h3 class="text-xl font-display uppercase mb-8 flex items-center tracking-tighter">
+                            <i class="fa-solid fa-chart-line text-orange-500 mr-3"></i> TOP USERS
+                        </h3>
+                        <div id="leaderboardList" class="space-y-6"></div>
+                    </div>
+
+                    <div class="bg-black text-white p-10 rounded-[3rem] shadow-2xl space-y-8">
+                        <h3 class="text-xs font-black uppercase tracking-[0.3em] text-white/50">COMMUNITY STATS</h3>
+                        <div class="grid grid-cols-1 gap-6">
+                            <div class="flex justify-between items-center border-b border-white/10 pb-4">
+                                <span class="text-[10px] font-black text-white/40 uppercase">Total Images</span>
+                                <span id="statTotalPosts" class="text-2xl font-display">0</span>
+                            </div>
+                            <div class="flex justify-between items-center">
+                                <span class="text-[10px] font-black text-white/40 uppercase">Total Likes</span>
+                                <span id="statTotalLikes" class="text-2xl font-display">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FEED VIEW (HIDDEN BY DEFAULT) -->
+        <div id="view-feed" class="hidden space-y-12">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+                <div>
+                    <h2 class="text-6xl font-display uppercase italic leading-none">ALL <span class="hype-text-gradient">IMAGES</span></h2>
+                    <p class="text-gray-400 font-bold text-[10px] mt-2 tracking-widest uppercase">EXPLORE THE FULL COMMUNITY COLLECTION</p>
+                </div>
+                <div class="relative max-w-md w-full">
+                    <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-gray-300"></i>
+                    <input id="searchInput" type="text" placeholder="Search titles..." class="w-full bg-white border border-gray-100 aura-shadow rounded-3xl py-5 pl-16 pr-8 outline-none focus:ring-4 focus:ring-orange-500/10 transition-all font-bold text-lg">
+                </div>
+            </div>
+
+            <div id="feedGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                <!-- Posts injected here -->
+            </div>
+        </div>
+
+    </main>
+
+    <!-- PREVIEW MODAL -->
+    <div id="visionModal" class="fixed inset-0 z-[100] hidden bg-white/95 flex items-center justify-center p-4 md:p-12 overflow-y-auto">
+        <button id="closeVision" class="fixed top-8 right-8 w-14 h-14 bg-black text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-2xl z-[110]">
+            <i class="fa-solid fa-xmark text-xl"></i>
+        </button>
+        <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="rounded-[3rem] overflow-hidden shadow-2xl aura-shadow">
+                <img id="visionImg" src="" class="w-full object-cover max-h-[80vh]" alt="Preview">
+            </div>
+            <div class="space-y-8 p-4">
+                <div class="flex items-center space-x-3">
+                    <span class="px-4 py-1 bg-orange-100 text-orange-600 text-[10px] font-black uppercase tracking-[0.2em] rounded-full">FULL PREVIEW</span>
+                    <span id="visionLikes" class="text-gray-900 font-black text-sm uppercase tracking-widest"></span>
+                </div>
+                <h2 id="visionTitle" class="text-6xl md:text-8xl font-display uppercase italic italic leading-none tracking-tighter">TITLE</h2>
+                <div class="flex items-center space-x-4">
+                    <div class="w-12 h-12 hype-gradient rounded-full"></div>
+                    <div>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">UPLOADED BY</p>
+                        <p id="visionAuthor" class="text-xl font-display uppercase italic">NAME</p>
+                    </div>
+                </div>
+                <div class="pt-8 flex space-x-4">
+    <button id="visionLikeBtn" class="flex-1 bg-black text-white px-8 py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:scale-[1.02] transition-transform">
+        LIKE PHOTO
+    </button>
+
+    <button id="visionDeleteBtn" class="bg-red-500 text-white px-6 py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:bg-red-600 transition-colors">
+        DELETE
+    </button>
+
+    <button id="visionShare" class="w-20 bg-gray-100 text-black px-8 py-5 rounded-3xl flex items-center justify-center hover:bg-gray-200 transition-colors">
+        <i class="fa-solid fa-share-nodes"></i>
+    </button>
+</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE MODAL -->
+    <div id="profileModal" class="fixed inset-0 z-[100] hidden bg-black/40 backdrop-blur-md flex items-center justify-center p-6">
+        <div class="bg-white max-w-md w-full rounded-[3rem] p-10 animate-reveal shadow-2xl">
+            <h2 class="text-4xl font-display uppercase mb-2 italic">YOUR <span class="hype-text-gradient">PROFILE</span></h2>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-8">SET YOUR CUSTOM NAME</p>
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">DISPLAY NAME</label>
+                    <input id="userNameInput" type="text" placeholder="Enter name..." class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg">
+                </div>
+                <div class="flex space-x-3">
+                    <button id="saveProfile" class="flex-1 bg-black text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs btn-premium">SAVE CHANGES</button>
+                    <button onclick="document.getElementById('profileModal').classList.add('hidden')" class="px-8 bg-gray-100 py-4 rounded-2xl font-black text-xs uppercase tracking-widest">CLOSE</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- UPLOAD MODAL -->
+    <div id="uploadModal" class="fixed inset-0 z-[100] hidden bg-black/40 backdrop-blur-md flex items-center justify-center p-6">
+        <div class="bg-white max-w-xl w-full rounded-[3rem] p-10 animate-reveal shadow-2xl">
+            <h2 class="text-4xl font-display uppercase mb-2 italic">UPLOAD <span class="hype-text-gradient">PHOTO</span></h2>
+            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-8">SHARE YOUR PHOTO WITH THE COMMUNITY</p>
+            
+            <div class="space-y-6">
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">IMAGE URL</label>
+                    <input id="imgUrl" type="text" placeholder="Paste link from Unsplash, Pexels, etc." class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg">
+                    <button onclick="document.getElementById('imgUrl').value = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&q=80'" class="mt-2 text-[10px] font-black text-orange-500 uppercase tracking-widest ml-4 hover:underline">USE AUTO-GEN IMAGE</button>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">TITLE</label>
+                    <input id="imgTitle" type="text" placeholder="Give it a name..." class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg">
+                </div>
+                <div class="flex space-x-3">
+                    <button id="uploadBtn" class="flex-1 bg-black text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs btn-premium">UPLOAD NOW</button>
+                    <button onclick="document.getElementById('uploadModal').classList.add('hidden')" class="px-8 bg-gray-100 py-4 rounded-2xl font-black text-xs uppercase tracking-widest">CANCEL</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] hidden">
+        <div class="bg-black text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl flex items-center">
+            <i class="fa-solid fa-heart text-orange-500 mr-3 animate-pulse"></i>
+            <span id="toastMsg">ACTION SUCCESSFUL</span>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, onSnapshot, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
+            authDomain: "error-inc.firebaseapp.com",
+            databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
+            projectId: "error-inc",
+            storageBucket: "error-inc.firebasestorage.app",
+            messagingSenderId: "876188868410",
+            appId: "1:876188868410:web:ca7de451707bd9975c7a03"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = "hypedum_community_v2";
+
+let currentUser = null;
+let allPosts = [];
+let allProfiles = {};
+let currentVisionId = null;
+let searchTerm = "";
+
+// Start authentication
+initErrorIncAuth();
+
+async function initErrorIncAuth() {
+    // Read username directly from localStorage
+    const username = localStorage.getItem("errorinc_user");
+
+    // If no Error Inc account is found, redirect to signup
+    if (!username || !username.trim()) {
+        showToast("SIGN IN WITH ERROR INC");
+
+        setTimeout(() => {
+            window.location.href = "/signup";
+        }, 1000);
+
+        return;
+    }
+
+    const cleanUsername = username.trim();
+
+    try {
+        // Firebase still needs a signed-in user
+        await signInAnonymously(auth);
+
+        // Public user object uses the Error Inc username as UID
+        currentUser = {
+            uid: cleanUsername,
+            displayName: cleanUsername
+        };
+
+        // Show badge
+        document.getElementById("userBadge").classList.remove("hidden");
+        document.getElementById("displayUserName").innerText =
+            cleanUsername.toUpperCase();
+
+        // Create profile if it does not exist
+        const profRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "profiles",
+            cleanUsername
+        );
+
+        const profSnap = await getDoc(profRef);
+
+        if (!profSnap.exists()) {
+            await setDoc(profRef, {
+                uid: cleanUsername,
+                name: cleanUsername,
+                createdAt: Date.now()
+            });
+        }
+
+        // Start realtime sync
+        syncProfiles();
+        syncData();
+
+    } catch (error) {
+        console.error("Error Inc authentication failed:", error);
+        showToast("AUTH FAILED");
+    }
+}
+
+        function syncProfiles() {
+            const q = collection(db, 'artifacts', appId, 'public', 'data', 'profiles');
+            onSnapshot(q, (snap) => {
+                snap.forEach(doc => {
+                    allProfiles[doc.id] = doc.data();
+                });
+                if (currentUser && allProfiles[currentUser.uid]) {
+                    document.getElementById('displayUserName').innerText = allProfiles[currentUser.uid].name;
+                }
+                renderUI();
+            }, (err) => console.error("Profile sync error", err));
+        }
+
+        function syncData() {
+            const q = collection(db, 'artifacts', appId, 'public', 'data', 'posts');
+            onSnapshot(q, (snap) => {
+                allPosts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderUI();
+            }, (err) => console.error("Posts sync error", err));
+        }
+
+        function renderUI() {
+            renderFeatured();
+            renderFeed();
+            renderHallOfFame();
+            renderLeaderboard();
+            renderStats();
+            if (currentVisionId) openVision(currentVisionId);
+        }
+
+        function renderFeatured() {
+    if (allPosts.length === 0) return;
+
+    // Pick one image from ALL posts.
+    // The same image is shown for the whole day,
+    // but it changes automatically every day.
+    const today = new Date();
+
+    // Create a number like 20260514
+    const daySeed =
+        today.getFullYear() * 10000 +
+        (today.getMonth() + 1) * 100 +
+        today.getDate();
+
+    // Use the day number to select a "random" image
+    const featuredIndex = daySeed % allPosts.length;
+    const featured = allPosts[featuredIndex];
+
+    // Build smart title
+    const cleanTitle = (featured.title || "").trim();
+    const hasMultipleWords = cleanTitle.includes(" ");
+
+    let headline;
+
+    if (hasMultipleWords) {
+        // Example: THE GOLDEN SUNSET
+        headline = `THE <span class="hype-text-gradient">${cleanTitle}</span>`;
+    } else {
+        // Example: AURORA BY XERRORTM
+        const authorName =
+            allProfiles[featured.authorId]?.name || "UNKNOWN";
+
+        headline = `
+            <span class="hype-text-gradient">${cleanTitle}</span>
+            <span class="text-black">BY</span>
+            <span class="text-black">${authorName}</span>
+        `;
+    }
+
+    // Update featured section
+    document.getElementById('spotlightImg').src = featured.url;
+    document.getElementById('spotlightTitle').innerHTML = headline;
+    document.getElementById('spotlightLikes').innerHTML =
+        `<i class="fa-solid fa-heart text-orange-500 mr-1"></i> ${featured.likes || 0} LIKES`;
+
+    // Open image preview
+    document.getElementById('spotlightContainer').onclick = () =>
+        openVision(featured.id);
+
+    // Like button
+    document.getElementById('mainLikeBtn').onclick = (e) => {
+        e.stopPropagation();
+        likePost(featured.id);
+    };
+}
+        function renderHallOfFame() {
+            if (allPosts.length === 0) return;
+
+            const now = Date.now();
+            const weekMs = 7 * 24 * 60 * 60 * 1000;
+            const yearMs = 365 * 24 * 60 * 60 * 1000;
+
+            const weeklyPosts = allPosts.filter(p => (now - p.timestamp) < weekMs);
+            const yearlyPosts = allPosts.filter(p => (now - p.timestamp) < yearMs);
+
+            const weeklyBest = [...(weeklyPosts.length ? weeklyPosts : allPosts)].sort((a,b) => (b.likes||0) - (a.likes||0))[0];
+            const yearlyBest = [...(yearlyPosts.length ? yearlyPosts : allPosts)].sort((a,b) => (b.likes||0) - (a.likes||0))[0];
+
+            if (weeklyBest) {
+                document.getElementById('weeklyBestContainer').innerHTML = `
+                    <div class="img-card rounded-3xl overflow-hidden aura-shadow cursor-pointer" onclick="openVision('${weeklyBest.id}')">
+                        <img src="${weeklyBest.url}" class="h-48 w-full object-cover">
+                        <div class="p-4 bg-white flex justify-between items-center">
+                            <span class="text-sm font-display uppercase italic">${weeklyBest.title}</span>
+                            <span class="text-[10px] font-black text-orange-500">${weeklyBest.likes || 0} LIKES</span>
+                        </div>
+                    </div>`;
+            }
+
+            if (yearlyBest) {
+                document.getElementById('yearlyBestContainer').innerHTML = `
+                    <div class="img-card rounded-3xl overflow-hidden aura-shadow cursor-pointer" onclick="openVision('${yearlyBest.id}')">
+                        <img src="${yearlyBest.url}" class="h-48 w-full object-cover">
+                        <div class="p-4 bg-white flex justify-between items-center">
+                            <span class="text-sm font-display uppercase italic">${yearlyBest.title}</span>
+                            <span class="text-[10px] font-black text-purple-500">${yearlyBest.likes || 0} LIKES</span>
+                        </div>
+                    </div>`;
+            }
+        }
+
+        function renderFeed() {
+            const feed = document.getElementById('feedGrid');
+            const filtered = allPosts.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase()));
+            const sorted = [...filtered].sort((a, b) => b.timestamp - a.timestamp);
+            
+            feed.innerHTML = sorted.map(post => `
+                <div class="img-card glass rounded-[2.5rem] aura-shadow overflow-hidden group cursor-pointer" onclick="openVision('${post.id}')">
+                    <div class="h-64 overflow-hidden relative">
+                        <img src="${post.url}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 left-4">
+                            <span class="px-3 py-1 bg-black/60 backdrop-blur-md text-white text-[8px] font-black uppercase tracking-widest rounded-full">LIVE</span>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-display uppercase italic tracking-tight">${post.title}</h3>
+                            <button onclick="event.stopPropagation(); likePost('${post.id}')" class="text-gray-900 flex items-center space-x-1 hover:text-orange-500 transition-colors">
+                                <i class="${post.likedBy?.includes(currentUser?.uid) ? 'fa-solid' : 'fa-regular'} fa-heart text-lg"></i>
+                                <span class="font-black text-xs">${post.likes || 0}</span>
+                            </button>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="w-6 h-6 hype-gradient rounded-full"></div>
+                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">${allProfiles[post.authorId]?.name || 'UNKNOWN'}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderLeaderboard() {
+            const userScores = {};
+            allPosts.forEach(p => {
+                if (!userScores[p.authorId]) userScores[p.authorId] = 0;
+                userScores[p.authorId] += (p.likes || 0);
+            });
+
+            const sortedUsers = Object.keys(userScores)
+                .map(uid => ({ uid, name: allProfiles[uid]?.name || 'GUEST', score: userScores[uid] }))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5);
+
+            document.getElementById('leaderboardList').innerHTML = sortedUsers.map((u, i) => `
+                <div class="flex justify-between items-center bg-white/50 p-4 rounded-2xl">
+                    <div class="flex items-center space-x-4">
+                        <span class="font-display italic text-gray-300">#${i + 1}</span>
+                        <span class="font-black text-[10px] uppercase tracking-widest">${u.name}</span>
+                    </div>
+                    <span class="text-orange-500 font-black text-xs">${u.score} LIKES</span>
+                </div>
+            `).join('');
+        }
+
+        function renderStats() {
+            document.getElementById('statTotalPosts').innerText = allPosts.length;
+            document.getElementById('statTotalLikes').innerText = allPosts.reduce((acc, p) => acc + (p.likes || 0), 0);
+        }
+
+        window.switchTab = (tab) => {
+            const homeView = document.getElementById('view-home');
+            const feedView = document.getElementById('view-feed');
+            const tabHome = document.getElementById('tab-home');
+            const tabFeed = document.getElementById('tab-feed');
+
+            if (tab === 'home') {
+                homeView.classList.remove('hidden');
+                feedView.classList.add('hidden');
+                tabHome.classList.add('active');
+                tabFeed.classList.remove('active');
+            } else {
+                homeView.classList.add('hidden');
+                feedView.classList.remove('hidden');
+                tabHome.classList.remove('active');
+                tabFeed.classList.add('active');
+            }
+            renderUI();
+        };
+
+        window.openVision = (postId) => {
+    const post = allPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    currentVisionId = postId;
+
+    document.getElementById('visionImg').src = post.url;
+    document.getElementById('visionTitle').innerText = post.title;
+    document.getElementById('visionAuthor').innerText =
+        allProfiles[post.authorId]?.name || 'UNKNOWN';
+    document.getElementById('visionLikes').innerHTML =
+        `<i class="fa-solid fa-heart text-orange-500 mr-1"></i> ${post.likes || 0} TOTAL LIKES`;
+
+    document.getElementById('visionModal').classList.remove('hidden');
+
+    // Like button
+    document.getElementById('visionLikeBtn').onclick = () => likePost(postId);
+
+    // Share button
+    document.getElementById('visionShare').onclick = () => {
+        navigator.clipboard.writeText(post.url);
+        showToast("URL COPIED TO CLIPBOARD");
+    };
+
+    // Delete button
+    const deleteBtn = document.getElementById('visionDeleteBtn');
+
+    if (post.authorId === currentUser?.uid) {
+        deleteBtn.classList.remove('hidden');
+        deleteBtn.onclick = () => deletePost(postId); // 👈 passes the correct ID
+    } else {
+        deleteBtn.classList.add('hidden');
+        deleteBtn.onclick = null;
+    }
+};
+
+        document.getElementById('closeVision').onclick = () => {
+            document.getElementById('visionModal').classList.add('hidden');
+            currentVisionId = null;
+        };
+
+        window.openProfileModal = () => {
+            const input = document.getElementById('userNameInput');
+            input.value = allProfiles[currentUser.uid]?.name || "";
+            document.getElementById('profileModal').classList.remove('hidden');
+        };
+
+        document.getElementById('saveProfile').onclick = async () => {
+    const input = document.getElementById('userNameInput');
+    const name = input.value.trim();
+
+    if (!name || !currentUser) {
+        showToast("ENTER A USERNAME");
+        return;
+    }
+
+    // Optional validation
+    if (name.length < 3) {
+        showToast("USERNAME TOO SHORT");
+        return;
+    }
+
+    if (name.length > 20) {
+        showToast("USERNAME TOO LONG");
+        return;
+    }
+
+    // Check if another user already uses this name (case-insensitive)
+    const lowerName = name.toLowerCase();
+
+    const nameTaken = Object.values(allProfiles).some(profile =>
+        profile.uid !== currentUser.uid &&
+        (profile.name || "").toLowerCase() === lowerName
+    );
+
+    if (nameTaken) {
+        showToast("USERNAME ALREADY TAKEN");
+        return;
+    }
+
+    try {
+        const saveBtn = document.getElementById('saveProfile');
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = `
+            <i class="fa-solid fa-spinner fa-spin mr-2"></i>
+            SAVING...
+        `;
+
+        const profRef = doc(
+            db,
+            'artifacts',
+            appId,
+            'public',
+            'data',
+            'profiles',
+            currentUser.uid
+        );
+
+        await setDoc(
+            profRef,
+            {
+                name: name,
+                uid: currentUser.uid
+            },
+            { merge: true }
+        );
+
+        document.getElementById('profileModal').classList.add('hidden');
+        showToast("USERNAME UPDATED");
+    } catch (error) {
+        console.error(error);
+        showToast("FAILED TO SAVE");
+    } finally {
+        const saveBtn = document.getElementById('saveProfile');
+        saveBtn.disabled = false;
+        saveBtn.innerText = "SAVE CHANGES";
+    }
+};
+        document.getElementById('openUpload').onclick = () => {
+            document.getElementById('uploadModal').classList.remove('hidden');
+        };
+
+        document.getElementById('uploadBtn').onclick = async () => {
+            const url = document.getElementById('imgUrl').value.trim();
+            const title = document.getElementById('imgTitle').value.trim();
+            const btn = document.getElementById('uploadBtn');
+
+            if (!url || !title || !currentUser) return;
+
+            btn.disabled = true;
+            btn.innerText = "UPLOADING...";
+
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'posts'), {
+                    url,
+                    title,
+                    authorId: currentUser.uid,
+                    likes: 0,
+                    likedBy: [],
+                    timestamp: Date.now()
+                });
+                
+                document.getElementById('imgUrl').value = "";
+                document.getElementById('imgTitle').value = "";
+                document.getElementById('uploadModal').classList.add('hidden');
+                showToast("POST UPLOADED SUCCESSFULLY");
+            } catch (e) {
+                console.error(e);
+                showToast("UPLOAD FAILED");
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "UPLOAD TO FEED";
+            }
+        };
+
+        async function likePost(postId) {
+            if (!currentUser) return;
+            const postRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId);
+            const post = allPosts.find(p => p.id === postId);
+            if (!post) return;
+
+            const likedBy = post.likedBy || [];
+            let newLikes = post.likes || 0;
+            let newLikedBy = [...likedBy];
+
+            if (likedBy.includes(currentUser.uid)) {
+                newLikes--;
+                newLikedBy = newLikedBy.filter(id => id !== currentUser.uid);
+            } else {
+                newLikes++;
+                newLikedBy.push(currentUser.uid);
+            }
+
+            await updateDoc(postRef, { likes: newLikes, likedBy: newLikedBy });
+            showToast(likedBy.includes(currentUser.uid) ? "UNLIKED" : "LIKED");
+        }
+
+import { deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+async function deletePost(postId) {
+    if (!currentUser) return;
+
+    const post = allPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    // Only allow the uploader to delete their own image
+    if (post.authorId !== currentUser.uid) {
+        showToast("YOU CAN ONLY DELETE YOUR OWN IMAGES");
+        return;
+    }
+
+    // Confirm before deleting
+    const confirmed = confirm(`Delete "${post.title}"?`);
+    if (!confirmed) return;
+
+    try {
+        await deleteDoc(
+            doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId)
+        );
+
+        // Close preview if the deleted image is open
+        if (currentVisionId === postId) {
+            document.getElementById('visionModal').classList.add('hidden');
+            currentVisionId = null;
+        }
+
+        showToast("IMAGE DELETED");
+    } catch (error) {
+        console.error(error);
+        showToast("DELETE FAILED");
+    }
+}
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            renderFeed();
+        });
+
+        // Initialize with Home tab
+        switchTab('home');
+
+    </script>
+</body>
+</html>
