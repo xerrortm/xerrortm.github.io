@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow - Professional Productivity Suite</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f1f5f9;
+            color: #1e293b;
+        }
+        .timer-ring-bg {
+            stroke: #e2e8f0;
+        }
+        .timer-ring-progress {
+            stroke: #6366f1;
+            transition: stroke-dashoffset 1s linear;
+            stroke-linecap: round;
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .task-item {
+            transition: all 0.2s ease;
+        }
+        .task-item:hover {
+            transform: translateX(4px);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-8">
+
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6">
+        
+        <!-- Left Column: Focus Section -->
+        <div class="lg:col-span-4 space-y-6">
+            <div class="glass-panel rounded-[2.5rem] p-8 shadow-xl shadow-indigo-500/5 text-center flex flex-col items-center">
+                <div class="flex items-center gap-2 mb-8">
+                    <div class="p-2 bg-indigo-600 rounded-xl text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <h1 class="text-xl font-bold tracking-tight">Focus Session</h1>
+                </div>
+
+                <!-- Timer Circle -->
+                <div class="relative inline-flex items-center justify-center mb-8">
+                    <svg class="w-64 h-64 transform -rotate-90">
+                        <circle class="timer-ring-bg" cx="128" cy="128" r="120" stroke-width="8" fill="transparent" />
+                        <circle id="progressCircle" class="timer-ring-progress" cx="128" cy="128" r="120" stroke-width="8" fill="transparent" stroke-dasharray="753.98" stroke-dashoffset="0" />
+                    </svg>
+                    <div class="absolute flex flex-col items-center">
+                        <span id="timerDisplay" class="text-5xl font-bold tabular-nums">25:00</span>
+                        <span id="sessionStatus" class="text-xs font-bold text-slate-400 uppercase tracking-widest mt-2">Work Time</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-4 w-full">
+                    <button id="timerToggle" onclick="toggleTimer()" class="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 transition-all active:scale-95">
+                        Start Session
+                    </button>
+                    <button onclick="resetTimer()" class="p-4 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-2xl transition-all">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Stats Mini Card -->
+            <div class="bg-slate-900 rounded-[2rem] p-6 text-white overflow-hidden relative">
+                <div class="relative z-10">
+                    <h3 class="text-sm font-semibold text-slate-400 mb-4">Focus Statistics</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-2xl font-bold" id="sessionsCount">0</p>
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Sessions Today</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold" id="tasksDoneCount">0</p>
+                            <p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Tasks Finished</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="absolute -right-8 -bottom-8 w-24 h-24 bg-indigo-500/20 rounded-full blur-2xl"></div>
+            </div>
+        </div>
+
+        <!-- Middle Column: Task List -->
+        <div class="lg:col-span-4 space-y-6">
+            <div class="bg-white rounded-[2.5rem] p-8 shadow-xl shadow-slate-200 flex flex-col h-[600px]">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold">Tasks</h2>
+                    <span id="taskStats" class="text-xs font-bold px-2 py-1 bg-slate-100 rounded-lg text-slate-500">0 Total</span>
+                </div>
+
+                <!-- Input Area -->
+                <div class="relative mb-6">
+                    <input type="text" id="taskInput" placeholder="Add a new goal..." class="w-full pl-4 pr-12 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all">
+                    <button onclick="addTask()" class="absolute right-2 top-2 p-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-all">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    </button>
+                </div>
+
+                <!-- List -->
+                <div id="taskList" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2">
+                    <!-- Tasks will be injected here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column: Scratchpad -->
+        <div class="lg:col-span-4">
+            <div class="glass-panel rounded-[2.5rem] p-8 shadow-xl shadow-indigo-500/5 h-full flex flex-col">
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-2">
+                        <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+                        <h2 class="text-xl font-bold">Scratchpad</h2>
+                    </div>
+                    <span class="text-[10px] font-bold uppercase text-slate-400 tracking-tighter">Auto-saving</span>
+                </div>
+                <textarea id="scratchpad" placeholder="Jot down ideas, snippets, or reminders..." class="flex-1 w-full bg-transparent border-none focus:outline-none resize-none text-slate-600 leading-relaxed font-medium custom-scrollbar"></textarea>
+                <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                    <span id="wordCount">0 Words</span>
+                    <span>UTF-8 Ready</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-slate-900 text-white px-8 py-4 rounded-2xl shadow-2xl transition-all duration-500 translate-y-24 opacity-0 pointer-events-none z-50">
+        <div class="flex items-center gap-3">
+            <div id="notifIcon" class="p-1.5 bg-indigo-500 rounded-lg">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+            </div>
+            <span id="notifText" class="font-bold text-sm">Task completed!</span>
+        </div>
+    </div>
+
+    <script>
+        let timer;
+        let timeLeft = 25 * 60;
+        let isRunning = false;
+        let isBreak = false;
+        let tasks = JSON.parse(localStorage.getItem('taskflow_tasks')) || [];
+        let sessionStats = JSON.parse(localStorage.getItem('taskflow_stats')) || { sessions: 0, finishedTasks: 0 };
+
+        const timerDisplay = document.getElementById('timerDisplay');
+        const timerToggle = document.getElementById('timerToggle');
+        const progressCircle = document.getElementById('progressCircle');
+        const sessionStatus = document.getElementById('sessionStatus');
+        const CIRCUMFERENCE = 120 * 2 * Math.PI;
+
+        function updateTimerDisplay() {
+            const mins = Math.floor(timeLeft / 60);
+            const secs = timeLeft % 60;
+            timerDisplay.textContent = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            
+            const total = isBreak ? 5 * 60 : 25 * 60;
+            const offset = CIRCUMFERENCE - (timeLeft / total) * CIRCUMFERENCE;
+            progressCircle.style.strokeDashoffset = offset;
+        }
+
+        function toggleTimer() {
+            if (isRunning) {
+                clearInterval(timer);
+                timerToggle.textContent = 'Resume Session';
+                timerToggle.className = "flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 transition-all";
+            } else {
+                timer = setInterval(() => {
+                    timeLeft--;
+                    updateTimerDisplay();
+                    if (timeLeft <= 0) {
+                        completeSession();
+                    }
+                }, 1000);
+                timerToggle.textContent = 'Pause Session';
+                timerToggle.className = "flex-1 py-4 bg-rose-500 hover:bg-rose-600 text-white rounded-2xl font-bold shadow-lg shadow-rose-200 transition-all";
+            }
+            isRunning = !isRunning;
+        }
+
+        function resetTimer() {
+            clearInterval(timer);
+            isRunning = false;
+            isBreak = false;
+            timeLeft = 25 * 60;
+            sessionStatus.textContent = "Work Time";
+            progressCircle.style.stroke = "#6366f1";
+            timerToggle.textContent = 'Start Session';
+            timerToggle.className = "flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 transition-all";
+            updateTimerDisplay();
+        }
+
+        function completeSession() {
+            clearInterval(timer);
+            isRunning = false;
+            if (!isBreak) {
+                sessionStats.sessions++;
+                saveStats();
+                showNotification("Focus session complete! Time for a break.", "success");
+                isBreak = true;
+                timeLeft = 5 * 60;
+                sessionStatus.textContent = "Break Time";
+                progressCircle.style.stroke = "#10b981";
+            } else {
+                showNotification("Break over! Ready to focus?", "info");
+                isBreak = false;
+                timeLeft = 25 * 60;
+                sessionStatus.textContent = "Work Time";
+                progressCircle.style.stroke = "#6366f1";
+            }
+            updateTimerDisplay();
+            timerToggle.textContent = 'Start Session';
+            timerToggle.className = "flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 transition-all";
+        }
+
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+            if (text) {
+                tasks.push({ id: Date.now(), text, completed: false });
+                input.value = '';
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                if (task.completed) {
+                    sessionStats.finishedTasks++;
+                    saveStats();
+                    showNotification("Task checked off!", "success");
+                }
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(t => t.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+
+        function renderTasks() {
+            const list = document.getElementById('taskList');
+            const stats = document.getElementById('taskStats');
+            stats.textContent = `${tasks.length} Total`;
+            
+            list.innerHTML = tasks.length === 0 ? 
+                `<div class="flex flex-col items-center justify-center h-full text-slate-300 italic py-10">
+                    <svg class="w-12 h-12 mb-2 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                    <p>No active tasks</p>
+                </div>` : 
+                tasks.map(task => `
+                <div class="task-item flex items-center gap-3 p-4 bg-slate-50 border border-slate-100 rounded-2xl group ${task.completed ? 'opacity-60' : ''}">
+                    <button onclick="toggleTask(${task.id})" class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${task.completed ? 'bg-emerald-500 border-emerald-500' : 'border-slate-300 group-hover:border-indigo-500'}">
+                        ${task.completed ? '<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>' : ''}
+                    </button>
+                    <span class="flex-1 text-sm font-medium ${task.completed ? 'line-through text-slate-400' : 'text-slate-700'}">${task.text}</span>
+                    <button onclick="deleteTask(${task.id})" class="text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function saveTasks() {
+            localStorage.setItem('taskflow_tasks', JSON.stringify(tasks));
+        }
+
+        function saveStats() {
+            localStorage.setItem('taskflow_stats', JSON.stringify(sessionStats));
+            updateStatsUI();
+        }
+
+        function updateStatsUI() {
+            document.getElementById('sessionsCount').textContent = sessionStats.sessions;
+            document.getElementById('tasksDoneCount').textContent = sessionStats.finishedTasks;
+        }
+
+        function showNotification(msg, type) {
+            const notif = document.getElementById('notification');
+            const icon = document.getElementById('notifIcon');
+            const text = document.getElementById('notifText');
+
+            text.textContent = msg;
+            icon.className = type === 'success' ? 'p-1.5 bg-emerald-500 rounded-lg' : 'p-1.5 bg-indigo-500 rounded-lg';
+            
+            notif.classList.remove('translate-y-24', 'opacity-0');
+            notif.classList.add('translate-y-0', 'opacity-100');
+            
+            setTimeout(() => {
+                notif.classList.add('translate-y-24', 'opacity-0');
+                notif.classList.remove('translate-y-0', 'opacity-100');
+            }, 3000);
+        }
+
+        // Scratchpad Auto-save
+        const pad = document.getElementById('scratchpad');
+        const wordCount = document.getElementById('wordCount');
+
+        pad.value = localStorage.getItem('taskflow_notes') || '';
+        pad.addEventListener('input', () => {
+            localStorage.setItem('taskflow_notes', pad.value);
+            const count = pad.value.trim() ? pad.value.trim().split(/\s+/).length : 0;
+            wordCount.textContent = `${count} Word${count === 1 ? '' : 's'}`;
+        });
+
+        // Initialize
+        window.onload = () => {
+            renderTasks();
+            updateStatsUI();
+            updateTimerDisplay();
+            
+            // Initial word count
+            const count = pad.value.trim() ? pad.value.trim().split(/\s+/).length : 0;
+            wordCount.textContent = `${count} Word${count === 1 ? '' : 's'}`;
+            
+            // Enter key for tasks
+            document.getElementById('taskInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTask();
+            });
+        };
+    </script>
+</body>
+</html>
