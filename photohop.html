@@ -7,6 +7,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Outfit:wght@900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
     <style>
         :root {
             --hype-orange: #ff4d00;
@@ -304,7 +305,7 @@
     <!-- TOAST NOTIFICATION -->
     <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] hidden">
         <div class="bg-black text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl flex items-center">
-            <i class="fa-solid fa-bell text-orange-500 mr-3 animate-pulse"></i>
+            <i class="fa-solid fa-heart text-orange-500 mr-3 animate-pulse"></i>
             <span id="toastMsg">ACTION SUCCESSFUL</span>
         </div>
     </div>
@@ -393,6 +394,7 @@ let badgeMap = {
 
     const today = new Date();
 
+    // Create a number like 20260514
     const daySeed =
         today.getFullYear() * 10000 +
         (today.getMonth() + 1) * 100 +
@@ -407,8 +409,10 @@ badgeMap.featured = featured.id;
     let headline;
 
     if (hasMultipleWords) {
+        // Example: THE GOLDEN SUNSET
         headline = `THE <span class="hype-text-gradient">${cleanTitle}</span>`;
     } else {
+        // Example: AURORA BY XERRORTM
         const authorName =
             allProfiles[featured.authorId]?.name || "UNKNOWN";
 
@@ -419,14 +423,17 @@ badgeMap.featured = featured.id;
         `;
     }
 
+    // Update featured section
     document.getElementById('spotlightImg').src = featured.url;
     document.getElementById('spotlightTitle').innerHTML = headline;
     document.getElementById('spotlightLikes').innerHTML =
         `<i class="fa-solid fa-heart text-orange-500 mr-1"></i> ${featured.likes || 0} LIKES`;
 
+    // Open image preview
     document.getElementById('spotlightContainer').onclick = () =>
         openVision(featured.id);
-            
+
+    // Like button
     document.getElementById('mainLikeBtn').onclick = (e) => {
         e.stopPropagation();
         likePost(featured.id);
@@ -587,18 +594,57 @@ if (badge) {
 
     document.getElementById('visionModal').classList.remove('hidden');
 
+    // Like button
     document.getElementById('visionLikeBtn').onclick = () => likePost(postId);
 
-    document.getElementById('visionShare').onclick = () => {
-        navigator.clipboard.writeText(post.url);
-        showToast("URL COPIED TO CLIPBOARD");
-    };
+    // Share button
+    document.getElementById('visionShare').onclick = async () => {
+    const modal = document.getElementById('visionModal');
 
+    showToast("PREPARING SHARE... ");
+
+    try {
+        const canvas = await html2canvas(modal, {
+            backgroundColor: "#ffffff",
+            scale: 2,
+            useCORS: true
+        });
+
+        const blob = await new Promise(resolve => 
+            canvas.toBlob(resolve, "image/png")
+        );
+
+        const file = new File(
+            [blob],
+            `${document.getElementById('visionTitle').innerText || "photo"}.png`,
+            { type: "image/png" }
+        );
+
+        // 🚀 Native share sheet
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                files: [file],
+                title: "Check this out",
+                text: `Check this image out on PHOTOHOP!😊 (${post.url})`
+            });
+
+            showToast("SHARED SUCCESSFULLY");
+        } else {
+            showToast("SHARE NOT SUPPORTED ON THIS DEVICE");
+        }
+
+    } catch (err) {
+        console.error(err);
+        showToast("SHARE FAILED");
+    }
+};
+
+    // Delete button
     const deleteBtn = document.getElementById('visionDeleteBtn');
 
     if (post.authorId === currentUser?.uid) {
         deleteBtn.classList.remove('hidden');
-        deleteBtn.onclick = () => deletePost(postId);
+        deleteBtn.onclick = () => deletePost(postId); // 👈 passes the correct ID
     } else {
         deleteBtn.classList.add('hidden');
         deleteBtn.onclick = null;
@@ -625,6 +671,7 @@ if (badge) {
         return;
     }
 
+    // Optional validation
     if (name.length < 3) {
         showToast("USERNAME TOO SHORT");
         return;
@@ -635,6 +682,7 @@ if (badge) {
         return;
     }
 
+    // Check if another user already uses this name (case-insensitive)
     const lowerName = name.toLowerCase();
 
     const nameTaken = Object.values(allProfiles).some(profile =>
@@ -705,6 +753,7 @@ if (badge) {
 
     formData.append("file", file);
 
+    // 🔥 CHANGE THESE TWO VALUES
     formData.append("upload_preset", "error-inc");
 
     try {
@@ -735,11 +784,11 @@ if (badge) {
         document.getElementById('imgTitle').value = "";
         document.getElementById('uploadModal').classList.add('hidden');
 
-        showToast("UPLOAD SUCCESS");
+        showToast("UPLOAD SUCCESS 🚀");
 
     } catch (err) {
         console.error(err);
-        showToast("UPLOAD FAILED");
+        showToast("UPLOAD FAILED ❌");
     }
 
     btn.disabled = false;
@@ -766,6 +815,7 @@ if (badge) {
             await updateDoc(postRef, { likes: newLikes, likedBy: newLikedBy });
             showToast(likedBy.includes(currentUser.uid) ? "UNLIKED" : "LIKED");
         }
+// Add this function anywhere in your script (for example below likePost())
 
 import { deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -775,11 +825,13 @@ async function deletePost(postId) {
     const post = allPosts.find(p => p.id === postId);
     if (!post) return;
 
+    // Only allow the uploader to delete their own image
     if (post.authorId !== currentUser.uid) {
         showToast("YOU CAN ONLY DELETE YOUR OWN IMAGES");
         return;
     }
 
+    // Confirm before deleting
     const confirmed = confirm(`Delete "${post.title}"?`);
     if (!confirmed) return;
 
@@ -788,6 +840,7 @@ async function deletePost(postId) {
             doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId)
         );
 
+        // Close preview if the deleted image is open
         if (currentVisionId === postId) {
             document.getElementById('visionModal').classList.add('hidden');
             currentVisionId = null;
