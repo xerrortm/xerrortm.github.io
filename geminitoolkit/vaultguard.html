@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VaultGuard - Secure Password Utility</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        .mono {
+            font-family: 'JetBrains Mono', monospace;
+        }
+        .glass {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .strength-bar {
+            height: 6px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            background: #334155;
+            border-radius: 3px;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 20px;
+            width: 20px;
+            border-radius: 50%;
+            background: var(--primary);
+            margin-top: -7px;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(99, 102, 241, 0.4);
+        }
+        /* Custom Checkbox */
+        .checkbox-container input:checked ~ .checkmark {
+            background-color: var(--primary);
+            border-color: var(--primary);
+        }
+        .checkbox-container .checkmark:after {
+            content: "";
+            position: absolute;
+            display: none;
+            left: 6px;
+            top: 2px;
+            width: 5px;
+            height: 10px;
+            border: solid white;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+        }
+        .checkbox-container input:checked ~ .checkmark:after {
+            display: block;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-xl">
+        <div class="glass rounded-[2rem] overflow-hidden shadow-2xl border border-slate-700/50">
+            
+            <!-- Header Section -->
+            <div class="p-8 pb-4">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="p-2 bg-indigo-500/20 rounded-xl">
+                        <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h1 class="text-2xl font-bold tracking-tight">VaultGuard</h1>
+                </div>
+                <p class="text-slate-400 text-sm">Professional security generator for sensitive environments.</p>
+            </div>
+
+            <!-- Main Generator Area -->
+            <div class="p-8 pt-0 space-y-8">
+                
+                <div class="relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-25 group-hover:opacity-40 transition duration-1000"></div>
+                    <div class="relative bg-slate-900 rounded-2xl p-6 flex items-center justify-between border border-slate-700">
+                        <div id="passwordOutput" class="mono text-2xl font-bold tracking-wider text-white truncate pr-4">••••••••••••</div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="generatePassword()" class="p-2 hover:bg-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors" title="Regenerate">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            </button>
+                            <button onclick="copyToClipboard()" class="p-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg text-white transition-all shadow-lg shadow-indigo-900/20 active:scale-95" title="Copy">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <div class="flex justify-between text-xs font-bold uppercase tracking-wider text-slate-500">
+                        <span>Strength Score</span>
+                        <span id="strengthLabel" class="text-slate-400">Weak</span>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full overflow-hidden">
+                        <div id="strengthMeter" class="strength-bar w-0 bg-red-500"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Length Slider -->
+                    <div class="space-y-4 col-span-full">
+                        <div class="flex justify-between items-center">
+                            <label class="text-sm font-semibold text-slate-300">Password Length</label>
+                            <span id="lengthVal" class="mono text-indigo-400 font-bold px-3 py-1 bg-indigo-500/10 rounded-lg">16</span>
+                        </div>
+                        <input type="range" id="lengthInput" min="4" max="64" value="16" class="cursor-pointer">
+                    </div>
+
+                    <!-- Toggles -->
+                    <div class="space-y-3">
+                        <label class="checkbox-container flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" id="checkUpper" checked class="hidden">
+                            <span class="checkmark w-5 h-5 border-2 border-slate-600 rounded relative transition-all"></span>
+                            <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Uppercase (A-Z)</span>
+                        </label>
+                        <label class="checkbox-container flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" id="checkLower" checked class="hidden">
+                            <span class="checkmark w-5 h-5 border-2 border-slate-600 rounded relative transition-all"></span>
+                            <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Lowercase (a-z)</span>
+                        </label>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="checkbox-container flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" id="checkNumbers" checked class="hidden">
+                            <span class="checkmark w-5 h-5 border-2 border-slate-600 rounded relative transition-all"></span>
+                            <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Numbers (0-9)</span>
+                        </label>
+                        <label class="checkbox-container flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" id="checkSymbols" checked class="hidden">
+                            <span class="checkmark w-5 h-5 border-2 border-slate-600 rounded relative transition-all"></span>
+                            <span class="text-sm text-slate-300 group-hover:text-white transition-colors">Symbols (!@#$)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="border-t border-slate-800 pt-6">
+                    <h3 class="text-xs font-bold uppercase tracking-widest text-slate-500 mb-4">Session History</h3>
+                    <div id="historyLog" class="space-y-2 max-h-32 overflow-y-auto pr-2 custom-scrollbar">
+                        <!-- History items will appear here -->
+                        <div class="text-center py-4 text-slate-600 text-sm italic">No passwords generated yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Notification Toast -->
+        <div id="toast" class="fixed bottom-8 left-1/2 -translate-x-1/2 glass px-6 py-3 rounded-2xl shadow-2xl border border-indigo-500/30 text-white text-sm font-medium opacity-0 translate-y-4 transition-all duration-300 pointer-events-none z-50">
+            Password copied to clipboard!
+        </div>
+    </div>
+
+    <script>
+        const charSets = {
+            upper: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            lower: 'abcdefghijklmnopqrstuvwxyz',
+            numbers: '0123456789',
+            symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+        };
+
+        const elements = {
+            output: document.getElementById('passwordOutput'),
+            length: document.getElementById('lengthInput'),
+            lengthLabel: document.getElementById('lengthVal'),
+            strengthMeter: document.getElementById('strengthMeter'),
+            strengthLabel: document.getElementById('strengthLabel'),
+            history: document.getElementById('historyLog'),
+            toast: document.getElementById('toast'),
+            checks: {
+                upper: document.getElementById('checkUpper'),
+                lower: document.getElementById('checkLower'),
+                numbers: document.getElementById('checkNumbers'),
+                symbols: document.getElementById('checkSymbols')
+            }
+        };
+
+        let historyList = [];
+
+        function generatePassword() {
+            let allowedChars = '';
+            if (elements.checks.upper.checked) allowedChars += charSets.upper;
+            if (elements.checks.lower.checked) allowedChars += charSets.lower;
+            if (elements.checks.numbers.checked) allowedChars += charSets.numbers;
+            if (elements.checks.symbols.checked) allowedChars += charSets.symbols;
+
+            if (allowedChars === '') {
+                elements.output.textContent = "Select Options";
+                elements.output.classList.add('text-red-400');
+                updateStrength(0);
+                return;
+            }
+
+            elements.output.classList.remove('text-red-400');
+            
+            const len = parseInt(elements.length.value);
+            let password = '';
+            const array = new Uint32Array(len);
+            window.crypto.getRandomValues(array);
+
+            for (let i = 0; i < len; i++) {
+                password += allowedChars[array[i] % allowedChars.length];
+            }
+
+            elements.output.textContent = password;
+            updateStrength(calculateEntropy(password, allowedChars.length));
+            addToHistory(password);
+        }
+
+        function calculateEntropy(pass, poolSize) {
+            return pass.length * Math.log2(poolSize);
+        }
+
+        function updateStrength(entropy) {
+            let score = 0;
+            let color = 'bg-red-500';
+            let label = 'Very Weak';
+
+            if (entropy > 100) { score = 100; color = 'bg-emerald-400'; label = 'Military Grade'; }
+            else if (entropy > 80) { score = 85; color = 'bg-green-500'; label = 'Strong'; }
+            else if (entropy > 60) { score = 65; color = 'bg-yellow-500'; label = 'Medium'; }
+            else if (entropy > 40) { score = 40; color = 'bg-orange-500'; label = 'Fair'; }
+            else { score = 20; color = 'bg-red-500'; label = 'Weak'; }
+
+            if (entropy === 0) score = 0;
+
+            elements.strengthMeter.style.width = score + '%';
+            elements.strengthMeter.className = `strength-bar ${color}`;
+            elements.strengthLabel.textContent = label;
+            elements.strengthLabel.className = color.replace('bg-', 'text-');
+        }
+
+        function addToHistory(pass) {
+            if (historyList.includes(pass)) return;
+            historyList.unshift(pass);
+            if (historyList.length > 5) historyList.pop();
+            renderHistory();
+        }
+
+        function renderHistory() {
+            if (historyList.length === 0) return;
+            elements.history.innerHTML = historyList.map(pass => `
+                <div class="flex items-center justify-between p-3 bg-slate-900/50 rounded-xl border border-slate-800 group hover:border-slate-700 transition-all">
+                    <span class="mono text-xs text-slate-400 truncate max-w-[180px]">${pass}</span>
+                    <button onclick="copySpecific('${pass}')" class="text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-bold uppercase tracking-tighter">Copy</button>
+                </div>
+            `).join('');
+        }
+
+        function copySpecific(text) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            showToast("Password copied!");
+        }
+
+        function copyToClipboard() {
+            const text = elements.output.textContent;
+            if (text === "••••••••••••" || text === "Select Options") return;
+            copySpecific(text);
+        }
+
+        function showToast(msg) {
+            elements.toast.textContent = msg;
+            elements.toast.style.opacity = '1';
+            elements.toast.style.transform = 'translate(-50%, -10px)';
+            setTimeout(() => {
+                elements.toast.style.opacity = '0';
+                elements.toast.style.transform = 'translate(-50%, 16px)';
+            }, 2000);
+        }
+
+        // Event Listeners
+        elements.length.addEventListener('input', (e) => {
+            elements.lengthLabel.textContent = e.target.value;
+            generatePassword();
+        });
+
+        Object.values(elements.checks).forEach(check => {
+            check.addEventListener('change', generatePassword);
+        });
+
+        // Initialize
+        window.onload = () => {
+            generatePassword();
+        };
+    </script>
+</body>
+</html>
