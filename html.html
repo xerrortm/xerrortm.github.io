@@ -108,6 +108,12 @@
         const parser = new DOMParser();
         const doc = parser.parseFromString(rawHTML, 'text/html');
 
+    function copyAttributes(from, to, exclude = []) {
+        for (const attr of from.attributes) {
+            if (exclude.includes(attr.name)) continue;
+            to.setAttribute(attr.name, attr.value);
+        }
+    }
         // 1. Identity Crisis: Inject names into text nodes
         let namesToInfect = [];
         const styleTags = doc.querySelectorAll('style');
@@ -135,6 +141,7 @@
             const span = doc.createElement('span');
             span.style.cssText = `display: block; font-family: 'Fira Code', monospace; color: #22c55e; font-style: italic; font-size: 0.9em; margin: 10px 0; opacity: 0.8; padding-left: 10px; border-left: 3px solid #166534;`;
             span.textContent = `/* ${c.textContent} */`;
+            copyAttributes(c, span, ['false'])
             c.replaceWith(span);
         });
 
@@ -145,6 +152,7 @@
             span.className = 'cursed-clock-element';
             span.setAttribute('data-clock-type', type);
             span.textContent = '[LOADING]';
+            copyAttributes(clock, span, ['type'])
             clock.replaceWith(span);
         });
 
@@ -178,6 +186,7 @@
                     menuWrapper.appendChild(item);
                     let toRem = next; next = next.nextElementSibling; toRem.remove();
                 }
+                copyAttributes(input, menuWrapper, ['type'])
                 input.replaceWith(menuWrapper);
             }
         });
@@ -187,6 +196,7 @@
             const wrap = doc.createElement('div');
             wrap.style.display = 'inline-block';
             wrap.innerHTML = b.getAttribute('isbanana') === 'true' ? BANANA_SVG : '<span style="color:#eab308;font-weight:bold;">banana</span>';
+            copyAttributes(b, wrap, ['isbanana'])
             b.replaceWith(wrap);
         });
 doc.querySelectorAll('rickroll').forEach(r => {
@@ -204,7 +214,7 @@ doc.querySelectorAll('rickroll').forEach(r => {
     } else {
         audio.autoplay = false;
     }
-
+copyAttributes(r, audio, ['false'])
     r.replaceWith(audio);
 });
 
