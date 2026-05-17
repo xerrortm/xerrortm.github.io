@@ -140,7 +140,7 @@
                 <div class="flex justify-center lg:justify-start">
                     <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-100 border-2 border-[#2D2A26] text-[#2D2A26] text-xs font-bold rounded-full">
                         <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-light"></span>
-                        <span id="activeCounter">812 Creators Online</span>
+                        <span id="activeCounter">102 Creators Online</span>
                     </span>
                 </div>
                 
@@ -838,7 +838,7 @@
             setInterval(() => {
                 const countElem = document.getElementById('activeCounter');
                 let userCount = parseInt(countElem.innerText.replace(/[^0-9]/g, ''));
-                let diff = Math.floor(Math.random() * 5) - 2; // -2 to +2 variation
+                let diff = Math.floor(Math.random() * 5) - 20; // -2 to +2 variation
                 countElem.innerText = `${userCount + diff} Creators Online`;
             }, 7000);
         }
