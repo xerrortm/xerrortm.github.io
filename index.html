@@ -93,7 +93,6 @@
     </style>
 </head>
 <body class="text-[#2D2A26] font-sans selection:bg-[#FFD4DC] selection:text-[#FF4066] antialiased min-h-screen relative overflow-x-hidden">
-
     <!-- Nav -->
     <div class="px-4 py-4 sticky top-0 z-40">
         <nav class="max-w-6xl mx-auto bg-white/95 border-2 border-[#2D2A26] px-6 py-4 flex justify-between items-center rounded-2xl">
@@ -124,9 +123,115 @@
             </div>
         </nav>
     </div>
+<!-- CANVASFLOW FEATURED BANNER -->
+<section class="px-6 md:px-12 pt-4 pb-10">
+    <div class="max-w-6xl mx-auto">
+        <div class="hub-card rounded-[2rem] md:rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden bg-gradient-to-br from-[#FFF7F1] via-white to-[#F3F0FF]">
 
+            <!-- Decorative Background Elements -->
+            <div class="absolute -top-16 -right-16 w-56 h-56 bg-[#FF7043]/15 rounded-full blur-3xl"></div>
+            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-[#8B5CF6]/15 rounded-full blur-3xl"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#06B6D4]/5 rounded-full blur-3xl"></div>
+
+            <!-- Floating Stickers -->
+            <div class="absolute top-6 right-6 hidden md:flex items-center gap-2 px-3 py-1.5 bg-yellow-100 border-2 border-[#2D2A26] rounded-full text-[10px] font-bold uppercase tracking-wider rotate-3">
+                ✨ Just Released
+            </div>
+
+            <div class="absolute bottom-8 right-10 hidden lg:flex items-center gap-2 px-3 py-1.5 bg-emerald-100 border-2 border-[#2D2A26] rounded-full text-[10px] font-bold uppercase tracking-wider -rotate-3">
+                🚀 Creator Favorite
+            </div>
+
+            <div class="relative z-10 max-w-4xl">
+
+                <!-- Labels -->
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <span class="px-4 py-1.5 bg-rose-100 border-2 border-[#2D2A26] text-[#FF4066] text-[10px] font-bold rounded-full uppercase tracking-wider animate-pulse">
+                        🚀 New Release
+                    </span>
+                    <span class="px-4 py-1.5 bg-yellow-100 border-2 border-[#2D2A26] text-[#2D2A26] text-[10px] font-bold rounded-full uppercase tracking-wider">
+                        ⭐ Featured Project
+                    </span>
+                    <span class="px-4 py-1.5 bg-indigo-100 border-2 border-[#2D2A26] text-[#2D2A26] text-[10px] font-bold rounded-full uppercase tracking-wider">
+                        🎨 Website Builder
+                    </span>
+                </div>
+
+                <!-- Main Heading -->
+                <h2 class="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight tracking-tight text-neutral-800">
+                    Build websites visually with
+                    <span class="bg-gradient-to-r from-[#FF7043] via-[#8B5CF6] to-[#06B6D4] bg-clip-text text-transparent">
+                        CANVASFLOW
+                    </span>
+                </h2>
+
+                <!-- Description -->
+                <p class="mt-6 text-base md:text-lg text-neutral-600 font-semibold leading-relaxed max-w-3xl">
+                    Design stunning websites with a powerful drag-and-drop editor.
+                    Customize every element, add advanced interactions,
+                    and publish instantly through ERROR Inc.
+                </p>
+
+                <!-- Feature Pills -->
+                <div class="flex flex-wrap gap-3 mt-6">
+                    <span class="px-4 py-2 bg-white border-2 border-[#2D2A26] rounded-2xl text-xs font-bold">
+                        🎨 Visual Drag & Drop
+                    </span>
+                    <span class="px-4 py-2 bg-white border-2 border-[#2D2A26] rounded-2xl text-xs font-bold">
+                        ⚡ One-Click Publishing
+                    </span>
+                    <span class="px-4 py-2 bg-white border-2 border-[#2D2A26] rounded-2xl text-xs font-bold">
+                        🧩 Unlimited Customization
+                    </span>
+                    <span class="px-4 py-2 bg-white border-2 border-[#2D2A26] rounded-2xl text-xs font-bold">
+                        🌍 Hosted by ERROR Inc.
+                    </span>
+                </div>
+
+                <!-- CTA Buttons -->
+                <div class="flex flex-wrap gap-4 mt-8">
+                    <a href="/canvasflow"
+                       class="hype-btn-primary px-8 py-4 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                        <span>Launch CanvasFlow</span>
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </a>
+
+                    <a onclick="document.getElementById('active-grid').scrollIntoView({behavior: 'smooth'})"
+                       class="hype-btn-secondary px-8 py-4 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                        <span>Explore Projects</span>
+                        <i class="fa-solid fa-folder-open"></i>
+                    </a>
+                </div>
+
+                <!-- Bottom Stats -->
+                <div class="flex flex-wrap gap-4 mt-8 pt-6 border-t border-dashed border-neutral-300">
+                    <div class="px-4 py-3 bg-white border-2 border-[#2D2A26] rounded-2xl">
+                        <div class="text-xl font-display font-black text-neutral-800">∞</div>
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                            Creative Freedom
+                        </div>
+                    </div>
+
+                    <div class="px-4 py-3 bg-white border-2 border-[#2D2A26] rounded-2xl">
+                        <div class="text-xl font-display font-black text-neutral-800">1-Click</div>
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                            Publish
+                        </div>
+                    </div>
+
+                    <div class="px-4 py-3 bg-white border-2 border-[#2D2A26] rounded-2xl">
+                        <div class="text-xl font-display font-black text-neutral-800">100%</div>
+                        <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                            Browser Based
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
     <!-- Hero -->
-    <section class="relative py-12 md:py-20 px-6 md:px-12">
+    <section class="hidden relative py-12 md:py-20 px-6 md:px-12">
         <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div class="lg:col-span-7 flex flex-col gap-6 text-center lg:text-left">
                 <div class="flex justify-center lg:justify-start">
