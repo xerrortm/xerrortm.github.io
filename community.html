@@ -1,377 +1,435 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Community | ERROR Inc.</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-<style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community | ERROR Inc.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['"Space Grotesk"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="icon" type="image/x-icon" href="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/f5f75464-f289-404e-a14d-68b4c3465c10/favicon.ico?format=100w">
 
-body{
-    background:
-    radial-gradient(circle at top left, rgba(99,102,241,.15), transparent 25%),
-    radial-gradient(circle at bottom right, rgba(16,185,129,.12), transparent 25%),
-    #f3f6ff;
-}
+    <style>
+        body {
+            background-color: #FBF9F4;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(255, 112, 67, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+                radial-gradient(at 50% 50%, rgba(253, 224, 71, 0.06) 0px, transparent 60%);
+            background-attachment: fixed;
+        }
 
-.chat-scroll::-webkit-scrollbar{
-    width:8px;
-}
+        .hub-card {
+            background-color: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 2px solid #2D2A26;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.15);
+        }
 
-.chat-scroll::-webkit-scrollbar-thumb{
-    background:#cbd5e1;
-    border-radius:999px;
-}
+        .hub-card:hover {
+            transform: translate(-1px, -1px);
+        }
 
-.message-enter{
-    animation:pop .2s ease;
-}
+        .hype-btn-primary {
+            background-color: #FF7043;
+            color: #ffffff;
+            border: 2px solid #2D2A26;
+            transition: all 0.2s ease;
+        }
+        .hype-btn-primary:hover {
+            background-color: #FF8A65;
+            transform: translate(-1px, -1px);
+        }
+        .hype-btn-primary:active {
+            transform: translate(2px, 2px);
+        }
 
-@keyframes pop{
+        .hype-btn-secondary {
+            background-color: #FFFFFF;
+            color: #2D2A26;
+            border: 2px solid #2D2A26;
+            transition: all 0.2s ease;
+        }
+        .hype-btn-secondary:hover {
+            background-color: #F5EFEB;
+            transform: translate(-1px, -1px);
+        }
+        .hype-btn-secondary:active {
+            transform: translate(2px, 2px);
+        }
 
-    from{
-        opacity:0;
-        transform:translateY(10px) scale(.98);
-    }
+        .chat-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
 
-    to{
-        opacity:1;
-        transform:translateY(0) scale(1);
-    }
+        .chat-scroll::-webkit-scrollbar-thumb {
+            background: #2D2A26;
+            border-radius: 999px;
+        }
 
-}
+        .message-enter {
+            animation: pop .2s ease;
+        }
 
-.noise{
-    background-image:
-    linear-gradient(rgba(255,255,255,.45), rgba(255,255,255,.45)),
-    url("https://www.transparenttextures.com/patterns/cubes.png");
-}
-.shine {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-}
-.shine::before {
-    content: "";
-    position: absolute;
-    top: -40%;
-    left: -120%;
-    width: 60%;
-    height: 200%;
-    background: linear-gradient(
-        120deg,
-        transparent,
-        rgba(255,255,255,0.9),
-        transparent
-    );
-    transform: rotate(25deg);
-}
-.shine.active::before {
-    animation: shineMove 1.2s ease;
-}
-@keyframes shineMove {
-    from {
-        left: -120%;
-    }
-    to {
-        left: 160%;
-    }
-}
-</style>
+        @keyframes pop {
+            from {
+                opacity: 0;
+                transform: translateY(8px) scale(.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
 
+        .noise {
+            background-image:
+                linear-gradient(rgba(255,255,255,.6), rgba(255,255,255,.6)),
+                url("https://www.transparenttextures.com/patterns/cubes.png");
+        }
+        .shine {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        .shine::before {
+            content: "";
+            position: absolute;
+            top: -40%;
+            left: -120%;
+            width: 60%;
+            height: 200%;
+            background: linear-gradient(
+                120deg,
+                transparent,
+                rgba(255,255,255,0.9),
+                transparent
+            );
+            transform: rotate(25deg);
+        }
+        .shine.active::before {
+            animation: shineMove 1.2s ease;
+        }
+        @keyframes shineMove {
+            from { left: -120%; }
+            to { left: 160%; }
+        }
+
+        .pulse-light {
+            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .5; transform: scale(1.1); }
+        }
+    </style>
 </head>
 
-<body class="text-slate-900">
+<body class="text-[#2D2A26] font-sans selection:bg-[#FFD4DC] selection:text-[#FF4066] antialiased min-h-screen relative overflow-x-hidden">
 
-<nav class="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-white/50 px-8 py-4 flex justify-between items-center shadow-sm">
-
-    <div class="flex items-center gap-4">
-        <img onclick="location.href='/'"src="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/5c585ad8-9e96-472a-bc88-5d2ea8f05993/ERRORL1-removebg-preview.png" class="h-16">
-        <div>
-            <div class="text-2xl">
-                Community
+    <!-- Nav -->
+    <div class="px-4 py-4 sticky top-0 z-40">
+        <nav class="max-w-7xl mx-auto bg-white/95 border-2 border-[#2D2A26] px-6 py-4 flex justify-between items-center rounded-2xl">
+            
+            <div class="flex items-center gap-3">
+                <a href="/" class="flex items-center gap-3 hover:opacity-90 transition">
+                    <div class="h-10 rounded-xl flex items-center justify-center p-1.5">
+                        <img src="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/5c585ad8-9e96-472a-bc88-5d2ea8f05993/ERRORL1-removebg-preview.png" 
+                             class="h-10" alt="ERROR Logo">
+                    </div>
+                    <div>
+                        <span class="font-display font-bold text-lg tracking-tight block text-neutral-800">Community</span>
+                        <span class="text-[9px] uppercase font-bold text-[#FF7043] tracking-wider block -mt-1">Active Hub & Shoutbox</span>
+                    </div>
+                </a>
             </div>
-        </div>
 
-    </div>
-
-    <div class="flex items-center gap-4">
-
-        <a href="/" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition">
-            Home
-        </a>
-        <a href="/projects" class="text-sm font-medium text-slate-600 hover:text-indigo-600 transition">
-            Projects
-        </a>
-        <button id="userBtn"
-        class="w-11 h-11 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 hover:scale-105 transition flex items-center justify-center text-indigo-700 shadow-sm">
-            <i class="fa-regular fa-user"></i>
-        </button>
-
-    </div>
-
-</nav>
-
-<section class="max-w-7xl mx-auto px-6 py-10 grid lg:grid-cols-[380px_1fr] gap-8">
-
-    <div class="space-y-6">
-
-        <div class="bg-white/80 backdrop-blur-xl border border-white rounded-[2rem] p-6 shadow-xl noise">
-
-            <div class="flex items-center justify-between">
-
-                <div class="flex items-center gap-3">
-
-                    <div class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-
-                    <h2 class="text-2xl font-black">
-                        Community News
-                    </h2>
-
+            <div class="flex items-center gap-5">
+                <div class="hidden md:flex gap-6 text-xs font-bold uppercase tracking-wider text-neutral-600">
+                    <a href="/" class="hover:text-[#FF7043] transition-colors"><i class="fa-solid fa-house mr-1"></i> Home</a>
+                    <a href="/projects" class="hover:text-[#FF7043] transition-colors"><i class="fa-solid fa-cubes mr-1"></i> Projects</a>
                 </div>
-
-            </div>
-
-            <div class="mt-6 space-y-4">
-
-                <div class="bg-gradient-to-r from-indigo-50 to-white border border-indigo-100 rounded-3xl p-5">
-
-                    <div class="flex items-center gap-2">
-
-                        <span class="text-xs font-black text-indigo-600">
-                            NEW DROP
-                        </span>
-
-                        <span>🚀</span>
-
-                    </div>
-
-                    <div class="font-bold mt-2">
-                        Happy Notification beta launched
-                    </div>
-
-                    <p class="text-slate-600 text-sm mt-2">
-                        [BETA] Send people happiness notifications!
-                    </p>
-
-                </div>
-
-                <div class="bg-gradient-to-r from-pink-50 to-white border border-pink-100 rounded-3xl p-5">
-
-                    <div class="text-xs font-black text-pink-600">
-                        UPDATE
-                    </div>
-
-                    <div class="font-bold mt-2">
-                        GoggleTools 1.6 update is LIVE!
-                    </div>
-
-                    <p class="text-slate-600 text-sm mt-2">
-                        Explore new export formats and a brand-new settings section!
-                    </p>
-
-                </div>
-
-                <div class="bg-gradient-to-r from-emerald-50 to-white border border-emerald-100 rounded-3xl p-5">
-
-                    <div class="text-xs font-black text-emerald-600">
-                        COMING SOON
-                    </div>
-
-                    <div class="font-bold mt-2">
-                        [IN DEV] 2D Obby Builder
-                    </div>
-
-                    <p class="text-slate-600 text-sm mt-2">
-                        Be ready for a brand new tool!
-                    </p>
-
-                </div>
-
-            </div>
-
-        </div>
-
-        <div class="bg-gradient-to-br from-indigo-600 to-indigo-500 rounded-[2rem] p-6 text-white shadow-xl">
-
-            <div class="uppercase tracking-wider text-sm opacity-80">
-                Live Stats
-            </div>
-
-            <div class="grid grid-cols-2 gap-4 mt-5">
-
-                <div class="bg-white/10 rounded-3xl p-5">
-
-                    <div id="messageCount"
-                    class="text-4xl font-black">
-                        0
-                    </div>
-
-                    <div class="text-sm opacity-80 mt-1">
-                        Messages
-                    </div>
-
-                </div>
-
-                <div class="bg-white/10 rounded-3xl p-5">
-
-                    <div class="text-4xl font-black">
-                        LIVE
-                    </div>
-
-                    <div class="text-sm opacity-80 mt-1">
-                        Community
-                    </div>
-
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <div class="bg-white/85 backdrop-blur-xl border border-white rounded-[2rem] flex flex-col overflow-hidden shadow-2xl">
-
-        <div class="border-b border-slate-200 p-6 flex justify-between items-center">
-
-            <div>
-
-                <h2 class="text-3xl font-black">
-                    Global Chat
-                </h2>
-
-                <p class="text-slate-500 mt-1">
-                    what's happening in the community right now
-                </p>
-
-            </div>
-
-            <div class="px-4 py-2 rounded-full bg-green-100 text-green-700 text-sm font-bold">
-                ● ACTIVE
-            </div>
-
-        </div>
-
-        <div id="chatMessages"
-        class="flex-1 h-[650px] overflow-y-auto p-6 space-y-4 chat-scroll">
-        </div>
-
-        <div class="border-t border-slate-200 p-5 bg-white/70">
-
-            <div class="flex gap-3">
-
-                <input
-                id="messageInput"
-                type="text"
-                maxlength="200"
-                placeholder="Say something to the community..."
-                class="flex-1 bg-white border-2 border-slate-200 rounded-2xl px-5 py-4 outline-none focus:border-indigo-500">
-
-                <button id="sendBtn"
-                class="px-7 rounded-2xl bg-gradient-to-r from-indigo-600 to-indigo-500 hover:scale-105 transition text-white font-bold shadow-lg">
-                    Send
+                
+                <button id="userBtn" class="w-11 h-11 rounded-full bg-[#F5EFEB] border-2 border-[#2D2A26] hover:bg-[#FF7043] hover:text-white transition flex items-center justify-center text-[#2D2A26]">
+                    <i class="fa-regular fa-user"></i>
                 </button>
+            </div>
+        </nav>
+    </div>
 
+    <!-- Main -->
+    <main class="max-w-7xl mx-auto px-6 py-6 grid lg:grid-cols-[380px_1fr] gap-8">
+
+        <!-- SIDEBAR CHANNELS -->
+        <div class="space-y-6">
+
+            <!-- NEWS BOX (STILL USES NOISE FOR HIGH END FEEL BUT CLEAN AND BALANCED) -->
+            <div class="hub-card rounded-[2rem] p-6 noise flex flex-col gap-5">
+                
+                <div class="flex items-center justify-between pb-3 border-b border-dashed border-neutral-200">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-2.5 h-2.5 bg-emerald-500 rounded-full pulse-light"></span>
+                        <h2 class="font-display font-black text-xl text-neutral-800 uppercase tracking-tight">
+                            Community News
+                        </h2>
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <!-- NEW DROP ITEM -->
+                    <div class="bg-white border-2 border-[#2D2A26] rounded-2xl p-4 flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 bg-indigo-50 border border-indigo-200 text-indigo-700 text-[9px] font-black rounded-full">
+                                NEW DROP 🚀
+                            </span>
+                        </div>
+                        <div class="font-bold text-sm text-neutral-800 mt-1">
+                            Happy Notification beta launched
+                        </div>
+                        <p class="text-neutral-500 text-xs mt-1 font-semibold leading-relaxed">
+                            [BETA] Send people happiness notifications dynamically!
+                        </p>
+                    </div>
+
+                    <!-- UPDATE ITEM -->
+                    <div class="bg-white border-2 border-[#2D2A26] rounded-2xl p-4 flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 bg-rose-50 border border-rose-200 text-rose-700 text-[9px] font-black rounded-full">
+                                UPDATE ⚡️
+                            </span>
+                        </div>
+                        <div class="font-bold text-sm text-neutral-800 mt-1">
+                            GoggleTools 1.6 update is LIVE!
+                        </div>
+                        <p class="text-neutral-500 text-xs mt-1 font-semibold leading-relaxed">
+                            Explore new export formats and a brand-new settings customizer!
+                        </p>
+                    </div>
+
+                    <!-- COMING SOON ITEM -->
+                    <div class="bg-white border-2 border-[#2D2A26] rounded-2xl p-4 flex flex-col gap-1">
+                        <div class="flex items-center gap-2">
+                            <span class="px-2.5 py-0.5 bg-amber-50 border border-amber-200 text-amber-700 text-[9px] font-black rounded-full">
+                                COMING SOON 🛠️
+                            </span>
+                        </div>
+                        <div class="font-bold text-sm text-neutral-800 mt-1">
+                            [IN DEV] 2D Obby Builder
+                        </div>
+                        <p class="text-neutral-500 text-xs mt-1 font-semibold leading-relaxed">
+                            Prepare your screens for a brand-new canvas-based build tool!
+                        </p>
+                    </div>
+                </div>
             </div>
 
-            <div class="text-xs text-slate-400 mt-3">
-                filtered words blocked • auto deletes after 24h
+            <!-- STATISTICS BOARD -->
+            <div class="hub-card bg-[#2D2A26] rounded-3xl p-6 text-white flex flex-col gap-4 border-2 border-[#2D2A26]">
+                <div class="font-display font-bold text-xs uppercase tracking-widest text-[#FF7043]">
+                    Live System Stats
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4">
+                        <!-- ID remains identical for script live counter injection -->
+                        <div id="messageCount" class="text-3xl font-display font-black text-[#FF7043]">
+                            0
+                        </div>
+                        <div class="text-[10px] uppercase font-bold text-neutral-400 mt-1">
+                            Messages
+                        </div>
+                    </div>
+
+                    <div class="bg-white/5 border border-white/10 rounded-2xl p-4 flex flex-col justify-between">
+                        <div class="flex items-center gap-1.5 text-emerald-400 text-sm font-bold">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span>LIVE</span>
+                        </div>
+                        <div class="text-[10px] uppercase font-bold text-neutral-400 mt-1">
+                            Community
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
 
-    </div>
+        <!-- MAIN GLOBAL CHAT CARD -->
+        <div class="hub-card rounded-[2rem] bg-white flex flex-col overflow-hidden">
+            
+            <!-- HEADER -->
+            <div class="border-b-2 border-dashed border-[#2D2A26] p-6 flex justify-between items-center bg-neutral-50">
+                <div>
+                    <h2 class="text-2xl font-display font-black text-neutral-800 tracking-tight">
+                        Global Chat
+                    </h2>
+                    <p class="text-neutral-500 text-xs font-semibold mt-1">
+                        Connect, brainstorm, and see what's happening in the community right now.
+                    </p>
+                </div>
 
-</section>
-<!-- AUTH POPUP -->
-<div id="authPopup"
-class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-    <div class="bg-white w-full max-w-md rounded-3xl p-8 relative">
-        <button id="closeAuth"
-        class="absolute top-4 right-4 text-slate-400 hover:text-slate-900">
-            ✕
-        </button>
-        <h2 class="text-3xl font-bold">
-            Welcome
-        </h2
-        <p class="text-slate-500 mt-2">
-            Join the ERROR Inc. community.
-        </p>
-        <div class="mt-8 space-y-3">
-            <a href="/signup"
-            class="block w-full text-center bg-slate-900 text-white py-3 rounded-xl hover:bg-slate-800 transition">
-                Create Account
-            </a>
-            <a href="/login"
-            class="block w-full text-center border border-slate-300 py-3 rounded-xl hover:bg-slate-100 transition">
-                Log In
-            </a>
-        </div>
-    </div>
-</div>
-
-<!-- PROFILE POPUP -->
-<div id="profilePopup"
-class="hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
-    <div class="bg-white w-full max-w-md rounded-3xl p-8 relative">
-        <button id="closeProfile"
-        class="absolute top-4 right-4 text-slate-400 hover:text-slate-900">
-            ✕
-        </button>
-        <div class="flex flex-col items-center">
-            <div class="w-24 h-24 rounded-full bg-slate-200 flex items-center justify-center">
-                <i class="fa-regular fa-user text-4xl text-slate-600"></i>
+                <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border-2 border-[#2D2A26] text-emerald-700 text-xs font-bold rounded-xl">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>ACTIVE</span>
+                </div>
             </div>
-            <h2 id="profileName"
-            class="text-2xl font-bold mt-4">
-                username
-            </h2>
-            <p class="text-slate-500 mt-1">
-                ERROR Inc. Member
+
+            <!-- CHAT LOG CONTAINER -->
+            <!-- ID remains identical for live dynamic injection -->
+            <div id="chatMessages" class="flex-1 min-h-[500px] max-h-[550px] overflow-y-auto p-6 space-y-4 chat-scroll bg-[#FAF8F5]">
+                <!-- Filled dynamically by community.js -->
+            </div>
+
+            <!-- FOOTER INPUT UTILITY -->
+            <div class="border-t-2 border-dashed border-[#2D2A26] p-5 bg-white">
+                <div class="flex flex-col sm:flex-row gap-3">
+                    
+                    <!-- ID remains identical for message listening -->
+                    <input
+                        id="messageInput"
+                        type="text"
+                        maxlength="200"
+                        placeholder="Say something to the community..."
+                        class="flex-1 bg-neutral-50 border-2 border-[#2D2A26] rounded-2xl px-5 py-4 text-sm font-semibold outline-none focus:bg-white focus:border-[#FF7043] transition-colors"
+                    >
+
+                    <!-- ID remains identical for trigger clicks -->
+                    <button id="sendBtn" class="hype-btn-primary px-8 py-4 sm:py-0 rounded-2xl text-xs font-bold uppercase tracking-wider">
+                        Send
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2 mt-3 text-[10px] font-extrabold text-neutral-400 uppercase tracking-wide">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>filtered words blocked • auto deletes after 24h</span>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-[#2D2A26] text-white py-16 px-6 text-center border-t-4 border-[#2D2A26]">
+        <div class="max-w-4xl mx-auto flex flex-col items-center gap-6">
+            <div class="h-20 rounded-2xl flex items-center justify-center p-1.5">
+                <img src="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/5c585ad8-9e96-472a-bc88-5d2ea8f05993/ERRORL1-removebg-preview.png" 
+                     class="h-20 filter brightness-0 invert" alt="ERROR Logo">
+            </div>
+            
+            <p class="font-display font-bold text-sm tracking-wider uppercase text-[#FF7043]">ERROR Inc. Creative Team © 2026</p>
+            <p class="text-xs text-neutral-400 max-w-sm font-semibold leading-relaxed">
+                Handcrafted visual tools and collaborative layouts built directly from scratch with gorgeous aesthetics. 100% Free.
             </p>
-            <button onclick = "location.href='/profile'"
-            class="mt-8 px-6 py-3 rounded-xl bg-blue-500 text-white hover:bg-blue-600 transition">
-                Full Profile
-            </button>
-            <button id="logoutBtn"
-            class="mt-8 px-6 py-3 rounded-xl bg-red-500 text-white hover:bg-red-600 transition">
-                Log Out
-            </button>
+            
+            <div class="flex gap-6 mt-2 font-bold text-xs uppercase text-neutral-400">
+                <a href="/projects" class="hover:text-[#FF7043] transition-colors">Projects</a>
+                <span>•</span>
+                <a href="/community" class="hover:text-[#FF7043] transition-colors">Community</a>
+            </div>
         </div>
-    </div>
-</div>
-<div id="badgePopup"
-class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-6">
+    </footer>
 
-    <div id="badgeCard"
-    class="relative bg-white rounded-3xl p-8 max-w-sm w-full overflow-hidden">
-
-        <button id="closeBadgePopup"
-        class="absolute top-4 right-4 text-slate-400 hover:text-slate-900">
-            ✕
-        </button>
-
-        <!-- shiny effect -->
-        <div class="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl">
-            <div class="shine"></div>
-        </div>
-
-        <div class="flex flex-col items-center relative z-10">
-            <img id="badgePopupImage" src="" class="w-40 h-40 object-contain">
-            <div id="badgeShine" class="shine"></div>
-            <h2 id="badgePopupName"
-            class="text-2xl font-bold mt-6">
-                Badge
+    <!-- AUTHENTICATION DIALOG -->
+    <div id="authPopup" class="hidden fixed inset-0 bg-neutral-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-md border-2 border-[#2D2A26] rounded-3xl p-8 relative">
+            <button id="closeAuth" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-900 transition font-bold text-lg">
+                ✕
+            </button>
+            
+            <h2 class="text-3xl font-display font-black text-[#2D2A26] tracking-tight">
+                Welcome
             </h2>
-            <p class="text-slate-500 mt-2 text-center">
-                Earned from the ERROR Inc. community
+            <p class="text-neutral-500 text-sm font-semibold mt-1">
+                Join the ERROR Inc. community.
             </p>
+            
+            <div class="mt-8 space-y-3">
+                <a href="/signup" class="block w-full text-center py-4 rounded-xl hype-btn-primary text-xs font-bold uppercase tracking-wider">
+                    Create Account
+                </a>
+                <a href="/login" class="block w-full text-center py-4 rounded-xl hype-btn-secondary text-xs font-bold uppercase tracking-wider">
+                    Log In
+                </a>
+            </div>
         </div>
     </div>
-</div>
-<script type="module" src="scripts/community.js"></script>
+
+    <!-- PROFILE MANAGEMENT DIALOG -->
+    <div id="profilePopup" class="hidden fixed inset-0 bg-neutral-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-6">
+        <div class="bg-white w-full max-w-md border-2 border-[#2D2A26] rounded-3xl p-8 relative">
+            <button id="closeProfile" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-900 transition font-bold text-lg">
+                ✕
+            </button>
+            
+            <div class="flex flex-col items-center">
+                <div class="w-20 h-20 rounded-full bg-[#F5EFEB] border-2 border-[#2D2A26] flex items-center justify-center text-[#2D2A26]">
+                    <i class="fa-regular fa-user text-3xl"></i>
+                </div>
+                
+                <h2 id="profileName" class="text-2xl font-display font-black text-neutral-800 mt-4 tracking-tight">
+                    username
+                </h2>
+                <p class="text-neutral-500 text-xs font-bold uppercase tracking-wider text-[#FF7043] mt-1">
+                    ERROR Inc. Member
+                </p>
+                
+                <div class="w-full mt-8 flex flex-col gap-3">
+                    <button onclick="location.href='/profile'" class="w-full py-4 rounded-xl hype-btn-secondary text-xs font-bold uppercase tracking-wider">
+                        Full Profile
+                    </button>
+                    <button id="logoutBtn" class="w-full py-4 rounded-xl hype-btn-primary text-xs font-bold uppercase tracking-wider">
+                        Log Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- BADGE TROPHY PORTAL -->
+    <div id="badgePopup" class="hidden fixed inset-0 z-50 bg-neutral-900/40 backdrop-blur-sm flex items-center justify-center p-6">
+        <div id="badgeCard" class="relative bg-white border-2 border-[#2D2A26] rounded-3xl p-8 max-w-sm w-full overflow-hidden">
+            <button id="closeBadgePopup" class="absolute top-4 right-4 text-neutral-400 hover:text-neutral-900 transition font-bold text-lg z-20">
+                ✕
+            </button>
+
+            <!-- Shiny overlays -->
+            <div class="absolute inset-0 pointer-events-none overflow-hidden rounded-3xl z-10">
+                <div id="badgeShine" class="shine"></div>
+            </div>
+
+            <div class="flex flex-col items-center relative z-10">
+                <img id="badgePopupImage" src="" class="w-40 h-40 object-contain" alt="Badge Graphic">
+                
+                <h2 id="badgePopupName" class="text-2xl font-display font-black text-neutral-800 mt-6 tracking-tight">
+                    Badge Trophy
+                </h2>
+                
+                <p class="text-neutral-500 mt-2 text-center text-sm font-semibold leading-relaxed">
+                    Earned successfully from the active ERROR Inc. developer ecosystem.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="scripts/community.js"></script>
+
 </body>
 </html>
