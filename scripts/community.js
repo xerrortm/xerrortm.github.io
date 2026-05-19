@@ -145,7 +145,7 @@ onValue(ref(db, "community-chat"), snapshot => {
 
                 <div class="flex items-center gap-2">
 
-                    <div onclick="location.href='/users?name=${msg.user}'" class="font-bold">
+                    <div onclick="location.href='/u?n=${msg.user}'" class="font-bold">
                         ${msg.user}
                     </div>
 
