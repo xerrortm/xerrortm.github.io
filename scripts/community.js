@@ -31,7 +31,6 @@ const bannedWords = [
     "niga",
     "nigga",
     "nigger",
-    "hell",
     "heck",
 ];
 function filterMessage(text){
