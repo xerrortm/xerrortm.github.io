@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Merchant: Evolution</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
+
+        :root {
+            --common: #94a3b8;
+            --uncommon: #4ade80;
+            --rare: #3b82f6;
+            --epic: #a855f7;
+            --legendary: #f59e0b;
+            --mythical: #ff0055;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background-color: #020617;
+            color: #f1f5f9;
+            user-select: none;
+            overflow-x: hidden;
+            background: radial-gradient(circle at 50% 50%, #0f172a 0%, #020617 100%);
+        }
+
+        .header-font { font-family: 'Orbitron', sans-serif; }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .shop-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .shop-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: conic-gradient(transparent, rgba(56, 189, 248, 0.1), transparent 30%);
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        .game-card {
+            aspect-ratio: 2.5/3.5;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .game-card:hover {
+            transform: translateY(-10px) rotateY(10deg);
+            z-index: 10;
+        }
+
+        .card-inner {
+            position: absolute;
+            width: 100%; height: 100%;
+            border-radius: 12px;
+            background: #1e293b;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.5);
+            backface-visibility: hidden;
+        }
+
+        .rarity-mythical-glow { box-shadow: 0 0 30px rgba(255, 0, 85, 0.6), inset 0 0 15px rgba(255, 0, 85, 0.3); border-color: #ff0055 !important; }
+        .rarity-legendary-glow { box-shadow: 0 0 25px rgba(245, 158, 11, 0.4); border-color: #f59e0b !important; }
+
+        .rarity-common { color: var(--common); }
+        .rarity-uncommon { color: var(--uncommon); text-shadow: 0 0 8px var(--uncommon); }
+        .rarity-rare { color: var(--rare); text-shadow: 0 0 10px var(--rare); }
+        .rarity-epic { color: var(--epic); text-shadow: 0 0 12px var(--epic); }
+        .rarity-legendary { color: var(--legendary); text-shadow: 0 0 15px var(--legendary); }
+        .rarity-mythical { color: var(--mythical); text-shadow: 0 0 20px var(--mythical); animation: text-flicker 1.5s infinite; }
+
+        @keyframes text-flicker {
+            0%, 100% { opacity: 1; filter: brightness(1.2); }
+            50% { opacity: 0.8; filter: brightness(1.5); }
+        }
+
+        .reveal-burst {
+            animation: burst 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        @keyframes burst {
+            0% { transform: scale(0.5); opacity: 0; filter: brightness(3); }
+            100% { transform: scale(1); opacity: 1; filter: brightness(1); }
+        }
+
+        @keyframes shake {
+            0% { transform: translate(0,0); }
+            25% { transform: translate(4px, -4px) rotate(1deg); }
+            50% { transform: translate(-4px, 4px) rotate(-1deg); }
+            75% { transform: translate(4px, 4px) rotate(1deg); }
+            100% { transform: translate(0,0); }
+        }
+
+        .animate-shake { animation: shake 0.1s infinite; }
+
+        .rebirth-progress-bar {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 150;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <canvas id="particle-canvas"></canvas>
+
+    <header class="fixed top-0 left-0 right-0 z-50 p-4 glass border-b border-white/10">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-6">
+                <div>
+                    <h1 class="header-font text-2xl font-black italic tracking-tighter text-sky-400">NEON<span class="text-white">MERCHANT</span></h1>
+                    <div class="flex gap-3 text-xs font-bold uppercase tracking-widest text-slate-400">
+                        <span id="income-display" class="text-pink-500">+$0/sec</span>
+                        <span id="rebirth-display" class="text-amber-500">Rebirth: 0</span>
+                    </div>
+                </div>
+                
+                <div id="rebirth-tracker" class="hidden md:block w-48 lg:w-64">
+                    <div class="flex justify-between text-[10px] font-bold uppercase mb-1">
+                        <span>Rebirth Progress</span>
+                        <span id="rebirth-remaining">Loading...</span>
+                    </div>
+                    <div class="rebirth-progress-bar">
+                        <div id="rebirth-fill" class="h-full bg-amber-500 shadow-[0_0_10px_#f59e0b]" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                <div class="text-right mr-4">
+                    <div class="text-[10px] font-bold text-slate-500 uppercase">Cash</div>
+                    <div id="balance-display" class="header-font text-2xl font-bold text-emerald-400">$50</div>
+                </div>
+                <nav class="flex p-1 bg-black/40 rounded-lg border border-white/5">
+<button onclick="switchTab('event')" id="btn-event"class="px-6 py-2 rounded-md font-bold text-sm transition-all text-slate-400 hover:text-white">
+EVENT
+</button>
+                    <button onclick="switchTab('shops')" id="btn-shops" class="px-6 py-2 rounded-md font-bold text-sm transition-all bg-sky-500 text-white shadow-lg shadow-sky-500/20">MARKET</button>
+                    <button onclick="switchTab('inventory')" id="btn-inventory" class="px-6 py-2 rounded-md font-bold text-sm transition-all text-slate-400 hover:text-white">INVENTORY</button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <main class="pt-28 pb-12 px-4 max-w-7xl mx-auto">
+        <div id="rebirth-banner" class="mb-8 p-6 glass rounded-2xl border-2 border-amber-500/50 flex flex-col md:flex-row justify-between items-center gap-4 hidden bg-amber-500/5">
+            <div class="text-center md:text-left">
+                <h2 class="header-font text-2xl font-bold text-amber-400 uppercase">Rebirth Ready</h2>
+                <p class="text-slate-400">You will loose <strong>all your cash</strong> but unlocks higher-tier markets.</p>
+            </div>
+            <button onclick="performRebirth()" class="px-10 py-4 bg-amber-500 text-black font-black rounded-xl hover:bg-amber-400 transform hover:scale-105 transition-all shadow-xl shadow-amber-500/20 uppercase tracking-widest">Rebirth</button>
+        </div>
+
+        <section id="tab-shops" class="tab-content">
+            <div id="shops-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </section>
+
+        <section id="tab-inventory" class="tab-content hidden">
+            <div class="flex justify-between items-end mb-8 border-b border-white/10 pb-4">
+                <div>
+                    <h2 class="header-font text-3xl font-bold italic uppercase">Your Inventory</h2>
+                    <p class="text-slate-500 text-sm">Review and manage your unlocked cards.</p>
+                </div>
+                <button onclick="sellAllDuplicates()" class="px-4 py-2 bg-red-500/10 border border-red-500/50 text-red-500 rounded font-bold text-xs hover:bg-red-500 hover:text-white transition-all">SELL DUPLICATES</button>
+            </div>
+            <div id="inventory-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6"></div>
+        </section>
+<section id="tab-event" class="tab-content hidden">
+<h2 class="header-font text-5xl font-black italic uppercase
+text-pink-400 flex items-center gap-4">
+
+<span class="animate-pulse">🌸</span>
+
+FLORA BLOOM EVENT
+
+</h2>
+
+<p class="text-pink-200/70 text-sm mt-2">
+Limited-time botanical anomalies are appearing across the markets...
+Complete event missions to earn exclusive rewards.
+</p>
+<div class="mt-8 glass rounded-3xl border border-pink-500/20 p-6 flex flex-col md:flex-row justify-between items-center gap-6">
+    <div>
+        <div class="text-xs uppercase font-black tracking-[0.3em] text-pink-300">
+            Flora Points
+        </div>
+        <div id="flora-currency-display"
+        class="header-font text-5xl font-black text-emerald-400">
+            0
+        </div>
+    </div>
+
+    <button onclick="buyFloraCrate()"class="px-8 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-emerald-400 text-white font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all">
+        🌸 Buy Flora Crate (20)
+    </button>
+</div>
+    <div id="event-quests" class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+</section>
+    </main>
+
+    <div id="pack-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center bg-black/95 p-4">
+        <div class="relative w-full max-w-xl flex flex-col items-center">
+            <div class="relative flex items-center justify-center w-full h-96">
+                <div id="pack-visual" class="absolute w-64 h-96 bg-gradient-to-br from-slate-700 to-slate-900 border-4 border-sky-400 rounded-2xl flex items-center justify-center text-7xl shadow-[0_0_50px_rgba(56,189,248,0.3)] cursor-pointer hover:scale-105 transition-all">
+                    📦
+                </div>
+                <div id="reward-container" class="absolute flex justify-center w-full pointer-events-none"></div>
+            </div>
+            <h3 id="pack-status" class="header-font text-2xl font-bold mt-12 mb-2 tracking-widest uppercase">Click to Open</h3>
+            <p id="pack-subtext" class="text-slate-500 animate-pulse uppercase text-xs font-bold"></p>
+            <button id="close-pack-btn" onclick="closePackModal()" class="mt-12 px-12 py-4 bg-sky-600 rounded-xl font-black uppercase tracking-widest hidden hover:bg-sky-500 transition-all shadow-xl shadow-sky-500/20">Add to Inventory</button>
+        </div>
+    </div>
+
+    <div id="alert-container" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-3"></div>
+
+    <script>
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x; this.y = y; this.color = color;
+                this.size = Math.random() * 5 + 1;
+                this.speedX = (Math.random() - 0.5) * 15;
+                this.speedY = (Math.random() - 0.5) * 15;
+                this.life = 1.0; this.decay = Math.random() * 0.03 + 0.01;
+            }
+            update() { this.x += this.speedX; this.y += this.speedY; this.life -= this.decay; this.speedY += 0.1; }
+            draw() {
+                ctx.globalAlpha = this.life;
+                ctx.fillStyle = this.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        function explode(x, y, color) { for(let i=0; i<50; i++) particles.push(new Particle(x, y, color)); }
+        function animate() {
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            particles = particles.filter(p => p.life > 0);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+const SAVE_KEY = "neonMerchantSave";
+
+const state = {
+    credits: 100,
+    rebirths: 0,
+    inventory: [],
+    activeTab: 'shops',
+    isOpening: false,
+event: {
+    name: "FLORA BLOOM EVENT",
+    icon: "🌸",
+    currency: 0,
+    lastReset: 0,
+    quests: [],
+    shop: [],
+currency: 0,
+claimedTodayBonus: false,
+},
+};
+
+function loadGame() {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return;
+
+    try {
+        const data = JSON.parse(raw);
+state.event = {
+    name: "FLORA BLOOM EVENT",
+    icon: "🌸",
+    currency: 0,
+    lastReset: 0,
+    quests: [],
+    shop: [],
+    claimedTodayBonus: false,
+
+    ...(data.event || {})
+};
+if (
+    !Array.isArray(state.event.quests) ||
+    state.event.quests.some(q =>
+        !q.title ||
+        !q.desc ||
+        !q.reward
+    )
+) {
+    generateDailyQuests();
+}
+        state.credits = data.credits ?? state.credits;
+        state.rebirths = data.rebirths ?? state.rebirths;
+
+        state.inventory.length = 0;
+        (data.inventory || []).forEach(i => state.inventory.push(i));
+if (!data.event || shouldResetQuests()) {
+    generateDailyQuests();
+}
+    } catch (e) {
+        console.error("Load failed", e);
+    }
+}
+
+function saveGame() {
+    localStorage.setItem(SAVE_KEY, JSON.stringify({
+        credits: state.credits,
+        rebirths: state.rebirths,
+        inventory: state.inventory,
+        event: state.event
+    }));
+}
+        const RARITIES = {
+            COMMON: { name: 'Common', color: 'rarity-common', income: 1, multiplier: 1 },
+            UNCOMMON: { name: 'Uncommon', color: 'rarity-uncommon', income: 5, multiplier: 2.5 },
+            RARE: { name: 'Rare', color: 'rarity-rare', income: 20, multiplier: 6 },
+            EPIC: { name: 'Epic', color: 'rarity-epic', income: 100, multiplier: 15 },
+            LEGENDARY: { name: 'Legendary', color: 'rarity-legendary', income: 500, multiplier: 50 },
+            MYTHICAL: { name: 'Mythical', color: 'rarity-mythical', income: 2500, multiplier: 200 }
+        };
+
+
+const SHOPS = [
+
+{
+id: 'starter',
+name: 'SPROUT MARKET',
+desc: 'Starter plants and beginner crates.',
+rebirthReq: 0,
+rebirthCost: 5000,
+color: 'lime',
+icon: '🌱',
+
+products: [
+{id:'grassbud', name:'Rotten Leaf', price:50, rarity:'COMMON', icon:'🍂'},
+{id:'pebblecactus', name:'Ginger', price:60, rarity:'COMMON', icon:'🫚'},
+{id:'glowroot', name:'Glowroot', price:200, rarity:'UNCOMMON', icon:'🪴'},
+],
+
+packs: [
+{
+id:'woodcrate',
+name:'Wooden Crate',
+cost:100,
+icon:'📦',
+
+rewards: [
+{name:'Grass', rarity:'COMMON', icon:'🌱'},
+{name:'Bush', rarity:'COMMON', icon:'🌿'},
+{name:'Potato', rarity:'UNCOMMON', icon:'🥔'},
+{name:'Carrot', rarity:'UNCOMMON', icon:'🥕'},
+{name:'Onion', rarity:'RARE', icon:'🧅'}
+]
+}
+]
+},
+
+{
+id: 'crystal',
+name: 'GREENHOUSE',
+desc: 'Rare plants powered by modern technology.',
+rebirthReq: 1,
+rebirthCost: 250000,
+color: 'cyan',
+icon: '💐',
+
+products: [
+{id:'crystalmoss', name:'Moss', price:300, rarity:'UNCOMMON', icon:'🥀'},
+{id:'neonlotus', name:'Lotus', price:600, rarity:'RARE', icon:'🪷'},
+{id:'plasmaorchid', name:'Plasma Orchid', price:1000, rarity:'RARE', icon:'🌸'},
+],
+
+packs: [
+{
+id:'crystalcrate',
+name:'Treasure Crate',
+cost:1000,
+icon:'💠',
+
+rewards: [
+{name:'Sweet Potato', rarity:'UNCOMMON', icon:'🍠'},
+{name:'Strawberry', rarity:'RARE', icon:'🍓'},
+{name:'Banana', rarity:'EPIC', icon:'🍌'},
+{name:'Tomato', rarity:'UNCOMMON', icon:'🍅'},
+{name:'Blueberry', rarity:'RARE', icon:'🫐'}
+]
+}
+]
+},
+
+{
+id: 'void',
+name: 'VOID BOTANICA',
+desc: 'Forbidden cosmic plants from another dimension.',
+rebirthReq: 2,
+rebirthCost: 10000000,
+color: 'purple',
+icon: '🌌',
+
+products: [
+{id:'frostvine', name:'Frost Vine', price:6500, rarity:'RARE', icon:'❄️'},
+{id:'nebularose', name:'Rose', price:7500, rarity:'RARE', icon:'🌹'},
+{id:'voidmelon', name:'Melon', price:9000, rarity:'EPIC', icon:'🍈'},
+{id:'galaxyfern', name:'Galaxy Fern', price:15000, rarity:'LEGENDARY', icon:'🌌'}
+],
+
+packs: [
+{
+id:'voidcrate',
+name:'Void Crate',
+cost:5000,
+icon:'🌀',
+
+rewards: [
+{name:'Coconut', rarity:'RARE', icon:'🥥'},
+{name:'Peach', rarity:'EPIC', icon:'🍑'},
+{name:'Titanfruit', rarity:'MYTHICAL', icon:'🌼'},
+{name:'Baobab', rarity:'LEGENDARY', icon:'🪾'},
+{name:'Mango', rarity:'EPIC', icon:'🥭'},
+{name:'Soulsand', rarity:'MYTHICAL', icon:'🏜️'},
+{name:'Redwood', rarity:'LEGENDARY', icon:'🌲'}
+]
+}
+]
+}
+
+];
+const FLORA_REWARDS = [
+
+
+{
+    id: "tiny_cactus",
+    name: "Rotten Flower",
+    rarity: "COMMON",
+    icon: "🥀",
+    baseValue: 150
+},
+
+{
+    id: "brown_leaf",
+    name: "Brown Leaf",
+    rarity: "COMMON",
+    icon: "🍁",
+    baseValue: 80
+},
+
+/* UNCOMMON */
+
+{
+    id: "flora_fern",
+    name: "Flora Fern",
+    rarity: "UNCOMMON",
+    icon: "🌿",
+    baseValue: 500
+},
+
+{
+    id: "bloom_bulb",
+    name: "Bloom Bulb",
+    rarity: "UNCOMMON",
+    icon: "🌷",
+    baseValue: 800
+},
+
+/* RARE */
+
+{
+    id: "roseblight",
+    name: "Roseblight",
+    rarity: "RARE",
+    icon: "🌹",
+    baseValue: 3000
+},
+
+{
+    id: "sunpetal",
+    name: "Sunpetal",
+    rarity: "RARE",
+    icon: "🌻",
+    baseValue: 4500
+},
+
+/* EPIC */
+
+{
+    id: "venus_bloom",
+    name: "Venus Bloom",
+    rarity: "EPIC",
+    icon: "💐",
+    baseValue: 12000
+},
+
+/* LEGENDARY */
+
+{
+    id: "golden_orchid",
+    name: "Golden Orchid",
+    rarity: "LEGENDARY",
+    icon: "🌼",
+    baseValue: 50000
+},
+
+/* MYTHICAL */
+
+{
+    id: "bloomheart",
+    name: "Bloomheart",
+    rarity: "MYTHICAL",
+    icon: "💮",
+    baseValue: 200000
+}
+
+];
+        // Decoupled UI: Only updates the necessary textual values frequently
+        function updateFastUI() {
+            document.getElementById('balance-display').innerText = `$${Math.floor(state.credits).toLocaleString()}`;
+            document.getElementById('rebirth-display').innerText = `Rebirth: ${state.rebirths}`;
+            
+            const currentShop = SHOPS[state.rebirths];
+            if (currentShop && state.rebirths < SHOPS.length - 1) {
+                const progress = Math.min(100, (state.credits / currentShop.rebirthCost) * 100);
+                document.getElementById('rebirth-fill').style.width = `${progress}%`;
+                document.getElementById('rebirth-remaining').innerText = `$${Math.max(0, Math.floor(currentShop.rebirthCost - state.credits)).toLocaleString()} left`;
+                
+                const banner = document.getElementById('rebirth-banner');
+                if (state.credits >= currentShop.rebirthCost) banner.classList.remove('hidden');
+                else banner.classList.add('hidden');
+            }
+        }
+
+        // Heavy UI update: Only called when the list of shops or items changes
+        function updateFullUI() {
+            renderShops();
+            renderInventory();
+            updateFastUI();
+        }
+
+        function switchTab(tab) {
+    state.activeTab = tab;
+
+    document.querySelectorAll('.tab-content')
+        .forEach(el => el.classList.add('hidden'));
+
+    document.getElementById(`tab-${tab}`)
+        .classList.remove('hidden');
+
+    document.getElementById('btn-shops').className =
+        tab === 'shops'
+            ? 'px-6 py-2 rounded-md font-bold text-sm bg-sky-500 text-white shadow-lg shadow-sky-500/20'
+            : 'px-6 py-2 rounded-md font-bold text-sm text-slate-400 hover:text-white';
+    document.getElementById('btn-event').className =
+        tab === 'event'
+            ? 'px-6 py-2 rounded-md font-bold text-sm bg-sky-500 text-white shadow-lg shadow-sky-500/20'
+            : 'px-6 py-2 rounded-md font-bold text-sm text-slate-400 hover:text-white';
+
+    document.getElementById('btn-inventory').className =
+        tab === 'inventory'
+            ? 'px-6 py-2 rounded-md font-bold text-sm bg-sky-500 text-white shadow-lg shadow-sky-500/20'
+            : 'px-6 py-2 rounded-md font-bold text-sm text-slate-400 hover:text-white';
+
+    // ⭐ ADD THIS
+    if (tab === 'inventory') renderInventory();
+    if (tab === 'event') renderEvent();
+}
+
+        function renderShops() {
+            const grid = document.getElementById('shops-grid');
+            grid.innerHTML = '';
+
+            SHOPS.forEach((shop, index) => {
+                const isLocked = state.rebirths < shop.rebirthReq;
+                const card = document.createElement('div');
+                card.className = `shop-card glass p-8 rounded-3xl border-2 transition-all ${isLocked ? 'opacity-40 grayscale pointer-events-none' : 'hover:border-sky-400 border-white/5'}`;
+                
+                let packsHtml = shop.packs.map(p => `
+                    <button onclick="buyPack('${shop.id}', '${p.id}')" class="w-full flex justify-between items-center p-4 bg-black/40 border border-white/5 rounded-2xl hover:bg-sky-500/10 hover:border-sky-500/50 transition-all group">
+                        <div class="flex items-center gap-4">
+                            <div class="w-12 h-12 flex items-center justify-center bg-white/5 rounded-xl text-2xl group-hover:scale-110 transition-transform">${p.icon}</div>
+                            <div class="text-left">
+                                <div class="font-bold text-sm">${p.name}</div>
+                                <div class="text-[10px] text-slate-500 uppercase">${shop.id === 'void' ? 'One-time Unlock' : 'One-time Unlock'}</div>
+                            </div>
+                        </div>
+                        <div class="header-font text-lg font-bold text-emerald-400">$${p.cost}</div>
+                    </button>
+                `).join('');
+
+                card.innerHTML = `
+                    <div class="relative z-10">
+                        <div class="flex justify-between items-start mb-6">
+                            <span class="text-4xl">${shop.icon}</span>
+                            <span class="text-[10px] font-bold bg-white/10 px-3 py-1 rounded-full uppercase tracking-tighter">Shop ID: 00${index+1}</span>
+                        </div>
+                        <h3 class="header-font text-2xl font-black mb-2">${shop.name}</h3>
+                        <p class="text-slate-500 text-sm mb-4 leading-relaxed">${shop.desc}</p>
+
+<div class="mb-6 text-xs uppercase tracking-widest font-bold text-sky-400">
+    Exclusive Crate: ${shop.packs[0].name}
+</div>
+                        <div class="space-y-4">
+    ${packsHtml}
+</div>
+
+<div class="mt-8">
+    <div class="text-xs uppercase tracking-[0.25em] font-black text-slate-500 mb-4">
+        Plants
+    </div>
+
+    <div class="space-y-3">
+
+        ${shop.products.map(p => `
+
+            <button
+                onclick="buyProduct('${shop.id}','${p.id}')"
+
+                class="w-full flex justify-between items-center
+                p-4 rounded-2xl bg-black/30 border border-white/5
+                hover:border-emerald-500/50
+                hover:bg-emerald-500/10
+                transition-all">
+
+                <div class="flex items-center gap-4">
+
+                    <div class="text-3xl">
+                        ${p.icon}
+                    </div>
+
+                    <div class="text-left">
+                        <div class="font-bold text-sm">
+                            ${p.name}
+                        </div>
+
+                        <div class="text-[10px] uppercase font-black ${RARITIES[p.rarity].color}">
+                            ${p.rarity}
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="header-font text-lg text-emerald-400 font-black">
+                    $${p.price.toLocaleString()}
+                </div>
+
+            </button>
+
+        `).join('')}
+
+    </div>
+</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function renderInventory() {
+            const container = document.getElementById('inventory-grid');
+            container.innerHTML = '';
+            
+            if (state.inventory.length === 0) {
+                container.innerHTML = `<div class="col-span-full py-20 text-center opacity-30 uppercase font-black tracking-widest text-2xl italic">Buy card packs to unlock cards!</div>`;
+                return;
+            }
+
+            const sorted = [...state.inventory].sort((a,b) => {
+                const order = ['MYTHICAL', 'LEGENDARY', 'EPIC', 'RARE', 'UNCOMMON', 'COMMON'];
+                return order.indexOf(a.rarity) - order.indexOf(b.rarity);
+            });
+
+            sorted.forEach(item => {
+                const isMyth = item.rarity === 'MYTHICAL';
+                const el = document.createElement('div');
+                el.className = 'game-card';
+                el.innerHTML = `
+                    <div class="card-inner ${isMyth ? 'rarity-mythical-glow' : (item.rarity === 'LEGENDARY' ? 'rarity-legendary-glow' : '')}">
+                        <div class="text-[10px] font-black uppercase mb-1 ${RARITIES[item.rarity].color}">${item.rarity}</div>
+                        <div class="flex-grow flex flex-col items-center justify-center p-4 text-center">
+                            <div class="text-4xl mb-4 transition-all cursor-help" title="Asset UID: ${item.id}">${item.icon}</div>
+                            <div class="font-bold text-sm leading-tight">${item.name}</div>
+                        </div>
+                        <div class="mt-auto border-t border-white/10 pt-3">
+                            <div class="flex justify-between text-[10px] font-bold text-slate-500 mb-2 uppercase">
+                                <span>Yield</span>
+                                <span class="text-emerald-400">+$${RARITIES[item.rarity].income}/s</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <div class="bg-black/50 px-2 py-1 rounded text-[10px] font-bold flex-grow text-center">x${item.count}</div>
+                                <button onclick="sellItem('${item.id}')" class="bg-red-500/20 text-red-400 px-2 py-1 rounded text-[10px] font-bold hover:bg-red-500 hover:text-white transition-all">SELL</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        function buyPack(shopId, packId) {
+            if (state.isOpening) return;
+            const shop = SHOPS.find(s => s.id === shopId);
+            const pack = shop.packs.find(p => p.id === packId);
+            if (state.credits < pack.cost) { notify("NOT ENOUGH CASH", "error"); return; }
+            state.credits -= pack.cost;
+            openPackSequence(shop, pack);
+            updateFastUI();
+        }
+function buyProduct(shopId, productId) {
+
+    const shop = SHOPS.find(s => s.id === shopId);
+    const product = shop.products.find(p => p.id === productId);
+
+    if (state.credits < product.price) {
+        notify("NOT ENOUGH CASH", "error");
+        return;
+    }
+
+    state.credits -= product.price;
+
+    addToInventory({
+        id: `${product.name.replace(/\s/g,'-')}-${product.rarity}`,
+        name: product.name,
+        rarity: product.rarity,
+        icon: product.icon,
+        count: 1,
+        baseValue: product.price
+    });
+
+    notify(`${product.name} purchased!`, "success");
+
+    updateFullUI();
+}
+        function openPackSequence(shop, pack, options = {}) {
+            state.isOpening = true;
+            const modal = document.getElementById('pack-modal');
+            const visual = document.getElementById('pack-visual');
+            const container = document.getElementById('reward-container');
+            const status = document.getElementById('pack-status');
+            const btn = document.getElementById('close-pack-btn');
+
+            container.innerHTML = '';
+            btn.classList.add('hidden');
+            visual.className = "absolute w-64 h-96 bg-gradient-to-br from-slate-700 to-slate-900 border-4 border-sky-400 rounded-2xl flex items-center justify-center text-7xl shadow-[0_0_50px_rgba(56,189,248,0.3)] cursor-pointer hover:scale-105 transition-all opacity-100 scale-100";
+            status.innerText = "Click to Open";
+            modal.classList.remove('hidden');
+
+            const roll = () => {
+                visual.removeEventListener('click', roll);
+                visual.classList.add('animate-shake');
+                status.innerText = "Opening...";
+
+                setTimeout(() => {
+                    visual.classList.remove('animate-shake');
+                    visual.classList.add('opacity-0', 'scale-110');
+                    
+                    const rect = visual.getBoundingClientRect();
+                    explode(rect.left + rect.width / 2, rect.top + rect.height / 2, '#38bdf8');
+                    
+                    let item;
+
+if (options.customPool === "flora") {
+    item = generateFloraItem();
+} else {
+    item = generateItem(pack);
+}
+                    const card = document.createElement('div');
+                    card.className = `game-card w-64 reveal-burst pointer-events-auto`;
+                    const isMyth = item.rarity === 'MYTHICAL';
+                    card.innerHTML = `
+                        <div class="card-inner ${isMyth ? 'rarity-mythical-glow' : (item.rarity === 'LEGENDARY' ? 'rarity-legendary-glow' : '')}">
+                            <div class="text-xs font-black uppercase mb-2 ${RARITIES[item.rarity].color}">${item.rarity}</div>
+                            <div class="flex-grow flex items-center justify-center py-10 text-6xl">${item.icon}</div>
+                            <div class="header-font text-lg font-bold text-center mb-6 h-12 flex items-center justify-center">${item.name}</div>
+                            <div class="bg-emerald-500/10 text-emerald-400 p-2 rounded-lg text-center font-bold text-xs uppercase tracking-widest border border-emerald-500/20">
+                                +$${RARITIES[item.rarity].income} PER SEC
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(card);
+                    
+                    if (isMyth) {
+                        explode(rect.left + rect.width / 2, rect.top + rect.height / 2, '#ff0055');
+                        notify("MYTHICAL!", "success");
+                    }
+                    
+                    status.innerText = "Opened";
+                    btn.classList.remove('hidden');
+                    addToInventory(item);
+state.event.quests.forEach(q => {
+    if (q.type === "open") {
+        q.progress++;
+    }
+});
+                }, 800);
+            };
+            visual.addEventListener('click', roll);
+        }
+
+        function generateItem(pack) {
+    const item = pack.rewards[Math.floor(Math.random() * pack.rewards.length)];
+
+    return {
+        id: `${item.name.replace(/\s/g,'-')}-${item.rarity}`,
+        name: item.name,
+        rarity: item.rarity,
+        icon: item.icon,
+        baseValue: pack.cost
+    };
+}
+function buyFloraCrate() {
+
+    if (state.event.currency < 20) {
+        notify("NOT ENOUGH FLORA POINTS", "error");
+        return;
+    }
+
+    state.event.currency -= 20;
+
+    openFloraCrate();
+
+    updateFullUI();
+}
+
+function openFloraCrate() {
+
+    state.isOpening = true;
+
+    const fakePack = {
+        rewards: FLORA_REWARDS
+    };
+
+    openPackSequence(null, fakePack, {
+        customPool: "flora"
+    });
+}
+        function addToInventory(item) {
+            const ex = state.inventory.find(i => i.id === item.id);
+            if (ex) ex.count++; else state.inventory.push({...item, count: 1});
+        }
+
+        function sellItem(id) {
+            const idx = state.inventory.findIndex(i => i.id === id);
+            if (idx === -1) return;
+            const item = state.inventory[idx];
+            state.credits += Math.floor(item.baseValue * RARITIES[item.rarity].multiplier);
+            if (item.count > 1) item.count--; else state.inventory.splice(idx, 1);
+state.event.quests.forEach(q => {
+    if (q.type === "sell") {
+        q.progress++;
+    }
+});
+            updateFullUI();
+
+        }
+
+        function sellAllDuplicates() {
+            let profit = 0;
+            state.inventory.forEach(i => {
+                if (i.count > 1) {
+                    const amt = i.count - 1;
+                    profit += amt * Math.floor(i.baseValue * RARITIES[i.rarity].multiplier);
+                    i.count = 1;
+                }
+            });
+            state.credits += profit;
+            notify(`You earned: $${profit.toLocaleString()}`, "info");
+            updateFullUI();
+        }
+
+        function performRebirth() {
+            const cur = SHOPS[state.rebirths];
+            if (!cur || state.credits < cur.rebirthCost) return;
+            state.credits = 0;
+            state.rebirths++;
+            explode(window.innerWidth/2, window.innerHeight/2, '#f59e0b');
+            notify("REBIRTH COMPLETE", "success");
+            saveGame();
+state.event.quests.forEach(q => {
+    if (q.type === "rebirth") {
+        q.progress++;
+    }
+});
+            updateFullUI();
+        }
+
+        function closePackModal() {
+            state.isOpening = false;
+            document.getElementById('pack-modal').classList.add('hidden');
+            if (state.activeTab === 'inventory') renderInventory();
+        }
+
+        function notify(msg, type) {
+            const c = document.getElementById('alert-container');
+            const a = document.createElement('div');
+            const bg = type === 'error' ? 'bg-red-600' : type === 'success' ? 'bg-emerald-600' : 'bg-sky-600';
+            a.className = `${bg} px-6 py-3 rounded-xl shadow-2xl font-black italic uppercase tracking-tighter text-sm transform translate-x-full transition-all duration-300`;
+            a.innerText = msg;
+            c.appendChild(a);
+            setTimeout(() => a.classList.remove('translate-x-full'), 10);
+            setTimeout(() => { a.classList.add('translate-x-full'); setTimeout(()=>a.remove(), 300); }, 3000);
+        }
+function getTodayKey() {
+    return new Date().toDateString();
+}
+
+function generateDailyQuests() {
+
+    const income = state.inventory.reduce(
+        (a, i) => a + (RARITIES[i.rarity].income * i.count),
+        0
+    );
+
+    state.event.claimedTodayBonus = false;
+
+    state.event.quests = [
+
+        {
+            id: "flora_open_small",
+            title: "🌱 Crate Rookie",
+            desc: "Open 5 crates",
+            type: "open",
+            target: 5,
+            progress: 0,
+
+            reward: {
+                type: "currency",
+                amount: 10
+            }
+        },
+
+        {
+            id: "flora_open_big",
+            title: "🌸 Bloom Collector",
+            desc: "Open 25 crates",
+            type: "open",
+            target: 25,
+            progress: 0,
+
+            reward: {
+                type: "currency",
+                amount: 25
+            }
+        },
+
+        {
+            id: "flora_sell",
+            title: "🍃 Garden Cleanup",
+            desc: "Sell 10 plants",
+            type: "sell",
+            target: 10,
+            progress: 0,
+
+            reward: {
+                type: "currency",
+                amount: 15
+            }
+        },
+
+        {
+            id: "flora_income",
+            title: "🌿 Nature Economy",
+            desc: `Earn $${Math.floor(income * 2 + 1000)}`,
+            type: "earn",
+            target: income * 2 + 1000,
+            progress: 0,
+
+            reward: {
+                type: "currency",
+                amount: 20
+            }
+        },
+
+        {
+            id: "flora_rebirth",
+            title: "☀️ Ascension Bloom",
+            desc: "Perform 1 rebirth",
+            type: "rebirth",
+            target: 1,
+            progress: 0,
+
+            reward: {
+                type: "currency",
+                amount: 30
+            }
+        }
+
+    ];
+
+    state.event.lastReset = getTodayKey();
+}
+function renderEvent() {
+document.getElementById("flora-currency-display").innerText =
+    state.event.currency;
+    const container = document.getElementById("event-quests");
+    container.innerHTML = "";
+
+    state.event.quests.forEach((q, i) => {
+
+        const done = q.progress >= q.target;
+
+        const div = document.createElement("div");
+
+        div.className =
+            "glass p-6 rounded-2xl border border-white/10";
+
+        const rewardText =
+    q.reward.type === "money"
+    ? `$${Math.floor(q.reward.amount).toLocaleString()}`
+    : q.reward.type === "currency"
+    ? `${q.reward.amount} Bloom Tokens`
+    : `RANDOM ITEM`;
+
+div.innerHTML = `
+<div class="relative overflow-hidden glass p-6 rounded-3xl border border-pink-500/20">
+
+    <div class="absolute top-0 right-0 text-7xl opacity-10">
+        🌸
+    </div>
+
+    <div class="flex justify-between items-start mb-4">
+
+        <div>
+            <div class="text-xl font-black text-pink-300">
+                ${q.title}
+            </div>
+
+            <div class="text-sm text-slate-400 mt-1">
+                ${q.desc}
+            </div>
+        </div>
+
+        <div class="bg-pink-500/10 border border-pink-500/30
+        px-3 py-2 rounded-xl text-pink-300 text-xs font-black uppercase">
+
+            Event Quest
+
+        </div>
+
+    </div>
+
+    <div class="mb-3 text-xs font-bold uppercase text-slate-400">
+        ${Math.floor(q.progress)} / ${q.target}
+    </div>
+
+    <div class="h-3 bg-black/40 rounded-full overflow-hidden mb-5">
+        <div class="h-full bg-gradient-to-r from-pink-500 to-emerald-400"
+        style="width:${(q.progress/q.target)*100}%"></div>
+    </div>
+
+    <div class="flex justify-between items-center">
+
+        <div>
+            <div class="text-[10px] uppercase text-slate-500 font-black">
+                Reward
+            </div>
+
+            <div class="font-black text-emerald-400">
+                ${rewardText}
+            </div>
+        </div>
+
+        ${
+            q.progress >= q.target
+            ? `
+            <button onclick="claimQuest(${i})"
+            class="px-5 py-2 bg-pink-500 hover:bg-pink-400
+            text-white rounded-xl font-black uppercase tracking-wider">
+                Claim
+            </button>
+            `
+            : `
+            <div class="text-xs uppercase text-slate-500 font-black">
+                In Progress
+            </div>
+            `
+        }
+
+    </div>
+
+</div>
+`;
+
+        container.appendChild(div);
+    });
+}
+function claimQuest(i) {
+
+    const q = state.event.quests[i];
+    if (!q) return;
+
+    if (q.progress < q.target) return;
+
+    if (q.reward.type === "money") {
+        state.credits += q.reward.amount;
+    }
+
+    if (q.reward.type === "currency") {
+
+        state.event.currency += q.reward.amount;
+
+        notify(
+            `+${q.reward.amount} FLORA POINTS`,
+            "success"
+        );
+    }
+
+    if (q.reward.type === "exclusive") {
+
+        addToInventory({
+            ...q.reward.item,
+            count: 1
+        });
+
+        notify(
+            `EXCLUSIVE ITEM: ${q.reward.item.name}`,
+            "success"
+        );
+    }
+
+    state.event.quests.splice(i, 1);
+
+    if (
+        state.event.quests.length === 0 &&
+        !state.event.claimedTodayBonus
+    ) {
+        state.event.claimedTodayBonus = true;
+
+        notify(
+            "FREE BONUS FLORA CRATE!",
+            "success"
+        );
+
+        openFloraCrate();
+    }
+
+    saveGame();
+
+    renderEvent();
+    updateFullUI();
+}
+function shouldResetQuests() {
+    return state.event.lastReset !== getTodayKey();
+}
+function generateFloraItem() {
+    const item =
+        FLORA_REWARDS[
+            Math.floor(Math.random() * FLORA_REWARDS.length)
+        ];
+
+    return {
+        id: `${item.name.replace(/\s/g,'-')}-${item.rarity}`,
+        name: item.name,
+        rarity: item.rarity,
+        icon: item.icon,
+        baseValue: item.baseValue || 0
+    };
+}
+function getPlayerStats() {
+    const income = state.inventory.reduce(
+        (a, i) => a + (RARITIES[i.rarity].income * i.count),
+        0
+    );
+
+    return {
+        cash: state.credits,
+        rebirths: state.rebirths,
+        income: income,
+        inventorySize: state.inventory.reduce((a, i) => a + i.count, 0)
+    };
+}
+function init() {
+loadGame();
+
+if (state.event.quests.length === 0 || shouldResetQuests()) {
+    generateDailyQuests();
+}
+setInterval(() => {
+    const inc = state.inventory.reduce((a, i) =>
+        a + (RARITIES[i.rarity].income * i.count), 0);
+
+    if (inc > 0) {
+        state.credits += (inc / 10);
+    }
+    state.event.quests.forEach(q => {
+        if (q.type === "earn") {
+            q.progress += inc / 10;
+        }
+    });
+    updateFastUI();
+    document.getElementById('income-display').innerText =
+        `+$${inc}/sec`;
+    saveGame();
+    if (state.activeTab === "event") {
+        renderEvent();
+    }
+}, 100);
+updateFullUI();
+}
+loadGame();
+init();
+    </script>
+</body>
+</html>
