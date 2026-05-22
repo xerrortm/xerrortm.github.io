@@ -296,7 +296,7 @@ text-pink-400 flex items-center gap-4">
                 </div>
  
                 <button onclick="event.stopPropagation(); buyFloraCrate()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-emerald-400 text-white font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all">
-                    🌸 Buy Flora Crate (20)
+                    🌸 Buy Flora Crate (30)
                 </button>
             </div>
             <div id="event-quests" class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6"></div>
@@ -576,21 +576,21 @@ text-pink-400 flex items-center gap-4">
                 products: [{
                         id: 'crystalmoss',
                         name: 'Moss',
-                        price: 300,
+                        price: 500,
                         rarity: 'UNCOMMON',
                         icon: '🥀'
                     },
                     {
                         id: 'neonlotus',
                         name: 'Lotus',
-                        price: 600,
+                        price: 6000,
                         rarity: 'RARE',
                         icon: '🪷'
                     },
                     {
                         id: 'plasmaorchid',
                         name: 'Plasma Orchid',
-                        price: 1000,
+                        price: 10000,
                         rarity: 'RARE',
                         icon: '🌸'
                     },
@@ -599,7 +599,7 @@ text-pink-400 flex items-center gap-4">
                 packs: [{
                     id: 'crystalcrate',
                     name: 'Treasure Crate',
-                    cost: 1000,
+                    cost: 7000,
                     icon: '💠',
  
                     rewards: [{
@@ -636,35 +636,35 @@ text-pink-400 flex items-center gap-4">
                 name: 'VOID BOTANICA',
                 desc: 'Forbidden cosmic plants from another dimension.',
                 rebirthReq: 2,
-                rebirthCost: 10000000,
+                rebirthCost: 1000000,
                 color: 'purple',
                 icon: '🌌',
  
                 products: [{
                         id: 'frostvine',
                         name: 'Frost Vine',
-                        price: 6500,
+                        price: 65000,
                         rarity: 'RARE',
                         icon: '❄️'
                     },
                     {
                         id: 'nebularose',
                         name: 'Rose',
-                        price: 7500,
+                        price: 75000,
                         rarity: 'RARE',
                         icon: '🌹'
                     },
                     {
                         id: 'voidmelon',
                         name: 'Melon',
-                        price: 9000,
+                        price: 900000,
                         rarity: 'EPIC',
                         icon: '🍈'
                     },
                     {
                         id: 'galaxyfern',
                         name: 'Galaxy Fern',
-                        price: 15000,
+                        price: 1500000,
                         rarity: 'LEGENDARY',
                         icon: '🌌'
                     }
@@ -673,7 +673,7 @@ text-pink-400 flex items-center gap-4">
                 packs: [{
                     id: 'voidcrate',
                     name: 'Void Crate',
-                    cost: 5000,
+                    cost: 500000,
                     icon: '🌀',
  
                     rewards: [{
@@ -717,8 +717,7 @@ text-pink-400 flex items-center gap-4">
  
         ];
         const FLORA_REWARDS = [
- 
- 
+
             {
                 id: "tiny_cactus",
                 name: "Rotten Flower",
@@ -734,8 +733,6 @@ text-pink-400 flex items-center gap-4">
                 icon: "🍁",
                 baseValue: 80
             },
- 
-            /* UNCOMMON */
  
             {
                 id: "flora_fern",
@@ -753,8 +750,6 @@ text-pink-400 flex items-center gap-4">
                 baseValue: 800
             },
  
-            /* RARE */
- 
             {
                 id: "roseblight",
                 name: "Roseblight",
@@ -771,8 +766,6 @@ text-pink-400 flex items-center gap-4">
                 baseValue: 4500
             },
  
-            /* EPIC */
- 
             {
                 id: "venus_bloom",
                 name: "Venus Bloom",
@@ -781,8 +774,6 @@ text-pink-400 flex items-center gap-4">
                 baseValue: 12000
             },
  
-            /* LEGENDARY */
- 
             {
                 id: "golden_orchid",
                 name: "Golden Orchid",
@@ -790,8 +781,6 @@ text-pink-400 flex items-center gap-4">
                 icon: "🌼",
                 baseValue: 50000
             },
- 
-            /* MYTHICAL */
  
             {
                 id: "bloomheart",
@@ -802,22 +791,49 @@ text-pink-400 flex items-center gap-4">
             }
  
         ];
-        // Decoupled UI: Only updates the necessary textual values frequently
+
         function updateFastUI() {
-            document.getElementById('balance-display').innerText = `$${Math.floor(state.credits).toLocaleString()}`;
-            document.getElementById('rebirth-display').innerText = `Rebirth: ${state.rebirths}`;
- 
-            const currentShop = SHOPS[state.rebirths];
-            if (currentShop && state.rebirths < SHOPS.length - 1) {
-                const progress = Math.min(100, (state.credits / currentShop.rebirthCost) * 100);
-                document.getElementById('rebirth-fill').style.width = `${progress}%`;
-                document.getElementById('rebirth-remaining').innerText = `$${Math.max(0, Math.floor(currentShop.rebirthCost - state.credits)).toLocaleString()} left`;
- 
-                const banner = document.getElementById('rebirth-banner');
-                if (state.credits >= currentShop.rebirthCost) banner.classList.remove('hidden');
-                else banner.classList.add('hidden');
-            }
-        }
+    document.getElementById('balance-display').innerText =
+        `$${Math.floor(state.credits).toLocaleString()}`;
+
+    document.getElementById('rebirth-display').innerText =
+        `Rebirth: ${state.rebirths}`;
+
+    const maxTier = SHOPS.length - 1;
+    const tierIndex = Math.min(state.rebirths, maxTier);
+    const currentShop = SHOPS[tierIndex];
+
+    const banner = document.getElementById('rebirth-banner');
+
+    if (currentShop) {
+        const progress = Math.min(
+            100,
+            (state.credits / currentShop.rebirthCost) * 100
+        );
+
+        document.getElementById('rebirth-fill').style.width =
+            `${progress}%`;
+
+        document.getElementById('rebirth-remaining').innerText =
+            `$${Math.max(
+                0,
+                Math.floor(currentShop.rebirthCost - state.credits)
+            ).toLocaleString()} left`;
+
+        const canRebirth =
+            state.credits >= currentShop.rebirthCost;
+
+        banner.classList.toggle('hidden', !canRebirth);
+    } else {
+
+        document.getElementById('rebirth-fill').style.width = `100%`;
+        document.getElementById('rebirth-remaining').innerText =
+            `MAX TIER REACHED`;
+
+        // still allow rebirth for scaling / quests
+        banner.classList.toggle('hidden', false);
+    }
+}
  
         // Heavy UI update: Only called when the list of shops or items changes
         function updateFullUI() {
@@ -1104,12 +1120,12 @@ text-pink-400 flex items-center gap-4">
  
         function buyFloraCrate() {
  
-            if (state.event.currency < 20) {
+            if (state.event.currency < 30) {
                 notify("NOT ENOUGH FLORA POINTS", "error");
                 return;
             }
  
-            state.event.currency -= 20;
+            state.event.currency -= 30;
  
             openFloraCrate();
  
@@ -1169,20 +1185,28 @@ text-pink-400 flex items-center gap-4">
         }
  
         function performRebirth() {
-            const cur = SHOPS[state.rebirths];
-            if (!cur || state.credits < cur.rebirthCost) return;
-            state.credits = 0;
-            state.rebirths++;
-            explode(window.innerWidth / 2, window.innerHeight / 2, '#f59e0b');
-            notify("REBIRTH COMPLETE", "success");
-            saveGame();
-            state.event.quests.forEach(q => {
-                if (q.type === "rebirth") {
-                    q.progress++;
-                }
-            });
-            updateFullUI();
-        }
+    const maxTier = SHOPS.length - 1;
+    const tierIndex = Math.min(state.rebirths, maxTier);
+    const cur = SHOPS[tierIndex];
+
+    if (!cur) return;
+
+    if (state.credits < cur.rebirthCost) return;
+
+    state.credits = 0;
+    state.rebirths++;
+
+    explode(window.innerWidth / 2, window.innerHeight / 2, '#f59e0b');
+    notify("REBIRTH COMPLETE", "success");
+
+    saveGame();
+
+    state.event.quests.forEach(q => {
+        if (q.type === "rebirth") q.progress++;
+    });
+
+    updateFullUI();
+}
  
         function closePackModal() {
             state.isOpening = false;
@@ -1209,19 +1233,16 @@ text-pink-400 flex items-center gap-4">
         }
  
         function generateDailyQuests() {
- 
             const income = state.inventory.reduce(
                 (a, i) => a + (RARITIES[i.rarity].income * i.count),
                 0
             );
- 
             state.event.claimedTodayBonus = false;
- 
             state.event.quests = [
  
                 {
                     id: "flora_open_small",
-                    title: "🌱 Crate Rookie",
+                    title: "📦 Crate Rookie",
                     desc: "Open 5 crates",
                     type: "open",
                     target: 5,
@@ -1233,19 +1254,29 @@ text-pink-400 flex items-center gap-4">
                     }
                 },
  
-                {
-                    id: "flora_open_big",
-                    title: "🌸 Bloom Collector",
-                    desc: "Open 25 crates",
-                    type: "open",
-                    target: 25,
-                    progress: 0,
- 
-                    reward: {
-                        type: "currency",
-                        amount: 25
-                    }
-                },
+                ...(state.rebirths >= 3 ? [{
+    id: "flora_rebirth_scaling",
+    title: "🔆 Ascension Master",
+    desc: `Reach ${state.rebirths + 2} rebirths`,
+    type: "rebirth",
+    target: state.rebirths + 2,
+    progress: state.rebirths,
+    reward: {
+        type: "currency",
+        amount: 50
+    }
+}] : [{
+    id: "flora_open_big",
+    title: "🌸 Crate Master",
+    desc: "Open 25 crates",
+    type: "open",
+    target: 25,
+    progress: 0,
+    reward: {
+        type: "currency",
+        amount: 25
+    }
+}]),
  
                 {
                     id: "flora_sell",
@@ -1277,7 +1308,7 @@ text-pink-400 flex items-center gap-4">
  
                 {
                     id: "flora_rebirth",
-                    title: "☀️ Ascension Bloom",
+                    title: "☀️ Ascension Rookie",
                     desc: "Perform 1 rebirth",
                     type: "rebirth",
                     target: 1,
@@ -1313,7 +1344,7 @@ text-pink-400 flex items-center gap-4">
                     q.reward.type === "money" ?
                     `$${Math.floor(q.reward.amount).toLocaleString()}` :
                     q.reward.type === "currency" ?
-                    `${q.reward.amount} Bloom Tokens` :
+                    `${q.reward.amount} Flora Points` :
                     `RANDOM ITEM`;
  
                 div.innerHTML = `
@@ -1391,16 +1422,12 @@ text-pink-400 flex items-center gap-4">
         }
  
         function claimQuest(i) {
- 
             const q = state.event.quests[i];
             if (!q) return;
- 
             if (q.progress < q.target) return;
- 
             if (q.reward.type === "money") {
                 state.credits += q.reward.amount;
             }
- 
             if (q.reward.type === "currency") {
  
                 state.event.currency += q.reward.amount;
@@ -1410,7 +1437,6 @@ text-pink-400 flex items-center gap-4">
                     "success"
                 );
             }
- 
             if (q.reward.type === "exclusive") {
  
                 addToInventory({
