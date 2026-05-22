@@ -202,7 +202,7 @@ FLORA BLOOM EVENT
 Limited-time botanical anomalies are appearing across the markets...
 Complete event missions to earn exclusive rewards.
 </p>
-<div class="mt-8 glass rounded-3xl border border-pink-500/20 p-6 flex flex-col md:flex-row justify-between items-center gap-6">
+<div onclick="openFloraInfo()"class="mt-8 glass rounded-3xl border border-pink-500/20 p-6 flex flex-col md:flex-row justify-between items-center gap-6">
     <div>
         <div class="text-xs uppercase font-black tracking-[0.3em] text-pink-300">
             Flora Points
@@ -213,7 +213,7 @@ Complete event missions to earn exclusive rewards.
         </div>
     </div>
 
-    <button onclick="buyFloraCrate()"class="px-8 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-emerald-400 text-white font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all">
+<button onclick="event.stopPropagation(); buyFloraCrate()" class="px-8 py-4 rounded-2xl bg-gradient-to-r from-pink-500 to-emerald-400 text-white font-black uppercase tracking-widest shadow-2xl hover:scale-105 transition-all">
         🌸 Buy Flora Crate (20)
     </button>
 </div>
@@ -234,7 +234,24 @@ Complete event missions to earn exclusive rewards.
             <button id="close-pack-btn" onclick="closePackModal()" class="mt-12 px-12 py-4 bg-sky-600 rounded-xl font-black uppercase tracking-widest hidden hover:bg-sky-500 transition-all shadow-xl shadow-sky-500/20">Add to Inventory</button>
         </div>
     </div>
+<div id="flora-info-modal"class="fixed inset-0 z-[110] hidden bg-black/80 flex items-center justify-center p-6">
 
+    <div class="w-full max-w-md glass rounded-3xl border border-pink-500/30 p-6 relative">
+
+        <button onclick="closeFloraInfo()"
+        class="absolute top-3 right-3 text-white/50 hover:text-white text-xl">
+            ✕
+        </button>
+
+        <h2 class="text-2xl font-black text-pink-400 mb-4 uppercase">
+            🌸 Flora Crate Odds
+        </h2>
+
+        <div id="flora-odds-list" class="space-y-3 text-sm">
+        </div>
+
+    </div>
+</div>
     <div id="alert-container" class="fixed bottom-6 right-6 z-[200] flex flex-col gap-3"></div>
 
     <script>
@@ -1193,6 +1210,61 @@ function getPlayerStats() {
         income: income,
         inventorySize: state.inventory.reduce((a, i) => a + i.count, 0)
     };
+}
+function getFloraOdds() {
+
+    const rarityOrder = {
+        COMMON: [],
+        UNCOMMON: [],
+        RARE: [],
+        EPIC: [],
+        LEGENDARY: [],
+        MYTHICAL: []
+    };
+
+    FLORA_REWARDS.forEach(item => {
+        rarityOrder[item.rarity].push(item.name);
+    });
+
+    return rarityOrder;
+}
+function openFloraInfo() {
+
+    const modal = document.getElementById("flora-info-modal");
+    const list = document.getElementById("flora-odds-list");
+
+    const odds = getFloraOdds();
+
+    list.innerHTML = Object.entries(odds).map(([tier, items]) => {
+
+        return `
+        <div class="p-3 rounded-xl bg-black/30 border border-white/10">
+
+            <div class="font-black uppercase text-xs mb-2
+                ${tier === 'MYTHICAL' ? 'text-pink-400' :
+                  tier === 'LEGENDARY' ? 'text-amber-400' :
+                  tier === 'EPIC' ? 'text-purple-400' :
+                  tier === 'RARE' ? 'text-blue-400' :
+                  tier === 'UNCOMMON' ? 'text-green-400' :
+                  'text-slate-400'}">
+
+                ${tier}
+
+            </div>
+
+            <div class="text-slate-300 text-xs">
+                ${items.join(", ")}
+            </div>
+
+        </div>
+        `;
+    }).join("");
+
+    modal.classList.remove("hidden");
+}
+function closeFloraInfo() {
+    document.getElementById("flora-info-modal")
+        .classList.add("hidden");
 }
 function init() {
 loadGame();
