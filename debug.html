@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ultra Detailed HTML/JS Debugger</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- CodeMirror CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+            color: #e2e8f0;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .CodeMirror {
+            height: 100% !important;
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            border-radius: 0.5rem;
+        }
+
+        .error-line {
+            background-color: rgba(239, 68, 68, 0.2) !important;
+            border-left: 4px solid #ef4444 !important;
+        }
+
+        .active-function-line {
+            background-color: rgba(59, 130, 246, 0.3) !important;
+            border-left: 4px solid #3b82f6 !important;
+            transition: background-color 0.2s ease-in-out;
+        }
+
+        .error-widget {
+            color: #ef4444;
+            font-size: 12px;
+            padding: 2px 6px;
+            background-color: #451a1a;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-weight: bold;
+        }
+
+        .resizer {
+            background-color: #334155;
+            cursor: col-resize;
+            width: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .resizer:hover, .resizer:active {
+            background-color: #60a5fa;
+        }
+
+        .resizer::after {
+            content: "";
+            width: 2px;
+            height: 20px;
+            background-color: #94a3b8;
+            border-radius: 1px;
+        }
+
+        .resizer-horizontal {
+            background-color: #334155;
+            cursor: row-resize;
+            height: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+
+        .resizer-horizontal:hover, .resizer-horizontal:active {
+            background-color: #60a5fa;
+        }
+
+        .resizer-horizontal::after {
+            content: "";
+            width: 20px;
+            height: 2px;
+            background-color: #94a3b8;
+            border-radius: 1px;
+        }
+
+        #console-output {
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+        }
+
+        .log-entry { padding: 4px 8px; border-bottom: 1px solid #334155; word-wrap: break-word; }
+        .log-info { color: #93c5fd; }
+        .log-error { color: #fca5a5; background-color: rgba(239, 68, 68, 0.1); border-left: 3px solid #ef4444; }
+        .log-warn { color: #fde047; background-color: rgba(234, 179, 8, 0.1); border-left: 3px solid #eab308; }
+        .log-debug { color: #d8b4fe; }
+
+        .function-pill {
+            display: inline-block;
+            background-color: #1e3a8a;
+            color: #bfdbfe;
+            padding: 2px 8px;
+            border-radius: 9999px;
+            font-size: 11px;
+            margin: 2px;
+            border: 1px solid #3b82f6;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7); }
+            70% { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        iframe {
+            background-color: white;
+            border: none;
+            width: 100%;
+            height: 100%;
+            border-radius: 0.5rem;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .execution-gutter {
+            width: 25px;
+        }
+        
+        .execution-marker {
+            color: #3b82f6;
+            font-size: 14px;
+            padding-left: 4px;
+            animation: pulse-marker 1s infinite;
+            display: flex;
+            align-items: center;
+            height: 100%;
+        }
+
+        @keyframes pulse-marker {
+            0% { opacity: 1; text-shadow: 0 0 5px rgba(59, 130, 246, 0.8); }
+            50% { opacity: 0.4; text-shadow: none; }
+            100% { opacity: 1; text-shadow: 0 0 5px rgba(59, 130, 246, 0.8); }
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-200">
+
+    <header class="bg-slate-800 p-4 shadow-md flex justify-between items-center z-10 border-b border-slate-700">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-bug text-blue-500 text-2xl"></i>
+            <h1 class="text-xl font-bold tracking-tight text-white">Ultra <span class="text-blue-400">Debugger</span></h1>
+        </div>
+        <div class="flex gap-4 items-center">
+            <div id="status-indicator" class="flex items-center gap-2 text-sm text-slate-400">
+                <div class="w-2 h-2 rounded-full bg-green-500"></div> Ready
+            </div>
+            <button id="run-btn" class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-md font-medium transition flex items-center gap-2 shadow-lg shadow-blue-500/20">
+                <i class="fa-solid fa-play"></i> Run Code
+            </button>
+            <button id="clear-console-btn" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-4 py-2 rounded-md font-medium transition flex items-center gap-2">
+                <i class="fa-solid fa-trash-can"></i> Clear
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden p-2 gap-2">
+        
+        <!-- Editor Section -->
+        <section id="editor-section" class="flex-1 flex flex-col min-w-[300px] h-full" style="flex-basis: 50%;">
+            <div class="bg-slate-800 rounded-t-lg p-2 flex justify-between items-center border-b border-slate-700">
+                <div class="flex items-center gap-2 text-sm font-semibold text-slate-300">
+                    <i class="fa-solid fa-code text-blue-400"></i> Code Editor
+                </div>
+                <div class="text-xs text-slate-500">HTML / CSS / JS</div>
+            </div>
+            <div class="flex-1 relative rounded-b-lg overflow-hidden shadow-inner bg-slate-900 border border-slate-700">
+                <textarea id="code-editor"></textarea>
+            </div>
+        </section>
+
+        <!-- Vertical Resizer -->
+        <div id="resizer-v" class="resizer rounded-full hidden md:flex my-2"></div>
+
+        <!-- Right Side: Preview and Tools -->
+        <section id="right-section" class="flex-1 flex flex-col min-w-[300px] h-full" style="flex-basis: 50%;">
+            
+            <!-- Top Right: Preview -->
+            <div id="preview-section" class="flex flex-col flex-1 min-h-[200px]" style="flex-basis: 50%;">
+                <div class="bg-slate-800 rounded-t-lg p-2 flex justify-between items-center border-b border-slate-700">
+                    <div class="flex items-center gap-2 text-sm font-semibold text-slate-300">
+                        <i class="fa-solid fa-globe text-green-400"></i> Live Preview
+                    </div>
+                </div>
+                <div class="flex-1 bg-white rounded-b-lg overflow-hidden shadow-inner border border-slate-700 p-1 relative">
+                    <!-- Overlay for error blocking preview -->
+                    <div id="preview-error-overlay" class="absolute inset-0 bg-red-900/90 hidden flex-col items-center justify-center text-white p-6 z-10 text-center backdrop-blur-sm">
+                        <i class="fa-solid fa-triangle-exclamation text-5xl text-red-400 mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">ERROR</h3>
+                        <p id="preview-error-message" class="text-red-200 font-mono text-sm max-w-md break-words"></p>
+                    </div>
+                    <iframe id="preview-frame" sandbox="allow-scripts allow-modals allow-same-origin"></iframe>
+                </div>
+            </div>
+
+            <!-- Horizontal Resizer -->
+            <div id="resizer-h" class="resizer-horizontal rounded-full my-2"></div>
+
+            <!-- Bottom Right: Console & Execution Flow -->
+            <div id="tools-section" class="flex flex-col flex-1 min-h-[200px]" style="flex-basis: 50%;">
+                
+                <!-- Active Execution Flow -->
+                <div class="bg-slate-800 rounded-t-lg p-2 flex items-center border-b border-slate-700 gap-3">
+                     <div class="flex items-center gap-2 text-sm font-semibold text-slate-300 whitespace-nowrap">
+                        <i class="fa-solid fa-microchip text-purple-400"></i> Active Functions:
+                    </div>
+                    <div id="active-functions-container" class="flex-1 flex flex-wrap gap-1 overflow-y-auto max-h-12 items-center">
+                        <span class="text-xs text-slate-500 italic">None currently executing</span>
+                    </div>
+                </div>
+
+                <!-- Split Console & Storage -->
+                <div class="flex flex-1 overflow-hidden rounded-b-lg">
+                    <!-- Console Output -->
+                    <div class="flex flex-col flex-1 border-r border-slate-700 w-1/2">
+                        <div class="bg-slate-800 p-2 flex justify-between items-center border-b border-slate-700">
+                            <div class="flex items-center gap-2 text-sm font-semibold text-slate-300">
+                                <i class="fa-solid fa-terminal text-yellow-400"></i> Console Detail
+                            </div>
+                            <div class="flex gap-2 text-xs">
+                                <span id="err-count" class="text-red-400 font-mono bg-red-900/30 px-2 py-1 rounded">0 Errors</span>
+                                <span id="warn-count" class="text-yellow-400 font-mono bg-yellow-900/30 px-2 py-1 rounded">0 Warns</span>
+                            </div>
+                        </div>
+                        <div id="console-output" class="flex-1 bg-slate-950 overflow-y-auto shadow-inner p-2 border-b border-slate-700">
+                        </div>
+                    </div>
+
+                    <!-- Storage & Memory Box -->
+                    <div class="flex flex-col flex-1 w-1/2">
+                        <div class="bg-slate-800 p-2 flex justify-between items-center border-b border-slate-700">
+                            <div class="flex items-center gap-2 text-sm font-semibold text-slate-300">
+                                <i class="fa-solid fa-database text-teal-400"></i> App State & Memory
+                            </div>
+                            <div id="memory-usage" class="text-xs text-teal-200 bg-teal-900/30 px-2 py-1 rounded font-mono">N/A</div>
+                        </div>
+                        <div id="storage-output" class="flex-1 bg-slate-900 overflow-y-auto shadow-inner p-2 text-[11px] font-mono text-slate-300 space-y-2 border-b border-slate-700">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- CodeMirror Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
+
+    <script>
+        // Default code template demonstrating errors and function tracing
+        const defaultCode = `<!DOCTYPE html>
+<html>
+<head>
+<style>
+  body { font-family: sans-serif; text-align: center; margin-top: 50px; }
+  button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #3b82f6; color: white; border: none; border-radius: 5px; margin: 5px; }
+  #result { margin-top: 20px; font-size: 24px; font-weight: bold; }
+</style>
+</head>
+<body>
+
+  <h2>Live Execution Tracker</h2>
+  <button onclick="startProcess()">Run Math Process</button>
+  <button onclick="triggerError()">Trigger Error</button>
+  <div id="result"></div>
+
+<script>
+  function calculateMath(a, b) {
+      // Intentional slow loop so you can SEE the function executing live in the editor!
+      let temp = 0;
+      for(let i=0; i<30000000; i++) { temp += i; }
+      return a + b;
+  }
+
+  function renderResult(value) {
+      document.getElementById('result').innerText = "Result is: " + value;
+  }
+
+  function startProcess() {
+      // Let's add some sample local storage state so you can see it in action!
+      localStorage.setItem("lastRun", new Date().toLocaleTimeString());
+      sessionStorage.setItem("sessionID", Math.random().toString(36).substr(2, 9));
+      
+      let val = calculateMath(10, 25);
+      renderResult(val);
+  }
+
+  function triggerError() {
+      // Intentional undefined variable error
+      nonExistentFunctionCall(); 
+  }
+<\/script>
+</body>
+</html>`;
+
+        let editor;
+        let errorMarks = [];
+        let errorWidgets = [];
+        let activeFunctionMarks = new Map(); // functionName -> mark
+        
+        let errorCount = 0;
+        let warnCount = 0;
+
+        // UI Elements
+        const consoleOutput = document.getElementById('console-output');
+        const storageOutput = document.getElementById('storage-output');
+        const memoryUsageEl = document.getElementById('memory-usage');
+        const activeFunctionsContainer = document.getElementById('active-functions-container');
+        const errCountEl = document.getElementById('err-count');
+        const warnCountEl = document.getElementById('warn-count');
+        const previewFrame = document.getElementById('preview-frame');
+        const runBtn = document.getElementById('run-btn');
+        const clearBtn = document.getElementById('clear-console-btn');
+        const previewErrorOverlay = document.getElementById('preview-error-overlay');
+        const previewErrorMessage = document.getElementById('preview-error-message');
+
+        function initEditor() {
+            editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
+                mode: 'htmlmixed',
+                theme: 'dracula',
+                lineNumbers: true,
+                gutters: ["CodeMirror-linenumbers", "execution-gutter"],
+                autoCloseTags: true,
+                autoCloseBrackets: true,
+                matchBrackets: true,
+                indentUnit: 4,
+                tabSize: 4,
+                lineWrapping: true
+            });
+            editor.setValue(defaultCode);
+
+            // Clear errors on change
+            editor.on("change", () => {
+                clearErrors();
+                document.getElementById('status-indicator').innerHTML = '<div class="w-2 h-2 rounded-full bg-yellow-500"></div> Modified';
+            });
+        }
+
+        function initResizers() {
+            const resizerV = document.getElementById('resizer-v');
+            const editorSec = document.getElementById('editor-section');
+            const rightSec = document.getElementById('right-section');
+
+            const resizerH = document.getElementById('resizer-h');
+            const previewSec = document.getElementById('preview-section');
+            const toolsSec = document.getElementById('tools-section');
+
+            let isResizingV = false;
+            let isResizingH = false;
+
+            resizerV.addEventListener('mousedown', (e) => {
+                isResizingV = true;
+                document.body.style.cursor = 'col-resize';
+                e.preventDefault();
+            });
+
+            resizerH.addEventListener('mousedown', (e) => {
+                isResizingH = true;
+                document.body.style.cursor = 'row-resize';
+                e.preventDefault();
+            });
+
+            document.addEventListener('mousemove', (e) => {
+                if (isResizingV) {
+                    const totalWidth = document.body.clientWidth;
+                    const leftWidth = e.clientX;
+                    const rightWidth = totalWidth - leftWidth - resizerV.offsetWidth;
+                    
+                    if (leftWidth > 200 && rightWidth > 200) {
+                        editorSec.style.flexBasis = `${leftWidth}px`;
+                        rightSec.style.flexBasis = `${rightWidth}px`;
+                    }
+                }
+                if (isResizingH) {
+                    const rightSecRect = rightSec.getBoundingClientRect();
+                    const topHeight = e.clientY - rightSecRect.top;
+                    const bottomHeight = rightSecRect.height - topHeight - resizerH.offsetHeight;
+
+                    if (topHeight > 100 && bottomHeight > 100) {
+                        previewSec.style.flexBasis = `${topHeight}px`;
+                        toolsSec.style.flexBasis = `${bottomHeight}px`;
+                    }
+                }
+            });
+
+            document.addEventListener('mouseup', () => {
+                isResizingV = false;
+                isResizingH = false;
+                document.body.style.cursor = 'default';
+            });
+        }
+
+        function logToConsole(type, message, details = "") {
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            
+            const time = new Date().toLocaleTimeString([], { hour12: false });
+            let icon = '';
+            switch(type) {
+                case 'error': icon = '<i class="fa-solid fa-circle-xmark mr-2"></i>'; errorCount++; break;
+                case 'warn': icon = '<i class="fa-solid fa-triangle-exclamation mr-2"></i>'; warnCount++; break;
+                case 'info': icon = '<i class="fa-solid fa-circle-info mr-2"></i>'; break;
+                default: icon = '<i class="fa-solid fa-angle-right mr-2"></i>';
+            }
+
+            entry.innerHTML = `<span class="text-slate-500 text-xs mr-2">[${time}]</span>${icon}<span class="font-semibold">${message}</span> ${details}`;
+            
+            consoleOutput.appendChild(entry);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+
+            updateCounters();
+        }
+
+        function updateCounters() {
+            errCountEl.innerText = `${errorCount} Errors`;
+            warnCountEl.innerText = `${warnCount} Warns`;
+        }
+
+        function clearConsole() {
+            consoleOutput.innerHTML = '';
+            errorCount = 0;
+            warnCount = 0;
+            updateCounters();
+        }
+
+        function clearErrors() {
+            errorMarks.forEach(mark => mark.clear());
+            errorMarks = [];
+            errorWidgets.forEach(widget => editor.removeLineWidget(widget));
+            errorWidgets = [];
+            editor.clearGutter("execution-gutter");
+            previewErrorOverlay.classList.add('hidden');
+        }
+
+        function highlightErrorLine(lineNum, message) {
+            if (lineNum === undefined || lineNum === null || isNaN(lineNum) || lineNum < 0) {
+                // Cannot highlight specific line, just log
+                return;
+            }
+
+            // Ensure line is within bounds
+            const actualLine = Math.min(lineNum, editor.lineCount() - 1);
+
+            // Highlight line background
+            const mark = editor.addLineClass(actualLine, 'background', 'error-line');
+            errorMarks.push({
+                clear: () => editor.removeLineClass(actualLine, 'background', 'error-line')
+            });
+
+            // Add widget below line
+            const msgNode = document.createElement("div");
+            msgNode.className = "error-widget";
+            msgNode.innerHTML = `<i class="fa-solid fa-arrow-up text-xs mr-1"></i> Error: ${message}`;
+            const widget = editor.addLineWidget(actualLine, msgNode, { coverGutter: false, noHScroll: true });
+            errorWidgets.push(widget);
+
+            // Scroll to error
+            editor.scrollIntoView({line: actualLine, ch: 0});
+        }
+
+        function highlightActiveFunction(lineNum, funcName, isStart, args) {
+             if (lineNum === undefined || isNaN(lineNum)) return;
+
+             if (isStart) {
+                 // Highlight line
+                 const mark = editor.addLineClass(lineNum, 'background', 'active-function-line');
+                 
+                 // Add Gutter Marker
+                 const marker = document.createElement("div");
+                 marker.className = "execution-marker";
+                 marker.innerHTML = '<i class="fa-solid fa-play"></i>';
+                 editor.setGutterMarker(lineNum, "execution-gutter", marker);
+
+                 // Format args string dynamically based on what was passed
+                 const argStr = args && args.length > 0 ? args.join(', ') : '';
+                 const displayName = `${funcName}(${argStr})`;
+
+                 activeFunctionMarks.set(funcName, { line: lineNum, mark: mark, displayName: displayName });
+                 
+                 // Update UI Pills
+                 updateActiveFunctionsUI();
+             } else {
+                 // Remove highlight
+                 const data = activeFunctionMarks.get(funcName);
+                 if (data) {
+                     editor.removeLineClass(data.line, 'background', 'active-function-line');
+                     editor.setGutterMarker(data.line, "execution-gutter", null);
+                     activeFunctionMarks.delete(funcName);
+                     updateActiveFunctionsUI();
+                 }
+             }
+        }
+
+        function updateActiveFunctionsUI() {
+            activeFunctionsContainer.innerHTML = '';
+            if (activeFunctionMarks.size === 0) {
+                activeFunctionsContainer.innerHTML = '<span class="text-xs text-slate-500 italic">None currently executing</span>';
+                return;
+            }
+
+            activeFunctionMarks.forEach((val, funcName) => {
+                const pill = document.createElement('span');
+                pill.className = 'function-pill';
+                pill.innerHTML = `<i class="fa-solid fa-cog fa-spin mr-1"></i> ${val.displayName || funcName + '()'}`;
+                activeFunctionsContainer.appendChild(pill);
+            });
+        }
+
+        // This function parses the HTML, finds JS scripts, and injects our tracking code
+        function instrumentCode(htmlCode) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(htmlCode, 'text/html');
+            const scripts = doc.querySelectorAll('script:not([src])'); // Only inline scripts
+
+            let modifiedHtml = htmlCode;
+            let totalScriptOffset = 0;
+
+            // Simple regex to find function declarations and map them to lines
+            // This is a naive parser for demonstration. A robust solution needs an AST (like Acorn/Babel).
+            const functionRegex = /function\s+([a-zA-Z_$][0-9a-zA-Z_$]*)\s*\(/g;
+
+            scripts.forEach(script => {
+                const scriptContent = script.textContent;
+                
+                // Find line number of this script tag in the original HTML
+                const scriptStartIndex = htmlCode.indexOf(scriptContent, totalScriptOffset);
+                const linesBeforeScript = htmlCode.substring(0, scriptStartIndex).split('\n').length - 1;
+
+                let instrumentedScript = scriptContent;
+                let functionInjections = [];
+                let match;
+
+                while ((match = functionRegex.exec(scriptContent)) !== null) {
+                    const funcName = match[1];
+                    const index = match.index;
+                    
+                    // Find start of function body '{'
+                    const bodyStartIndex = scriptContent.indexOf('{', index);
+                    if (bodyStartIndex !== -1) {
+                        // Calculate absolute line number in the CodeMirror editor (0-indexed)
+                        const linesBeforeFunc = scriptContent.substring(0, bodyStartIndex).split('\n').length - 1;
+                        const absoluteLineNum = linesBeforeScript + linesBeforeFunc;
+
+                        functionInjections.push({
+                            name: funcName,
+                            bodyStart: bodyStartIndex,
+                            line: absoluteLineNum
+                        });
+                    }
+                }
+
+                // Inject tracking calls (working backwards to preserve indices)
+                functionInjections.reverse().forEach(inj => {
+                    // Inject at start of function WITHOUT newlines to preserve exact line numbers for errors
+                    // NEW: Safely extracts exactly what was passed in the runtime `arguments` array!
+                    const injectStart = ` window.parent.postMessage({type: 'func_start', name: '${inj.name}', args: Array.prototype.slice.call(arguments).map(function(a){try{return typeof a==='string'?'"'+a+'"':typeof a==='object'?JSON.stringify(a):String(a)}catch(e){return '?'}}), line: ${inj.line}}, '*'); try { `;
+                    
+                    // Note: This naive approach requires functions to have explicit returns or reach the end.
+                    // We wrap the whole body in a try-finally block to ensure func_end is called even if it errors or returns early.
+                    
+                    // Find matching closing brace (very simplified, assumes well-formed, no complex nested braces in strings)
+                    let braceCount = 1;
+                    let bodyEndIndex = inj.bodyStart + 1;
+                    while (braceCount > 0 && bodyEndIndex < scriptContent.length) {
+                        if (scriptContent[bodyEndIndex] === '{') braceCount++;
+                        if (scriptContent[bodyEndIndex] === '}') braceCount--;
+                        bodyEndIndex++;
+                    }
+
+                    const injectEnd = ` } finally { window.parent.postMessage({type: 'func_end', name: '${inj.name}', line: ${inj.line}}, '*'); } `;
+
+                    instrumentedScript = 
+                        instrumentedScript.substring(0, inj.bodyStart + 1) + 
+                        injectStart + 
+                        instrumentedScript.substring(inj.bodyStart + 1, bodyEndIndex - 1) + 
+                        injectEnd + 
+                        instrumentedScript.substring(bodyEndIndex - 1);
+                });
+
+                // Replace in HTML
+                modifiedHtml = modifiedHtml.replace(scriptContent, instrumentedScript);
+                totalScriptOffset = scriptStartIndex + scriptContent.length;
+            });
+
+            return modifiedHtml;
+        }
+
+        function runCode() {
+            clearErrors();
+            document.getElementById('status-indicator').innerHTML = '<div class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div> Running';
+
+            const rawCode = editor.getValue();
+            
+            try {
+                // 1. Instrument JS functions for live tracking
+                const instrumentedCode = instrumentCode(rawCode);
+
+                // 2. Inject Console Interception and Error Handling Script into the head
+                // Minified into a single line so it DOES NOT shift HTML lines down, keeping error lines perfectly accurate!
+                // NEW: Added a setInterval loop to poll performance.memory, localStorage, and sessionStorage!
+                const interceptionScript = `<script>const originalConsole={log:console.log,warn:console.warn,error:console.error,info:console.info,debug:console.debug};function sendLog(e,o){const n=Array.from(o).map((e=>"object"==typeof e?JSON.stringify(e):String(e))).join(" ");window.parent.postMessage({type:"console",level:e,message:n},"*")}console.log=function(){originalConsole.log.apply(console,arguments),sendLog("debug",arguments)},console.warn=function(){originalConsole.warn.apply(console,arguments),sendLog("warn",arguments)},console.error=function(){originalConsole.error.apply(console,arguments),sendLog("error",arguments)},console.info=function(){originalConsole.info.apply(console,arguments),sendLog("info",arguments)},window.onerror=function(e,o,n,r,t){return window.parent.postMessage({type:"global_error",message:e,line:n-1,stack:t?t.stack:""},"*"),!0},window.addEventListener("unhandledrejection",(function(e){window.parent.postMessage({type:"global_error",message:"Unhandled Promise Rejection: "+e.reason,line:-1},"*")}));setInterval(function(){var e=window.performance&&window.performance.memory?{used:window.performance.memory.usedJSHeapSize,total:window.performance.memory.totalJSHeapSize}:null,o=Object.assign({},localStorage),n=Object.assign({},sessionStorage);window.parent.postMessage({type:"storage_update",memory:e,localStorage:o,sessionStorage:n},"*")},1e3);<\/script>`;
+
+                // Insert interception script right after <head> or at start
+                let finalHtml;
+                if (instrumentedCode.includes('<head>')) {
+                    finalHtml = instrumentedCode.replace('<head>', '<head>' + interceptionScript);
+                } else {
+                    finalHtml = interceptionScript + instrumentedCode;
+                }
+
+                // 3. Load into iframe
+                const blob = new Blob([finalHtml], { type: 'text/html' });
+                const url = URL.createObjectURL(blob);
+                
+                previewFrame.src = url;
+
+                previewFrame.onload = () => {
+                    URL.revokeObjectURL(url);
+                    document.getElementById('status-indicator').innerHTML = '<div class="w-2 h-2 rounded-full bg-green-500"></div> Running (Waiting for events)';
+                };
+
+            } catch (err) {
+                logToConsole('error', 'Compilation Error:', err.message);
+                document.getElementById('status-indicator').innerHTML = '<div class="w-2 h-2 rounded-full bg-red-500"></div> Error';
+            }
+        }
+
+        window.addEventListener('message', (event) => {
+            const data = event.data;
+            if (!data || !data.type) return;
+
+            switch (data.type) {
+                case 'console':
+                    logToConsole(data.level, data.message);
+                    break;
+                case 'global_error':
+                    // Enhanced Detailed Error Logging
+                    let details = `(Line: ${data.line + 1})`;
+                    if (data.stack) {
+                        details += `<br><pre class="text-[10px] mt-2 bg-red-950/50 p-2 rounded border border-red-900/50 overflow-x-auto text-red-300">${data.stack}</pre>`;
+                    }
+                    logToConsole('error', `${data.message}`, details);
+                    highlightErrorLine(data.line, data.message);
+                    
+                    // Show full screen overlay on preview with stack trace
+                    previewErrorOverlay.classList.add('flex');
+                    previewErrorMessage.innerHTML = `<strong>${data.message}</strong><br>Line: ${data.line + 1}<div class="text-left font-mono text-[10px] mt-4 bg-red-950 p-3 rounded-md border border-red-800 max-h-40 overflow-y-auto w-full max-w-lg shadow-inner">${data.stack ? data.stack.replace(/\n/g, '<br>') : 'No stack trace available.'}</div>`;
+                    document.getElementById('status-indicator').innerHTML = '<div class="w-2 h-2 rounded-full bg-red-500"></div> Halted';
+                    break;
+                case 'func_start':
+                    // Add Execution History to Console with actual arguments
+                    const argStr = data.args && data.args.length > 0 ? data.args.join(', ') : '';
+                    const displayName = `${data.name}(${argStr})`;
+                    logToConsole('info', '', `Started <span class="text-blue-300 font-mono">${displayName}</span> at line ${data.line + 1}`);
+                    highlightActiveFunction(data.line, data.name, true, data.args);
+                    break;
+                case 'func_end':
+                    // Log execution end
+                    logToConsole('info', '', `Completed <span class="text-blue-300 font-mono">${data.name}()</span>`);
+                    // Small delay to make very fast functions visible in UI for a split second
+                    setTimeout(() => {
+                        highlightActiveFunction(data.line, data.name, false);
+                    }, 50);
+                    break;
+                case 'storage_update':
+                    // Display the memory info
+                    if (data.memory) {
+                        const usedMB = (data.memory.used / (1024 * 1024)).toFixed(2);
+                        const totalMB = (data.memory.total / (1024 * 1024)).toFixed(2);
+                        memoryUsageEl.innerText = `${usedMB} MB / ${totalMB} MB`;
+                    } else {
+                        memoryUsageEl.innerText = "0 MB";
+                    }
+                    
+                    // Render the exact local and session storage dictionaries!
+                    let html = '';
+                    const renderStorage = (title, obj, color) => {
+                        const keys = Object.keys(obj);
+                        if (keys.length === 0) return `<div class="mb-2"><strong class="text-${color}-400">${title}:</strong> <span class="text-slate-500 italic">Empty</span></div>`;
+                        let list = `<div class="mb-2"><strong class="text-${color}-400">${title}:</strong><ul class="pl-2 border-l border-${color}-900/50 mt-1">`;
+                        keys.forEach(k => {
+                            list += `<li class="truncate"><span class="text-slate-400">${k}:</span> <span class="text-green-300">"${obj[k]}"</span></li>`;
+                        });
+                        list += '</ul></div>';
+                        return list;
+                    };
+                    
+                    html += renderStorage('localStorage', data.localStorage, 'teal');
+                    html += renderStorage('sessionStorage', data.sessionStorage, 'blue');
+                    storageOutput.innerHTML = html;
+                    break;
+            }
+        });
+
+        runBtn.addEventListener('click', runCode);
+        clearBtn.addEventListener('click', clearConsole);
+
+        window.onload = () => {
+            initEditor();
+            initResizers();
+            // Initial run
+            setTimeout(runCode, 500); 
+        };
+
+    </script>
+</body>
+</html>
