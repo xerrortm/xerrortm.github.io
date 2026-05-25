@@ -1147,58 +1147,65 @@ function watchTrade(tradeId) {
                 ? "ACCEPTED"
                 : "NOT ACCEPTED";
         }
-
-        checkTradeCompletion(trade);
+if (
+    trade &&
+    trade.status === "completed" &&
+    !tradeCompleted
+) {
+    checkTradeCompletion(trade);
+}
     });
 }
 
 function checkTradeCompletion(trade) {
 
     if (!trade || !currentTradeId) return;
-    if (tradeCompleted || processingTradeLocal) return;
+    if (tradeCompleted) return;
 
-    const offers = Object.values(trade.offers || {});
+    const offers = trade.offers || {};
+
+    const offerList = Object.values(offers);
 
     const ready =
-        offers.length >= 2 &&
-        offers.every(o => o.accepted === true);
+        offerList.length >= 2 &&
+        offerList.every(o => o.accepted === true);
 
     if (!ready) return;
-    if (trade.processing === true) return;
 
-    processingTradeLocal = true;
     tradeCompleted = true;
 
+    const user = getUser();
+
     const ref = tradeDB.ref("trades/" + trade.id);
-    ref.update({
-        processing: true,
-        status: "completed"
-    }).then(() => {
 
-        return ref.once("value");
+    ref.transaction(current => {
 
-    }).then(snap => {
+        if (!current || current.processing) return;
 
-        const freshTrade = snap.val();
+        current.processing = true;
+        current.status = "completed";
+
+        return current;
+    }).then(result => {
+
+        const freshTrade = result.snapshot.val();
         if (!freshTrade) return;
 
-        const offers = Object.values(freshTrade.offers || {});
-        const user = getUser();
+        const offers = freshTrade.offers || {};
 
         const myOffer = offers[user.username];
-        let otherOffer = null;
 
-        for (let key in offers) {
+        let otherOffer = null;
+        for (const key in offers) {
             if (key !== user.username) {
                 otherOffer = offers[key];
                 break;
             }
         }
-        if (!myOffer || !otherOffer) {
-            processingTradeLocal = false;
-            return;
-        }
-        
+
+        if (!myOffer || !otherOffer) return;
+
+        // 🧹 REMOVE MY ITEMS
         (myOffer.items || []).forEach(item => {
 
             const inv = state.inventory.find(i => i.id === item.id);
@@ -1231,23 +1238,20 @@ function checkTradeCompletion(trade) {
             }
         });
 
-        // 💰 MONEY
+        // 💰 MONEY SWAP
         state.credits -= myOffer.money;
         state.credits += otherOffer.money;
 
         saveGame();
         updateFullUI();
 
-        notify("TRADE COMPLETED!", "success");
+        notify("TRADE COMPLETED! 🎉", "success");
 
         closeTradeView();
 
-        // 🧹 cleanup AFTER everything is done
         setTimeout(() => {
             tradeDB.ref("trades/" + trade.id).remove();
         }, 1500);
-
-        processingTradeLocal = false;
     });
 }
 </script>
