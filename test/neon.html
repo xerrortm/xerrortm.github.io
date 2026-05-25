@@ -438,9 +438,17 @@ document.getElementById("btn-trading").onclick = () => {
 
 function initTradingHub() {
 
-    const user = JSON.parse(
-        localStorage.getItem("errorinc_user")
-    );
+    let rawUser = localStorage.getItem("errorinc_user");
+
+let user = null;
+
+try {
+    user = JSON.parse(rawUser);
+} catch {
+    user = {
+        username: rawUser
+    };
+}
 
     if (!user) {
         document.getElementById("trading-login")
@@ -537,9 +545,17 @@ function closeCreateTradeModal() {
 
 function createTrade() {
 
-    const user = JSON.parse(
-        localStorage.getItem("errorinc_user")
-    );
+    let rawUser = localStorage.getItem("errorinc_user");
+
+let user = null;
+
+try {
+    user = JSON.parse(rawUser);
+} catch {
+    user = {
+        username: rawUser
+    };
+}
 
     if (!user) return;
 
@@ -701,9 +717,17 @@ function loadTrades() {
 
 function joinTrade(tradeId) {
 
-    const user = JSON.parse(
-        localStorage.getItem("errorinc_user")
-    );
+    let rawUser = localStorage.getItem("errorinc_user");
+
+let user = null;
+
+try {
+    user = JSON.parse(rawUser);
+} catch {
+    user = {
+        username: rawUser
+    };
+}
 
     if (!user) return;
 
