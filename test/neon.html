@@ -239,6 +239,9 @@
                     <button onclick="switchTab('event')" id="btn-event" class="px-6 py-2 rounded-md font-bold text-sm transition-all text-slate-400 hover:text-white">
                         EVENT
                     </button>
+<button id="btn-trading" class="px-6 py-2 rounded-md font-bold text-sm transition-all text-slate-400 hover:text-white">
+    Trading Hub
+</button>
                     <button onclick="switchTab('shops')" id="btn-shops" class="px-6 py-2 rounded-md font-bold text-sm transition-all bg-sky-500 text-white shadow-lg shadow-sky-500/20">MARKET</button>
                     <button onclick="switchTab('inventory')" id="btn-inventory" class="px-6 py-2 rounded-md font-bold text-sm transition-all text-slate-400 hover:text-white">INVENTORY</button>
                 </nav>
@@ -271,6 +274,492 @@
             </div>
             <div id="inventory-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6"></div>
         </section>
+<!-- ========================= -->
+<!-- TRADING HUB TAB -->
+<!-- ========================= -->
+
+<button id="btn-trading" class="px-6 py-2 rounded-md font-bold text-sm text-slate-400 hover:text-white">
+    Trading Hub
+</button>
+
+<div id="tab-trading" class="tab-content hidden">
+
+    <!-- LOGIN REQUIRED -->
+    <div id="trading-login" class="hidden">
+        <div class="glass p-10 rounded-3xl border border-white/10 text-center">
+
+            <div class="text-6xl mb-5">🏪</div>
+
+            <div class="text-3xl font-black mb-2">
+                ERROR Inc. Trading Hub
+            </div>
+
+            <div class="text-slate-400 mb-6">
+                Sign in with ERROR Inc. to access online trading.
+            </div>
+
+            <button onclick="window.location.href='/login'"class="px-8 py-4 bg-sky-500 hover:bg-sky-400 rounded-2xl font-black text-white text-lg">
+                SIGN IN WITH ERROR INC.
+            </button>
+
+        </div>
+    </div>
+
+    <!-- HUB -->
+    <div id="trading-hub" class="hidden">
+
+        <div class="glass p-6 rounded-3xl border border-white/10 mb-6">
+
+            <div class="flex justify-between items-center">
+
+                <div>
+                    <div class="text-3xl font-black">
+                        🌐 Trading Hub
+                    </div>
+
+                    <div class="text-slate-400 text-sm">
+                        Trade plants and money with other players.
+                    </div>
+                </div>
+
+                <button onclick="openCreateTradeModal()" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 rounded-2xl font-black text-black">
+                    + CREATE TRADE
+                </button>
+
+            </div>
+
+        </div>
+
+        <!-- LIVE TRADES -->
+        <div id="trade-list" class="grid md:grid-cols-2 gap-5">
+        </div>
+
+    </div>
+
+</div>
+<div id="create-trade-modal"class="fixed inset-0 bg-black/80 z-[9999] hidden flex items-center justify-center p-6">
+    <div class="glass w-full max-w-2xl p-8 rounded-3xl border border-white/10">
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <div class="text-3xl font-black">
+                    Create Trade
+                </div>
+
+                <div class="text-slate-400 text-sm">
+                    Offer items or money.
+                </div>
+            </div>
+            <button onclick="closeCreateTradeModal()" class="text-3xl text-slate-500 hover:text-white">
+                ×
+            </button>
+        </div>
+
+        <!-- MONEY -->
+        <div class="mb-6">
+            <div class="font-black mb-2">
+                Offer Money
+            </div>
+            <input
+                id="trade-money"
+                type="number"
+                min="0"
+                value="0"
+                class="w-full bg-black/40 border border-white/10
+                rounded-2xl p-4 outline-none"
+            >
+
+        </div>
+
+        <!-- INVENTORY -->
+        <div>
+
+            <div class="font-black mb-3">
+                Select Plants
+            </div>
+
+            <div id="trade-inventory"
+            class="grid grid-cols-2 md:grid-cols-3 gap-3 max-h-[350px] overflow-y-auto">
+            </div>
+
+        </div>
+
+        <button onclick="createTrade()"
+        class="mt-8 w-full py-4 rounded-2xl
+        bg-emerald-500 hover:bg-emerald-400
+        text-black font-black text-lg">
+            CREATE TRADE
+        </button>
+
+    </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script>
+
+/* =========================
+   FIREBASE
+========================= */
+
+const firebaseConfig = {
+    apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
+    authDomain: "error-inc.firebaseapp.com",
+    databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
+    projectId: "error-inc",
+    storageBucket: "error-inc.firebasestorage.app",
+    messagingSenderId: "876188868410",
+    appId: "1:876188868410:web:ca7de451707bd9975c7a03"
+};
+
+firebase.initializeApp(firebaseConfig);
+
+const tradeDB = firebase.database();
+
+/* =========================
+   TRADING STATE
+========================= */
+
+let selectedTradeItems = [];
+
+/* =========================
+   TAB BUTTON
+========================= */
+
+document.getElementById("btn-trading").onclick = () => {
+    switchTab("trading");
+    initTradingHub();
+};
+
+/* =========================
+   INIT HUB
+========================= */
+
+function initTradingHub() {
+
+    const user = JSON.parse(
+        localStorage.getItem("errorinc_user")
+    );
+
+    if (!user) {
+        document.getElementById("trading-login")
+            .classList.remove("hidden");
+
+        document.getElementById("trading-hub")
+            .classList.add("hidden");
+
+        return;
+    }
+
+    document.getElementById("trading-login")
+        .classList.add("hidden");
+
+    document.getElementById("trading-hub")
+        .classList.remove("hidden");
+
+    loadTrades();
+}
+
+/* =========================
+   CREATE MODAL
+========================= */
+
+function openCreateTradeModal() {
+
+    selectedTradeItems = [];
+
+    const grid =
+        document.getElementById("trade-inventory");
+
+    grid.innerHTML = "";
+
+    state.inventory.forEach(item => {
+
+        const div = document.createElement("button");
+
+        div.className =
+            "p-4 rounded-2xl border border-white/10 bg-black/30 hover:border-sky-400 transition-all";
+
+        div.innerHTML = `
+            <div class="text-4xl mb-2">${item.icon}</div>
+
+            <div class="font-bold text-sm">
+                ${item.name}
+            </div>
+
+            <div class="text-xs text-slate-400">
+                x${item.count}
+            </div>
+        `;
+
+        div.onclick = () => {
+
+            if (
+                selectedTradeItems.find(i => i.id === item.id)
+            ) {
+                selectedTradeItems =
+                    selectedTradeItems.filter(
+                        i => i.id !== item.id
+                    );
+
+                div.classList.remove(
+                    "border-emerald-400",
+                    "bg-emerald-500/20"
+                );
+
+            } else {
+
+                selectedTradeItems.push(item);
+
+                div.classList.add(
+                    "border-emerald-400",
+                    "bg-emerald-500/20"
+                );
+            }
+        };
+
+        grid.appendChild(div);
+    });
+
+    document.getElementById("create-trade-modal")
+        .classList.remove("hidden");
+}
+
+function closeCreateTradeModal() {
+    document.getElementById("create-trade-modal")
+        .classList.add("hidden");
+}
+
+/* =========================
+   CREATE TRADE
+========================= */
+
+function createTrade() {
+
+    const user = JSON.parse(
+        localStorage.getItem("errorinc_user")
+    );
+
+    if (!user) return;
+
+    const money =
+        Number(
+            document.getElementById("trade-money").value
+        ) || 0;
+
+    if (money > state.credits) {
+        notify("NOT ENOUGH MONEY", "error");
+        return;
+    }
+
+    const tradeId =
+        "trade_" + Date.now();
+
+    tradeDB.ref("trades/" + tradeId).set({
+
+        id: tradeId,
+
+        owner: {
+            id: user.uid || user.id || user.username,
+            username: user.username || "Unknown"
+        },
+
+        offer: {
+            money: money,
+            items: selectedTradeItems
+        },
+
+        joinedBy: null,
+
+        status: "open",
+
+        createdAt: Date.now()
+    });
+
+    notify("TRADE CREATED", "success");
+
+    closeCreateTradeModal();
+}
+
+/* =========================
+   LOAD TRADES LIVE
+========================= */
+
+function loadTrades() {
+
+    tradeDB.ref("trades")
+    .on("value", snapshot => {
+
+        const data = snapshot.val() || {};
+
+        const container =
+            document.getElementById("trade-list");
+
+        container.innerHTML = "";
+
+        Object.values(data)
+        .reverse()
+        .forEach(trade => {
+
+            const div = document.createElement("div");
+
+            div.className =
+                "glass p-6 rounded-3xl border border-white/10";
+
+            div.innerHTML = `
+
+                <div class="flex justify-between items-start mb-5">
+
+                    <div>
+
+                        <div class="text-2xl font-black">
+                            ${trade.owner.username}
+                        </div>
+
+                        <div class="text-slate-400 text-xs">
+                            Trading Offer
+                        </div>
+
+                    </div>
+
+                    <div class="
+                    px-3 py-2 rounded-xl text-xs font-black uppercase
+                    ${trade.status === "open"
+                        ? "bg-emerald-500/20 text-emerald-400"
+                        : "bg-slate-500/20 text-slate-300"}
+                    ">
+
+                        ${trade.status}
+
+                    </div>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <div class="text-xs uppercase text-slate-500 font-black mb-2">
+                        Money
+                    </div>
+
+                    <div class="font-black text-emerald-400 text-lg">
+                        $${formatNumber(trade.offer.money)}
+                    </div>
+
+                </div>
+
+                <div>
+
+                    <div class="text-xs uppercase text-slate-500 font-black mb-3">
+                        Plants
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+
+                        ${
+                            trade.offer.items.length > 0
+                            ? trade.offer.items.map(i => `
+                                <div class="px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-sm">
+                                    ${i.icon} ${i.name}
+                                </div>
+                            `).join("")
+                            : `
+                                <div class="text-slate-500 text-sm">
+                                    No plants
+                                </div>
+                            `
+                        }
+
+                    </div>
+
+                </div>
+
+                ${
+                    trade.status === "open"
+                    ? `
+                    <button
+                    onclick="joinTrade('${trade.id}')"
+                    class="mt-6 w-full py-3 rounded-2xl
+                    bg-sky-500 hover:bg-sky-400
+                    text-white font-black">
+                        JOIN TRADE
+                    </button>
+                    `
+                    : ""
+                }
+
+            `;
+
+            container.appendChild(div);
+        });
+    });
+}
+
+/* =========================
+   JOIN TRADE
+========================= */
+
+function joinTrade(tradeId) {
+
+    const user = JSON.parse(
+        localStorage.getItem("errorinc_user")
+    );
+
+    if (!user) return;
+
+    const money =
+        Number(
+            prompt("How much money do you offer?")
+        ) || 0;
+
+    if (money > state.credits) {
+        notify("NOT ENOUGH MONEY", "error");
+        return;
+    }
+
+    const items =
+        prompt(
+            "Enter plant names separated by commas"
+        );
+
+    const chosenItems = [];
+
+    if (items) {
+
+        items.split(",").forEach(name => {
+
+            const found =
+                state.inventory.find(i =>
+                    i.name.toLowerCase().trim() ===
+                    name.toLowerCase().trim()
+                );
+
+            if (found) {
+                chosenItems.push(found);
+            }
+        });
+    }
+
+    tradeDB.ref("trades/" + tradeId + "/joinedBy")
+    .set({
+
+        username:
+            user.username || "Unknown",
+
+        offer: {
+            money,
+            items: chosenItems
+        }
+
+    });
+
+    tradeDB.ref("trades/" + tradeId + "/status")
+    .set("pending");
+
+    notify("TRADE OFFER SENT", "success");
+}
+
+</script>
         <section id="tab-event" class="tab-content hidden">
             <h2 class="header-font text-5xl font-black italic uppercase
 text-pink-400 flex items-center gap-4">
@@ -1856,529 +2345,6 @@ function playPackOpenSFX() {
         loadGame();
         init();
     </script>
-<!-- FIREBASE MODULE VERSION -->
-<script type="module">
 
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
-import {
-    getDatabase,
-    ref,
-    push,
-    set,
-    update,
-    onValue,
-    get,
-    remove
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-/* =========================
-   FIREBASE
-========================= */
-
-const firebaseConfig = {
-    apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
-    authDomain: "error-inc.firebaseapp.com",
-    databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
-    projectId: "error-inc",
-    storageBucket: "error-inc.firebasestorage.app",
-    messagingSenderId: "876188868410",
-    appId: "1:876188868410:web:ca7de451707bd9975c7a03"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-/* =========================
-   TRADING STATE
-========================= */
-
-state.trading = {
-    user: null,
-    currentTrade: null
-};
-
-/* =========================
-   INIT
-========================= */
-
-window.initTradingHub = function() {
-
-    const raw =
-        localStorage.getItem("errorinc_user");
-
-    if (!raw) {
-
-        document.getElementById("trading-login")
-        ?.classList.remove("hidden");
-
-        document.getElementById("trading-main")
-        ?.classList.add("hidden");
-
-        return;
-    }
-
-    state.trading.user = JSON.parse(raw);
-
-    document.getElementById("trading-login")
-    ?.classList.add("hidden");
-
-    document.getElementById("trading-main")
-    ?.classList.remove("hidden");
-
-    subscribeTrades();
-};
-
-/* =========================
-   CREATE TRADE
-========================= */
-
-window.createTrade = async function() {
-
-    if (!state.trading.user) return;
-
-    const tradeRef =
-        push(ref(db, "neonMerchantTrades"));
-
-    await set(tradeRef, {
-
-        id: tradeRef.key,
-
-        creator: {
-            username: state.trading.user.username
-        },
-
-        creatorOffer: {
-            money: 0,
-            items: [],
-            accepted: false
-        },
-
-        joiner: null,
-
-        joinerOffer: {
-            money: 0,
-            items: [],
-            accepted: false
-        },
-
-        status: "waiting",
-
-        createdAt: Date.now()
-    });
-
-    notify("TRADE CREATED", "success");
-};
-
-/* =========================
-   LIVE TRADES
-========================= */
-
-window.subscribeTrades = function() {
-
-    const tradesRef =
-        ref(db, "neonMerchantTrades");
-
-    onValue(tradesRef, snap => {
-
-        const data = snap.val() || {};
-
-        const list =
-            document.getElementById("trade-list");
-
-        if (!list) return;
-
-        list.innerHTML = "";
-
-        Object.values(data)
-        .reverse()
-        .forEach(trade => {
-
-            const full =
-                trade.creator &&
-                trade.joiner;
-
-            const div =
-                document.createElement("div");
-
-            div.className =
-                "glass p-6 rounded-3xl border border-white/10";
-
-            div.innerHTML = `
-
-                <div class="flex justify-between items-center">
-
-                    <div>
-
-                        <div class="text-xl font-black">
-                            ${trade.creator.username}'s Trade
-                        </div>
-
-                        <div class="text-slate-400 text-sm">
-                            ${trade.status}
-                        </div>
-
-                    </div>
-
-                    ${
-                        !full
-                        ? `
-                        <button onclick="joinTrade('${trade.id}')"
-                        class="px-5 py-3 rounded-xl bg-sky-500 hover:bg-sky-400 font-black">
-                            JOIN
-                        </button>
-                        `
-                        : `
-                        <div class="text-emerald-400 font-black">
-                            FULL
-                        </div>
-                        `
-                    }
-
-                </div>
-            `;
-
-            list.appendChild(div);
-        });
-    });
-};
-
-/* =========================
-   JOIN
-========================= */
-
-window.joinTrade = async function(id) {
-
-    const tradeRef =
-        ref(db, "neonMerchantTrades/" + id);
-
-    const snap = await get(tradeRef);
-
-    const trade = snap.val();
-
-    if (!trade) return;
-
-    if (trade.joiner) {
-
-        notify("TRADE FULL", "error");
-        return;
-    }
-
-    await update(tradeRef, {
-
-        joiner: {
-            username: state.trading.user.username
-        },
-
-        status: "trading"
-    });
-
-    openTradeRoom(id);
-};
-
-/* =========================
-   OPEN ROOM
-========================= */
-
-window.openTradeRoom = function(id) {
-
-    state.trading.currentTrade = id;
-
-    document.getElementById("trade-room")
-    ?.classList.remove("hidden");
-
-    renderTradeInventory();
-
-    subscribeCurrentTrade();
-};
-
-/* =========================
-   INVENTORY
-========================= */
-
-window.renderTradeInventory = function() {
-
-    const div =
-        document.getElementById("trade-inventory");
-
-    if (!div) return;
-
-    div.innerHTML = "";
-
-    state.inventory.forEach(item => {
-
-        const el =
-            document.createElement("button");
-
-        el.className =
-            "w-full p-3 rounded-xl bg-black/40 border border-white/10 hover:border-sky-400 flex justify-between";
-
-        el.innerHTML = `
-            <span>${item.icon} ${item.name}</span>
-            <span>x${item.count}</span>
-        `;
-
-        el.dataset.itemId = item.id;
-
-        el.onclick = () => {
-
-            el.classList.toggle("border-emerald-400");
-            el.classList.toggle("bg-emerald-500/20");
-        };
-
-        div.appendChild(el);
-    });
-};
-
-/* =========================
-   SUBMIT OFFER
-========================= */
-
-window.submitTradeOffer = async function() {
-
-    const id =
-        state.trading.currentTrade;
-
-    if (!id) return;
-
-    const tradeRef =
-        ref(db, "neonMerchantTrades/" + id);
-
-    const snap =
-        await get(tradeRef);
-
-    const trade =
-        snap.val();
-
-    if (!trade) return;
-
-    const money =
-        Number(document.getElementById("trade-money-input").value) || 0;
-
-    if (money > state.credits) {
-
-        notify("NOT ENOUGH MONEY", "error");
-        return;
-    }
-
-    const selected = [];
-
-    document.querySelectorAll("#trade-inventory button")
-    .forEach(btn => {
-
-        if (
-            btn.classList.contains("border-emerald-400")
-        ) {
-
-            const item =
-                state.inventory.find(i =>
-                    i.id === btn.dataset.itemId
-                );
-
-            if (item) {
-                selected.push(item);
-            }
-        }
-    });
-
-    const isCreator =
-        trade.creator.username ===
-        state.trading.user.username;
-
-    await update(tradeRef, {
-
-        [isCreator
-            ? "creatorOffer"
-            : "joinerOffer"]: {
-
-            money,
-            items: selected,
-            accepted: false
-        }
-    });
-
-    notify("OFFER UPDATED", "success");
-};
-
-/* =========================
-   LIVE ROOM
-========================= */
-
-window.subscribeCurrentTrade = function() {
-
-    const id =
-        state.trading.currentTrade;
-
-    if (!id) return;
-
-    onValue(
-        ref(db, "neonMerchantTrades/" + id),
-
-        snap => {
-
-            const trade = snap.val();
-
-            if (!trade) return;
-
-            const isCreator =
-                trade.creator.username ===
-                state.trading.user.username;
-
-            const other =
-                isCreator
-                ? trade.joinerOffer
-                : trade.creatorOffer;
-
-            const div =
-                document.getElementById("trade-other-offer");
-
-            if (!div) return;
-
-            div.innerHTML = `
-
-                <div>
-                    💰 $${formatNumber(other.money || 0)}
-                </div>
-
-                <div class="space-y-2">
-                    ${(other.items || []).map(i => `
-                        <div class="bg-black/30 p-2 rounded-lg">
-                            ${i.icon} ${i.name}
-                        </div>
-                    `).join("")}
-                </div>
-            `;
-
-            if (
-                trade.creatorOffer.accepted &&
-                trade.joinerOffer.accepted
-            ) {
-                finalizeTrade(trade);
-            }
-        }
-    );
-};
-
-/* =========================
-   ACCEPT
-========================= */
-
-window.acceptTrade = async function() {
-
-    const id =
-        state.trading.currentTrade;
-
-    if (!id) return;
-
-    const tradeRef =
-        ref(db, "neonMerchantTrades/" + id);
-
-    const snap =
-        await get(tradeRef);
-
-    const trade =
-        snap.val();
-
-    if (!trade) return;
-
-    const isCreator =
-        trade.creator.username ===
-        state.trading.user.username;
-
-    await update(tradeRef, {
-
-        [isCreator
-            ? "creatorOffer/accepted"
-            : "joinerOffer/accepted"]: true
-    });
-
-    notify("TRADE ACCEPTED", "success");
-};
-
-/* =========================
-   FINALIZE
-========================= */
-
-window.finalizeTrade = async function(trade) {
-
-    const username =
-        state.trading.user.username;
-
-    const isCreator =
-        trade.creator.username === username;
-
-    const myOffer =
-        isCreator
-        ? trade.creatorOffer
-        : trade.joinerOffer;
-
-    const otherOffer =
-        isCreator
-        ? trade.joinerOffer
-        : trade.creatorOffer;
-
-    state.credits -= (myOffer.money || 0);
-    state.credits += (otherOffer.money || 0);
-
-    (myOffer.items || []).forEach(item => {
-
-        const inv =
-            state.inventory.find(i =>
-                i.id === item.id
-            );
-
-        if (!inv) return;
-
-        inv.count--;
-
-        if (inv.count <= 0) {
-
-            const idx =
-                state.inventory.findIndex(i =>
-                    i.id === item.id
-                );
-
-            if (idx !== -1) {
-                state.inventory.splice(idx, 1);
-            }
-        }
-    });
-
-    (otherOffer.items || []).forEach(item => {
-
-        addToInventory({
-            ...item,
-            count: 1
-        });
-    });
-
-    saveGame();
-
-    updateFullUI();
-
-    notify("TRADE COMPLETED!", "success");
-
-    await remove(
-        ref(db, "neonMerchantTrades/" + trade.id)
-    );
-
-    leaveTrade();
-};
-
-/* =========================
-   LEAVE
-========================= */
-
-window.leaveTrade = function() {
-
-    state.trading.currentTrade = null;
-
-    document.getElementById("trade-room")
-    ?.classList.add("hidden");
-};
-
-</script>
 </body>
 </html>
