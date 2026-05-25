@@ -789,10 +789,11 @@ function loadTrades() {
         .reverse()
         .forEach(trade => {
 
-            const firstOffer =
-                Object.values(
-                    trade.offers || {}
-                )[0];
+            const offers = Object.values(trade.offers || {});
+
+if (offers.length === 0) return;
+
+const firstOffer = offers[0];
 
             if (!firstOffer) return;
 
