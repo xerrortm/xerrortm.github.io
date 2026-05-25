@@ -1063,6 +1063,10 @@ function watchTrade(tradeId) {
             closeTradeView();
             return;
         }
+        if (trade.processing && trade.status === "completed") {
+            checkTradeCompletion(trade);
+            return;
+        }
         if (trade.processing === true && tradeCompleted) return;
         const offers =
             trade.offers || {};
