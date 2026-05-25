@@ -1170,8 +1170,6 @@ function checkTradeCompletion(trade) {
     tradeCompleted = true;
 
     const ref = tradeDB.ref("trades/" + trade.id);
-
-    // 🔒 lock trade FIRST
     ref.update({
         processing: true,
         status: "completed"
@@ -1187,18 +1185,20 @@ function checkTradeCompletion(trade) {
         const offers = Object.values(freshTrade.offers || {});
         const user = getUser();
 
-        const myOffer =
-            offers.find(o => o.username === user.username);
+        const myOffer = offers[user.username];
+        let otherOffer = null;
 
-        const otherOffer =
-            offers.find(o => o.username !== user.username);
-
+        for (let key in offers) {
+            if (key !== user.username) {
+                otherOffer = offers[key];
+                break;
+            }
+        }
         if (!myOffer || !otherOffer) {
             processingTradeLocal = false;
             return;
         }
-
-        // 💸 REMOVE MY ITEMS
+        
         (myOffer.items || []).forEach(item => {
 
             const inv = state.inventory.find(i => i.id === item.id);
