@@ -274,13 +274,6 @@
             </div>
             <div id="inventory-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6"></div>
         </section>
-<!-- ========================= -->
-<!-- TRADING HUB TAB -->
-<!-- ========================= -->
-
-<button id="btn-trading" class="px-6 py-2 rounded-md font-bold text-sm text-slate-400 hover:text-white">
-    Trading Hub
-</button>
 
 <div id="tab-trading" class="tab-content hidden">
 
@@ -547,10 +540,6 @@
 
 <script>
 
-/* =========================
-   FIREBASE
-========================= */
-
 const firebaseConfig = {
     apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
     authDomain: "error-inc.firebaseapp.com",
@@ -562,19 +551,365 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
-
 const tradeDB = firebase.database();
-
-/* =========================
-   TRADE STATE
-========================= */
 
 let currentTradeId = null;
 let selectedTradeOffer = [];
+document.getElementById("btn-trading").onclick = () => {
+    switchTab("trading");
+    initTradingHub();
+};
 
-/* =========================
-   OPEN TRADE
-========================= */
+
+function initTradingHub() {
+
+    let rawUser =
+        localStorage.getItem("errorinc_user");
+
+    let user = null;
+
+    try {
+        user = JSON.parse(rawUser);
+    } catch {
+        user = {
+            username: rawUser
+        };
+    }
+
+    if (!user || !user.username) {
+
+        document.getElementById("trading-login")
+        .classList.remove("hidden");
+
+        document.getElementById("trading-hub")
+        .classList.add("hidden");
+
+        return;
+    }
+
+    document.getElementById("trading-login")
+    .classList.add("hidden");
+
+    document.getElementById("trading-hub")
+    .classList.remove("hidden");
+
+    loadTrades();
+}
+
+function openCreateTradeModal() {
+
+    selectedTradeOffer = [];
+
+    const container =
+        document.getElementById("trade-inventory");
+
+    container.innerHTML = "";
+
+    state.inventory.forEach(item => {
+
+        const div = document.createElement("div");
+
+        div.className =
+            "glass p-4 rounded-2xl border border-white/10";
+
+        div.innerHTML = `
+
+            <div class="text-4xl mb-2">
+                ${item.icon}
+            </div>
+
+            <div class="font-black">
+                ${item.name}
+            </div>
+
+            <div class="text-xs text-slate-400 mb-3">
+                OWNED: ${item.count}
+            </div>
+
+            <input
+                id="create_amt_${item.id}"
+                type="number"
+                min="0"
+                max="${item.count}"
+                value="0"
+                class="w-full bg-black/40 border border-white/10
+                rounded-xl p-2 mb-3"
+            >
+
+            <button
+                onclick="addCreateTradeItem('${item.id}')"
+                class="w-full py-2 rounded-xl
+                bg-sky-500 hover:bg-sky-400
+                text-white font-black">
+                ADD
+            </button>
+
+        `;
+
+        container.appendChild(div);
+    });
+
+    document.getElementById("create-trade-modal")
+    .classList.remove("hidden");
+}
+
+function closeCreateTradeModal() {
+
+    document.getElementById("create-trade-modal")
+    .classList.add("hidden");
+}
+
+function addCreateTradeItem(itemId) {
+
+    const item =
+        state.inventory.find(i => i.id === itemId);
+
+    if (!item) return;
+
+    const amount =
+        Number(
+            document.getElementById(
+                "create_amt_" + itemId
+            ).value
+        );
+
+    if (amount <= 0) return;
+
+    if (amount > item.count) {
+
+        notify("NOT ENOUGH ITEMS", "error");
+        return;
+    }
+
+    const existing =
+        selectedTradeOffer.find(
+            i => i.id === item.id
+        );
+
+    if (existing) {
+
+        existing.amount = amount;
+
+    } else {
+
+        selectedTradeOffer.push({
+
+            id: item.id,
+            name: item.name,
+            icon: item.icon,
+            rarity: item.rarity,
+            amount: amount
+
+        });
+    }
+
+    notify(
+        `${item.name} x${amount} added`,
+        "success"
+    );
+}
+
+function createTrade() {
+
+    let rawUser =
+        localStorage.getItem("errorinc_user");
+
+    let user = null;
+
+    try {
+        user = JSON.parse(rawUser);
+    } catch {
+        user = {
+            username: rawUser
+        };
+    }
+
+    if (!user || !user.username) {
+
+        notify("NOT LOGGED IN", "error");
+        return;
+    }
+
+    const money =
+        Number(
+            document.getElementById(
+                "trade-money"
+            ).value
+        ) || 0;
+
+    if (money > state.credits) {
+
+        notify("NOT ENOUGH MONEY", "error");
+        return;
+    }
+
+    const tradeId =
+        "trade_" + Date.now();
+
+    tradeDB.ref(
+        "trades/" + tradeId
+    ).set({
+        id: tradeId,
+        createdAt: Date.now(),
+        status: "open",
+        offers: {
+            [user.username]: {
+
+                username: user.username,
+                accepted: false,
+                money: money,
+                items: selectedTradeOffer
+
+            }
+        }
+    });
+
+    notify(
+        "TRADE CREATED",
+        "success"
+    );
+
+    closeCreateTradeModal();
+}
+
+function loadTrades() {
+
+    tradeDB.ref("trades")
+    .on("value", snapshot => {
+
+        const trades =
+            snapshot.val() || {};
+
+        const container =
+            document.getElementById("trade-list");
+
+        container.innerHTML = "";
+
+        Object.values(trades)
+        .reverse()
+        .forEach(trade => {
+
+            const firstOffer =
+                Object.values(
+                    trade.offers || {}
+                )[0];
+
+            if (!firstOffer) return;
+
+            const div =
+                document.createElement("div");
+
+            div.className =
+                "glass p-6 rounded-3xl border border-white/10";
+
+            div.innerHTML = `
+
+                <div class="flex justify-between items-center mb-5">
+
+                    <div>
+
+                        <div class="text-2xl font-black">
+                            ${firstOffer.username}
+                        </div>
+
+                        <div class="text-slate-400 text-sm">
+                            Created a trade
+                        </div>
+
+                    </div>
+
+                    <div class="
+                    px-4 py-2 rounded-xl
+                    ${
+                        trade.status === "completed"
+                        ? "bg-emerald-500/20 text-emerald-400"
+                        : "bg-sky-500/20 text-sky-400"
+                    }
+                    font-black text-xs uppercase">
+
+                        ${trade.status}
+
+                    </div>
+
+                </div>
+
+                <!-- MONEY -->
+
+                <div class="mb-5">
+
+                    <div class="text-xs uppercase font-black
+                    text-slate-500 mb-2">
+                        Money Offer
+                    </div>
+
+                    <div class="text-emerald-400
+                    font-black text-xl">
+
+                        $${formatNumber(firstOffer.money)}
+
+                    </div>
+
+                </div>
+
+                <!-- ITEMS -->
+
+                <div>
+
+                    <div class="text-xs uppercase font-black
+                    text-slate-500 mb-3">
+                        Plants
+                    </div>
+
+                    <div class="flex flex-wrap gap-2">
+
+                        ${
+                            firstOffer.items.length > 0
+                            ? firstOffer.items.map(i => `
+
+                                <div class="
+                                px-3 py-2 rounded-xl
+                                bg-black/40 border border-white/10">
+
+                                    ${i.icon}
+                                    ${i.name}
+                                    x${i.amount}
+
+                                </div>
+
+                            `).join("")
+                            : `
+                                <div class="text-slate-500 text-sm">
+                                    No plants
+                                </div>
+                            `
+                        }
+
+                    </div>
+
+                </div>
+
+                ${
+                    trade.status !== "completed"
+                    ? `
+                    <button
+                    onclick="joinTrade('${trade.id}')"
+                    class="mt-6 w-full py-3 rounded-2xl
+                    bg-sky-500 hover:bg-sky-400
+                    text-white font-black">
+
+                        OPEN TRADE
+
+                    </button>
+                    `
+                    : ""
+                }
+
+            `;
+
+            container.appendChild(div);
+        });
+    });
+}
 
 function joinTrade(tradeId) {
 
@@ -590,9 +925,7 @@ function joinTrade(tradeId) {
     watchTrade(tradeId);
 }
 
-/* =========================
-   CLOSE
-========================= */
+
 
 function closeTradeView() {
 
@@ -602,9 +935,6 @@ function closeTradeView() {
     currentTradeId = null;
 }
 
-/* =========================
-   YOUR INVENTORY
-========================= */
 
 function renderYourTradeInventory() {
 
