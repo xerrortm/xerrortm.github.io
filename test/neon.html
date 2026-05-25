@@ -1159,19 +1159,9 @@ function watchTrade(tradeId) {
         }
 
         if (otherOffer) {
-
-    document.getElementById("other-player-name")
-    .innerText =
-        otherOffer.username;
-
-    document.getElementById("other-money-display")
-    .innerText =
-        "$" + formatNumber(otherOffer.money || 0);
-
-    document.getElementById("other-offer-items")
-    .innerHTML =
-        (otherOffer.items || []).map(i => `
-
+            document.getElementById("other-player-name").innerText = otherOffer.username;
+            document.getElementById("other-money-display").innerText = "$" + formatNumber(otherOffer.money || 0);
+            document.getElementById("other-offer-items").innerHTML = (otherOffer.items || []).map(i => `
             <div class="glass p-3 rounded-2xl
             border border-white/10">
 
@@ -1191,31 +1181,12 @@ function watchTrade(tradeId) {
 
         `).join("");
 
-} else {
-    document.getElementById("other-player-name")
-    .innerText = "Waiting for player...";
-
-    document.getElementById("other-money-display")
-    .innerText =
-        "$0";
-
-    document.getElementById("other-offer-items")
-    .innerHTML =
-        "<div class='text-slate-500'>No offer yet</div>";
-} else {
-
-            document.getElementById("other-player-name")
-            .innerText = "Waiting for player...";
-
-            document.getElementById("other-money-display")
-            .innerText = "$0";
-
-            document.getElementById("other-offer-items")
-            .innerHTML = "";
+        } else {
+            document.getElementById("other-player-name").innerText = "Waiting for player...";
+            document.getElementById("other-money-display").innerText = "$0";
+            document.getElementById("other-offer-items").innerHTML = "<div class='text-slate-500'>No offer yet</div>";
         }
-
         checkTradeCompletion();
-
     });
 }
 function checkTradeCompletion() {
