@@ -542,6 +542,7 @@ const tradeDB = firebase.database();
 let currentTradeId = null;
 let selectedTradeOffer = [];
 let tradeCompleted = false;
+let processingTradeLocal = false;
 
 document.getElementById("btn-trading").onclick = () => {
     switchTab("trading");
@@ -1052,20 +1053,17 @@ function acceptTrade() {
 }
 
 function watchTrade(tradeId) {
-
     const user = getUser();
 
     tradeDB.ref("trades/" + tradeId)
     .on("value", snapshot => {
 
         const trade = snapshot.val();
-
         if (!trade) {
-
             closeTradeView();
             return;
         }
-
+        if (trade.processing === true && tradeCompleted) return;
         const offers =
             trade.offers || {};
 
@@ -1153,7 +1151,7 @@ function watchTrade(tradeId) {
 function checkTradeCompletion(trade) {
 
     if (!trade || !currentTradeId) return;
-    if (tradeCompleted) return;
+    if (tradeCompleted || processingTradeLocal) return;
 
     const offers = Object.values(trade.offers || {});
 
@@ -1164,74 +1162,90 @@ function checkTradeCompletion(trade) {
     if (!ready) return;
     if (trade.processing === true) return;
 
+    processingTradeLocal = true;
     tradeCompleted = true;
 
-    tradeDB.ref("trades/" + trade.id).update({
-        processing: true
-    });
-tradeDB.ref("trades/" + trade.id).once("value").then(snap => {
+    const ref = tradeDB.ref("trades/" + trade.id);
 
-    const freshTrade = snap.val();
-    if (!freshTrade) return;
+    // 🔒 lock trade FIRST
+    ref.update({
+        processing: true,
+        status: "completed"
+    }).then(() => {
 
-    const offers = Object.values(freshTrade.offers || {});
+        return ref.once("value");
 
-    const user = getUser();
+    }).then(snap => {
 
-    const myOffer = offers.find(o => o.username === user.username);
-    const otherOffer = offers.find(o => o.username !== user.username);
+        const freshTrade = snap.val();
+        if (!freshTrade) return;
 
-    if (!myOffer || !otherOffer) return;
+        const offers = Object.values(freshTrade.offers || {});
+        const user = getUser();
 
-    /* REMOVE YOUR ITEMS */
-    myOffer.items.forEach(item => {
+        const myOffer =
+            offers.find(o => o.username === user.username);
 
-        const inv = state.inventory.find(i => i.id === item.id);
-        if (!inv) return;
+        const otherOffer =
+            offers.find(o => o.username !== user.username);
 
-        inv.count -= item.amount;
-
-        if (inv.count <= 0) {
-            state.inventory = state.inventory.filter(i => i.id !== item.id);
+        if (!myOffer || !otherOffer) {
+            processingTradeLocal = false;
+            return;
         }
+
+        // 💸 REMOVE MY ITEMS
+        (myOffer.items || []).forEach(item => {
+
+            const inv = state.inventory.find(i => i.id === item.id);
+            if (!inv) return;
+
+            inv.count -= item.amount;
+
+            if (inv.count <= 0) {
+                state.inventory =
+                    state.inventory.filter(i => i.id !== item.id);
+            }
+        });
+
+        // 🎁 GIVE OTHER ITEMS
+        (otherOffer.items || []).forEach(item => {
+
+            const existing = state.inventory.find(i => i.id === item.id);
+
+            if (existing) {
+                existing.count += item.amount;
+            } else {
+                state.inventory.push({
+                    id: item.id,
+                    name: item.name,
+                    icon: item.icon,
+                    rarity: item.rarity,
+                    count: item.amount,
+                    baseValue: 1000
+                });
+            }
+        });
+
+        // 💰 MONEY
+        state.credits -= myOffer.money;
+        state.credits += otherOffer.money;
+
+        saveGame();
+        updateFullUI();
+
+        notify("TRADE COMPLETED!", "success");
+
+        closeTradeView();
+
+        // 🧹 cleanup AFTER everything is done
+        setTimeout(() => {
+            tradeDB.ref("trades/" + trade.id).remove();
+        }, 1500);
+
+        processingTradeLocal = false;
     });
-
-    /* GIVE OTHER ITEMS */
-    otherOffer.items.forEach(item => {
-
-        const existing = state.inventory.find(i => i.id === item.id);
-
-        if (existing) {
-            existing.count += item.amount;
-        } else {
-            state.inventory.push({
-                id: item.id,
-                name: item.name,
-                icon: item.icon,
-                rarity: item.rarity,
-                count: item.amount,
-                baseValue: 1000
-            });
-        }
-    });
-
-    /* MONEY */
-    state.credits -= myOffer.money;
-    state.credits += otherOffer.money;
-
-    saveGame();
-    updateFullUI();
-
-    notify("TRADE COMPLETED!", "success");
-
-    setTimeout(() => {
-        tradeDB.ref("trades/" + trade.id).remove();
-    }, 3000);
-
-    closeTradeView();
-});
 }
-
 </script>
         <section id="tab-event" class="tab-content hidden">
             <h2 class="header-font text-5xl font-black italic uppercase
