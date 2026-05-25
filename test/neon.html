@@ -898,9 +898,7 @@ function loadTrades() {
 function joinTrade(tradeId) {
 
     currentTradeId = tradeId;
-
     selectedTradeOffer = [];
-
     const userRaw =
         localStorage.getItem("errorinc_user");
 
@@ -1074,17 +1072,13 @@ function acceptTrade() {
     .then(snapshot => {
 
         const oldData = snapshot.val() || {};
-
         tradeDB.ref(
             "trades/" + currentTradeId + "/offers/" + user.username
         ).set({
 
             username: user.username,
-
             accepted: !oldData.accepted,
-
             money: money,
-
             items: selectedTradeOffer
 
         });
@@ -1214,6 +1208,7 @@ function watchTrade(tradeId) {
 function checkTradeCompletion() {
 
     if (!currentTradeId) return;
+    if (trade.status === "completed") return;
 
     const userRaw =
         localStorage.getItem("errorinc_user");
@@ -1239,85 +1234,102 @@ function checkTradeCompletion() {
         const offers =
             Object.values(trade.offers || {});
 
-        if (offers.length < 2) return;
-
         if (
-            !offers.every(o => o.accepted)
-        ) return;
+    offers.length >= 2 &&
+    offers.every(o => o.accepted) &&
+    trade.status !== "completed"
+) {
 
-        const myOffer =
-            offers.find(o =>
-                o.username === user.username
-            );
+    tradeDB.ref(
+        "trades/" + currentTradeId
+    ).update({
+        status: "completed"
+    });
 
-        const otherOffer =
-            offers.find(o =>
-                o.username !== user.username
-            );
-
-        state.credits -= myOffer.money;
-        state.credits += otherOffer.money;
-
-        myOffer.items.forEach(item => {
-
-            const inv =
-                state.inventory.find(
-                    i => i.id === item.id
-                );
-
-            if (!inv) return;
-
-            inv.count -= item.amount;
-
-            if (inv.count <= 0) {
-
-                state.inventory =
-                    state.inventory.filter(
-                        i => i.id !== item.id
-                    );
-            }
-        });
-
-        otherOffer.items.forEach(item => {
-
-            const existing =
-                state.inventory.find(
-                    i => i.id === item.id
-                );
-
-            if (existing) {
-
-                existing.count += item.amount;
-
-            } else {
-
-                state.inventory.push({
-
-                    id: item.id,
-                    name: item.name,
-                    icon: item.icon,
-                    rarity: item.rarity,
-                    count: item.amount,
-                    baseValue: 1000
-
-                });
-            }
-        });
-
-        notify(
-            "TRADE COMPLETED!",
-            "success"
+    const myOffer =
+        offers.find(o =>
+            o.username === user.username
         );
 
-        saveGame();
+    const otherOffer =
+        offers.find(o =>
+            o.username !== user.username
+        );
+
+    /* REMOVE YOUR ITEMS */
+
+    myOffer.items.forEach(item => {
+
+        const inv =
+            state.inventory.find(
+                i => i.id === item.id
+            );
+
+        if (!inv) return;
+
+        inv.count -= item.amount;
+
+        if (inv.count <= 0) {
+
+            state.inventory =
+                state.inventory.filter(
+                    i => i.id !== item.id
+                );
+        }
+    });
+
+    /* GIVE OTHER ITEMS */
+
+    otherOffer.items.forEach(item => {
+
+        const existing =
+            state.inventory.find(
+                i => i.id === item.id
+            );
+
+        if (existing) {
+
+            existing.count += item.amount;
+
+        } else {
+
+            state.inventory.push({
+
+                id: item.id,
+                name: item.name,
+                icon: item.icon,
+                rarity: item.rarity,
+                count: item.amount,
+                baseValue: 1000
+
+            });
+        }
+    });
+
+    /* MONEY */
+
+    state.credits -= myOffer.money;
+    state.credits += otherOffer.money;
+
+    saveGame();
+
+    notify(
+        "TRADE COMPLETED!",
+        "success"
+    );
+
+    updateFullUI();
+
+    setTimeout(() => {
 
         tradeDB.ref(
             "trades/" + currentTradeId
         ).remove();
 
-        closeTradeView();
+    }, 5000);
 
-        updateFullUI();
+    closeTradeView();
+}
     });
 }
 
