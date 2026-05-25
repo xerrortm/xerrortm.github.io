@@ -490,17 +490,14 @@
 
                 <!-- MONEY -->
                 <div class="mb-5">
-
                     <div class="font-black mb-2">
                         Money Offer
                     </div>
-
                     <div id="other-money-display"
                     class="bg-black/40 rounded-2xl p-4
                     text-emerald-400 font-black text-xl">
                         $0
                     </div>
-
                 </div>
 
                 <!-- OFFER ITEMS -->
@@ -1066,34 +1063,33 @@ function acceptTrade() {
         ) || 0;
 
     if (money > state.credits) {
+
         notify("NOT ENOUGH MONEY", "error");
         return;
     }
 
     tradeDB.ref(
-        "trades/" + currentTradeId + "/offers/" +
-        user.username
-    ).set({
+        "trades/" + currentTradeId + "/offers/" + user.username
+    ).once("value")
+    .then(snapshot => {
 
-        username: user.username,
-        accepted:
-            !(
-            document.getElementById("your-accept-status").innerText === "ACCEPTED"
-            ),
-        money: money,
-        items: selectedTradeOffer
+        const oldData = snapshot.val() || {};
+
+        tradeDB.ref(
+            "trades/" + currentTradeId + "/offers/" + user.username
+        ).set({
+
+            username: user.username,
+
+            accepted: !oldData.accepted,
+
+            money: money,
+
+            items: selectedTradeOffer
+
+        });
 
     });
-
-    document.getElementById("your-accept-status")
-    .className =
-        "px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 font-black text-xs uppercase";
-
-    document.getElementById("your-accept-status")
-    .innerText =
-        "ACCEPTED";
-
-    checkTradeCompletion();
 }
 function watchTrade(tradeId) {
 
@@ -1203,6 +1199,13 @@ function watchTrade(tradeId) {
             document.getElementById("other-offer-items")
             .innerHTML =
                 "<div class='text-slate-500'>No offer yet</div>";
+        }
+        if (otherOffer.accepted) {
+            document.getElementById("other-accept-status").className = "px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 font-black text-xs uppercase";
+            document.getElementById("other-accept-status").innerText = "ACCEPTED";
+        } else {
+            document.getElementById("other-accept-status").className = "px-4 py-2 rounded-xl bg-red-500/20 text-red-400 font-black text-xs uppercase";
+            document.getElementById("other-accept-status").innerText = "NOT ACCEPTED";
         }
         checkTradeCompletion();
     });
