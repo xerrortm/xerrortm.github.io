@@ -768,7 +768,8 @@ function loadTrades() {
         .reverse()
         .forEach(trade => {
 
-const offers = Object.values(trade.offers || {});
+const offers = Object.values(trade.offers || {})
+    .filter(o => o && typeof o === "object" && o.username);
 
 const myOffer = offers.find(o => o.username === user.username);
 const otherOffer = offers.find(o => o.username !== user.username);
