@@ -1,4 +1,5 @@
-<html lang="en"><head>
+<html lang="en">
+    <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Neon Merchant: Evolution</title>
@@ -353,7 +354,12 @@ text-pink-400 flex items-center gap-4">
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
- 
+        const BUY_SOUND = new Audio("https://raw.githubusercontent.com/xerrortm/xerrortm.github.io/refs/heads/main/media/kaching.mp3");
+        BUY_SOUND.preload = "auto";
+        BUY_SOUND.volume = 0.7;
+        const SFX_PACK_OPEN = new Audio("https://raw.githubusercontent.com/xerrortm/xerrortm.github.io/refs/heads/main/media/pack-open.mp3");
+        SFX_PACK_OPEN.preload = "auto";
+        SFX_PACK_OPEN.volume = 0.7;
         function resize() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
@@ -1035,6 +1041,7 @@ text-pink-400 flex items-center gap-4">
             state.credits -= pack.cost;
             openPackSequence(shop, pack);
             updateFastUI();
+            playBuySound();
         }
  
         function buyProduct(shopId, productId) {
@@ -1059,6 +1066,7 @@ text-pink-400 flex items-center gap-4">
             });
  
             notify(`${product.name} purchased!`, "success");
+            playBuySound();
  
             updateFullUI();
         }
@@ -1078,6 +1086,7 @@ text-pink-400 flex items-center gap-4">
             modal.classList.remove('hidden');
  
             const roll = () => {
+                playPackOpenSFX();
                 visual.removeEventListener('click', roll);
                 visual.classList.add('animate-shake');
                 status.innerText = "Opening...";
@@ -1190,7 +1199,7 @@ text-pink-400 flex items-center gap-4">
                 }
             });
             updateFullUI();
- 
+            playBuySound();
         }
  
         function sellAllDuplicates() {
@@ -1808,6 +1817,18 @@ function getQuestResetTimeLeft() {
 
     return `${minutes}m ${seconds}s`;
 }
+function playBuySound() {
+    try {
+        BUY_SOUND.currentTime = 0;
+        BUY_SOUND.play();
+    } catch (e) {}
+}
+function playPackOpenSFX() {
+    try {
+        SFX_PACK_OPEN.currentTime = 0;
+        SFX_PACK_OPEN.play();
+    } catch (e) {}
+}
         function init() {
             loadGame();
             initDailySystem();
@@ -1816,6 +1837,16 @@ function getQuestResetTimeLeft() {
             if (state.event.quests.length === 0 || shouldResetQuests()) {
                 generateDailyQuests();
             }
+            BUY_SOUND.load();
+            BUY_SOUND.play().then(() => {
+                BUY_SOUND.pause();
+                BUY_SOUND.currentTime = 0;
+            }).catch(() => {});
+            SFX_PACK_OPEN.load();
+            SFX_PACK_OPEN.play().then(() => {
+                SFX_PACK_OPEN.pause();
+                SFX_PACK_OPEN.currentTime = 0;
+            }).catch(() => {});
             setInterval(() => {
                 const inc = state.inventory.reduce((a, i) =>
                     a + (RARITIES[i.rarity].income * i.count), 0);
