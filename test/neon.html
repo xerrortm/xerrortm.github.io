@@ -769,10 +769,14 @@ function loadTrades() {
         .forEach(trade => {
 
 const offers = Object.values(trade.offers || {})
-    .filter(o => o && typeof o === "object" && o.username);
-
-const myOffer = offers.find(o => o.username === user.username);
-const otherOffer = offers.find(o => o.username !== user.username);
+    .filter(o =>
+        o &&
+        typeof o === "object" &&
+        o.username &&
+        Array.isArray(o.items)
+    );
+const myOffer = offers.find(o => o.username === user?.username) || null;
+const otherOffer = offers.find(o => o.username !== user?.username) || null;
 
 if (offers.length === 0) return;
 
