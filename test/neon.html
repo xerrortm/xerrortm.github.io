@@ -752,9 +752,9 @@ function createTrade() {
         id: tradeId,
         createdAt: Date.now(),
         status: "open",
+        creator: user.username,
         offers: {
             [user.username]: {
-
                 username: user.username,
                 accepted: false,
                 money: money,
@@ -762,6 +762,7 @@ function createTrade() {
 
             }
         }
+        
     });
 
     notify(
@@ -789,10 +790,7 @@ function loadTrades() {
         .reverse()
         .forEach(trade => {
 
-            const firstOffer =
-                Object.values(
-                    trade.offers || {}
-                )[0];
+            const firstOffer = trade.offers?.[trade.creator];
 
             if (!firstOffer) return;
 
@@ -1132,17 +1130,8 @@ function watchTrade(tradeId) {
 
         const offers = trade.offers || {};
 
-        // YOUR OFFER
         const myOffer = offers[user.username];
-
-        // OTHER PLAYER
-        const otherOffer =
-            Object.values(offers)
-            .find(o => o.username !== user.username);
-
-        // -------------------
-        // YOUR SIDE
-        // -------------------
+        const otherOffer = Object.values(offers).find(o => o.username !== user.username);
 
         if (myOffer) {
 
@@ -1169,63 +1158,51 @@ function watchTrade(tradeId) {
             }
         }
 
-        // -------------------
-        // OTHER SIDE
-        // -------------------
-
         if (otherOffer) {
 
-            document.getElementById("other-player-name")
-            .innerText =
-                otherOffer.username;
+    document.getElementById("other-player-name")
+    .innerText =
+        otherOffer.username;
 
-            document.getElementById("other-money-display")
-            .innerText =
-                "$" + formatNumber(otherOffer.money || 0);
+    document.getElementById("other-money-display")
+    .innerText =
+        "$" + formatNumber(otherOffer.money || 0);
 
-            document.getElementById("other-offer-items")
-            .innerHTML =
-                (otherOffer.items || []).map(i => `
+    document.getElementById("other-offer-items")
+    .innerHTML =
+        (otherOffer.items || []).map(i => `
 
-                    <div class="glass p-3 rounded-2xl
-                    border border-white/10">
+            <div class="glass p-3 rounded-2xl
+            border border-white/10">
 
-                        <div class="text-3xl mb-2">
-                            ${i.icon}
-                        </div>
+                <div class="text-3xl mb-2">
+                    ${i.icon}
+                </div>
 
-                        <div class="font-black text-sm">
-                            ${i.name}
-                        </div>
+                <div class="font-black text-sm">
+                    ${i.name}
+                </div>
 
-                        <div class="text-xs text-slate-400">
-                            x${i.amount}
-                        </div>
+                <div class="text-xs text-slate-400">
+                    x${i.amount}
+                </div>
 
-                    </div>
+            </div>
 
-                `).join("");
+        `).join("");
 
-            if (otherOffer.accepted) {
+} else {
+    document.getElementById("other-player-name")
+    .innerText = "Waiting for player...";
 
-                document.getElementById("other-accept-status")
-                .className =
-                    "px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 font-black text-xs uppercase";
+    document.getElementById("other-money-display")
+    .innerText =
+        "$0";
 
-                document.getElementById("other-accept-status")
-                .innerText = "ACCEPTED";
-
-            } else {
-
-                document.getElementById("other-accept-status")
-                .className =
-                    "px-4 py-2 rounded-xl bg-red-500/20 text-red-400 font-black text-xs uppercase";
-
-                document.getElementById("other-accept-status")
-                .innerText = "NOT ACCEPTED";
-            }
-
-        } else {
+    document.getElementById("other-offer-items")
+    .innerHTML =
+        "<div class='text-slate-500'>No offer yet</div>";
+} else {
 
             document.getElementById("other-player-name")
             .innerText = "Waiting for player...";
