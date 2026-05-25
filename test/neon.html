@@ -436,11 +436,9 @@
 
                 <!-- MONEY -->
                 <div class="mb-5">
-
                     <div class="font-black mb-2">
                         Money Offer
                     </div>
-
                     <input
                         id="your-trade-money"
                         type="number"
@@ -449,30 +447,21 @@
                         class="w-full bg-black/40 border border-white/10
                         rounded-2xl p-4 outline-none"
                     >
-
                 </div>
-
-                <!-- INVENTORY -->
+                <div id="your-current-offer" class="flex flex-wrap gap-2 mt-4"></div>
                 <div>
-
                     <div class="font-black mb-3">
                         Your Inventory
                     </div>
-
-                    <div id="your-trade-items"
-                    class="grid grid-cols-2 gap-3
-                    max-h-[450px] overflow-y-auto">
+                    <div id="your-trade-items"class="grid grid-cols-2 gap-3 max-h-[450px] overflow-y-auto">
                     </div>
-
                 </div>
-
                 <button onclick="acceptTrade()"
                 class="mt-6 w-full py-4 rounded-2xl
                 bg-emerald-500 hover:bg-emerald-400
                 text-black font-black">
                     ACCEPT TRADE
                 </button>
-
             </div>
 
             <!-- OTHER SIDE -->
@@ -1130,16 +1119,16 @@ function watchTrade(tradeId) {
 
         const offers = trade.offers || {};
 
-        const myOffer = offers[user.username];
-        const otherOffer = Object.values(offers).find(o => o.username !== user.username);
+        const myOffer =
+            offers[user.username];
+
+        const otherOffer =
+            Object.values(offers)
+            .find(o => o.username !== user.username);
 
         if (myOffer) {
 
-            document.getElementById("your-trade-money")
-            .value = myOffer.money || 0;
-
             if (myOffer.accepted) {
-
                 document.getElementById("your-accept-status")
                 .className =
                     "px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 font-black text-xs uppercase";
@@ -1148,7 +1137,6 @@ function watchTrade(tradeId) {
                 .innerText = "ACCEPTED";
 
             } else {
-
                 document.getElementById("your-accept-status")
                 .className =
                     "px-4 py-2 rounded-xl bg-red-500/20 text-red-400 font-black text-xs uppercase";
@@ -1156,39 +1144,70 @@ function watchTrade(tradeId) {
                 document.getElementById("your-accept-status")
                 .innerText = "NOT ACCEPTED";
             }
+            document.getElementById("your-current-offer").innerHTML =
+                (myOffer.items || []).map(i => `
+
+                    <div class="glass p-3 rounded-2xl border border-white/10">
+
+                        <div class="text-3xl mb-2">
+                            ${i.icon}
+                        </div>
+
+                        <div class="font-black text-sm">
+                            ${i.name}
+                        </div>
+
+                        <div class="text-xs text-slate-400">
+                            x${i.amount}
+                        </div>
+
+                    </div>
+
+                `).join("");
+
         }
 
         if (otherOffer) {
-            document.getElementById("other-player-name").innerText = otherOffer.username;
-            document.getElementById("other-money-display").innerText = "$" + formatNumber(otherOffer.money || 0);
-            document.getElementById("other-offer-items").innerHTML = (otherOffer.items || []).map(i => `
-            <div class="glass p-3 rounded-2xl
-            border border-white/10">
 
-                <div class="text-3xl mb-2">
-                    ${i.icon}
-                </div>
+            document.getElementById("other-player-name")
+            .innerText = otherOffer.username;
 
-                <div class="font-black text-sm">
-                    ${i.name}
-                </div>
+            document.getElementById("other-money-display")
+            .innerText =
+                "$" + formatNumber(otherOffer.money || 0);
 
-                <div class="text-xs text-slate-400">
-                    x${i.amount}
-                </div>
+            document.getElementById("other-offer-items")
+            .innerHTML =
+                (otherOffer.items || []).map(i => `
+                    <div class="glass p-3 rounded-2xl border border-white/10">
+                        <div class="text-3xl mb-2">
+                            ${i.icon}
+                        </div>
+                        <div class="font-black text-sm">
+                            ${i.name}
+                        </div>
+                        <div class="text-xs text-slate-400">
+                            x${i.amount}
+                        </div>
+                    </div>
 
-            </div>
-
-        `).join("");
+                `).join("");
 
         } else {
-            document.getElementById("other-player-name").innerText = "Waiting for player...";
-            document.getElementById("other-money-display").innerText = "$0";
-            document.getElementById("other-offer-items").innerHTML = "<div class='text-slate-500'>No offer yet</div>";
+            document.getElementById("other-player-name")
+            .innerText = "Waiting for player...";
+
+            document.getElementById("other-money-display")
+            .innerText = "$0";
+
+            document.getElementById("other-offer-items")
+            .innerHTML =
+                "<div class='text-slate-500'>No offer yet</div>";
         }
         checkTradeCompletion();
     });
 }
+    
 function checkTradeCompletion() {
 
     if (!currentTradeId) return;
