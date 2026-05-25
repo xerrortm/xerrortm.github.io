@@ -436,21 +436,11 @@
 
                 <!-- MONEY -->
                 <div class="mb-5">
-
-                    <div class="font-black mb-2">
-                        Money Offer
-                    </div>
-
-                    <input
-                        id="your-trade-money"
-                        type="number"
-                        value="0"
-                        min="0"
-                        class="w-full bg-black/40 border border-white/10
-                        rounded-2xl p-4 outline-none"
-                    >
-
-                </div>
+    <div class="text-xs text-slate-500 font-black uppercase">Creator Offer</div>
+    <div class="text-emerald-400 font-black text-xl">
+        $${formatNumber(creatorOffer?.money || 0)}
+    </div>
+</div>
 
                 <!-- INVENTORY -->
                 <div>
@@ -499,20 +489,12 @@
 
                 </div>
 
-                <!-- MONEY -->
                 <div class="mb-5">
-
-                    <div class="font-black mb-2">
-                        Money Offer
-                    </div>
-
-                    <div id="other-money-display"
-                    class="bg-black/40 rounded-2xl p-4
-                    text-emerald-400 font-black text-xl">
-                        $0
-                    </div>
-
-                </div>
+    <div class="text-xs text-slate-500 font-black uppercase">Player Offer</div>
+    <div class="text-emerald-400 font-black text-xl">
+        $${formatNumber(otherOffer?.money || 0)}
+    </div>
+</div>
 
                 <!-- OFFER ITEMS -->
                 <div>
@@ -746,23 +728,20 @@ function createTrade() {
     const tradeId =
         "trade_" + Date.now();
 
-    tradeDB.ref(
-        "trades/" + tradeId
-    ).set({
-        id: tradeId,
-        createdAt: Date.now(),
-        status: "open",
-        offers: {
-            [user.username]: {
-
-                username: user.username,
-                accepted: false,
-                money: money,
-                items: selectedTradeOffer
-
-            }
+    tradeDB.ref("trades/" + tradeId).set({
+    id: tradeId,
+    createdAt: Date.now(),
+    status: "open",
+    creator: user.username,   // ⭐ ADD THIS
+    offers: {
+        [user.username]: {
+            username: user.username,
+            accepted: false,
+            money: money,
+            items: selectedTradeOffer
         }
-    });
+    }
+});
 
     notify(
         "TRADE CREATED",
@@ -789,7 +768,10 @@ function loadTrades() {
         .reverse()
         .forEach(trade => {
 
-            const offers = Object.values(trade.offers || {});
+const offers = Object.values(trade.offers || {});
+
+const myOffer = offers.find(o => o.username === user.username);
+const otherOffer = offers.find(o => o.username !== user.username);
 
 if (offers.length === 0) return;
 
@@ -1126,14 +1108,23 @@ function watchTrade(tradeId) {
 
         if (!trade) return;
 
-        const offers =
-            trade.offers || {};
+const offers = Object.values(trade.offers || {});
 
-        const otherOffer =
-            Object.values(offers)
-            .find(o => o.username !== user.username);
+const myOffer = offers.find(o => o.username === user.username);
+const otherOffer = offers.find(o => o.username !== user.username);
 
-        if (!otherOffer) return;
+        if (!otherOffer) {
+    document.getElementById("other-player-name").innerText =
+        "Waiting for player...";
+
+    document.getElementById("other-money-display").innerText =
+        "$0";
+
+    document.getElementById("other-offer-items").innerHTML =
+        `<div class="text-slate-500 text-sm">No offer yet</div>`;
+
+    return;
+}
 
         document.getElementById("other-player-name")
         .innerText =
@@ -1219,15 +1210,8 @@ function checkTradeCompletion() {
             !offers.every(o => o.accepted)
         ) return;
 
-        const myOffer =
-            offers.find(o =>
-                o.username === user.username
-            );
-
-        const otherOffer =
-            offers.find(o =>
-                o.username !== user.username
-            );
+const myOffer = offers.find(o => o.username === user.username);
+const otherOffer = offers.find(o => o.username !== user.username);
 
         /* =========================
            RECEIVE MONEY
