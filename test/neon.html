@@ -523,7 +523,6 @@
 </div>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
 <script>
 
 const firebaseConfig = {
@@ -537,30 +536,38 @@ const firebaseConfig = {
 };
 
 firebase.initializeApp(firebaseConfig);
+
 const tradeDB = firebase.database();
 
 let currentTradeId = null;
 let selectedTradeOffer = [];
+let tradeCompleted = false;
+
 document.getElementById("btn-trading").onclick = () => {
     switchTab("trading");
     initTradingHub();
 };
 
-
-function initTradingHub() {
+function getUser() {
 
     let rawUser =
         localStorage.getItem("errorinc_user");
 
-    let user = null;
-
     try {
-        user = JSON.parse(rawUser);
+
+        return JSON.parse(rawUser);
+
     } catch {
-        user = {
+
+        return {
             username: rawUser
         };
     }
+}
+
+function initTradingHub() {
+
+    const user = getUser();
 
     if (!user || !user.username) {
 
@@ -618,16 +625,15 @@ function openCreateTradeModal() {
                 min="0"
                 max="${item.count}"
                 value="0"
-                class="w-full bg-black/40 border border-white/10
-                rounded-xl p-2 mb-3"
+                class="w-full bg-black/40 border border-white/10 rounded-xl p-2 mb-3"
             >
 
             <button
                 onclick="addCreateTradeItem('${item.id}')"
-                class="w-full py-2 rounded-xl
-                bg-sky-500 hover:bg-sky-400
-                text-white font-black">
+                class="w-full py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-black">
+
                 ADD
+
             </button>
 
         `;
@@ -697,18 +703,7 @@ function addCreateTradeItem(itemId) {
 
 function createTrade() {
 
-    let rawUser =
-        localStorage.getItem("errorinc_user");
-
-    let user = null;
-
-    try {
-        user = JSON.parse(rawUser);
-    } catch {
-        user = {
-            username: rawUser
-        };
-    }
+    const user = getUser();
 
     if (!user || !user.username) {
 
@@ -735,20 +730,23 @@ function createTrade() {
     tradeDB.ref(
         "trades/" + tradeId
     ).set({
+
         id: tradeId,
         createdAt: Date.now(),
         status: "open",
+        processing: false,
         creator: user.username,
+
         offers: {
+
             [user.username]: {
+
                 username: user.username,
                 accepted: false,
                 money: money,
                 items: selectedTradeOffer
-
             }
         }
-        
     });
 
     notify(
@@ -776,7 +774,8 @@ function loadTrades() {
         .reverse()
         .forEach(trade => {
 
-            const firstOffer = trade.offers?.[trade.creator];
+            const firstOffer =
+                trade.offers?.[trade.creator];
 
             if (!firstOffer) return;
 
@@ -802,14 +801,7 @@ function loadTrades() {
 
                     </div>
 
-                    <div class="
-                    px-4 py-2 rounded-xl
-                    ${
-                        trade.status === "completed"
-                        ? "bg-emerald-500/20 text-emerald-400"
-                        : "bg-sky-500/20 text-sky-400"
-                    }
-                    font-black text-xs uppercase">
+                    <div class="px-4 py-2 rounded-xl bg-sky-500/20 text-sky-400 font-black text-xs uppercase">
 
                         ${trade.status}
 
@@ -817,17 +809,13 @@ function loadTrades() {
 
                 </div>
 
-                <!-- MONEY -->
-
                 <div class="mb-5">
 
-                    <div class="text-xs uppercase font-black
-                    text-slate-500 mb-2">
+                    <div class="text-xs uppercase font-black text-slate-500 mb-2">
                         Money Offer
                     </div>
 
-                    <div class="text-emerald-400
-                    font-black text-xl">
+                    <div class="text-emerald-400 font-black text-xl">
 
                         $${formatNumber(firstOffer.money)}
 
@@ -835,12 +823,9 @@ function loadTrades() {
 
                 </div>
 
-                <!-- ITEMS -->
-
                 <div>
 
-                    <div class="text-xs uppercase font-black
-                    text-slate-500 mb-3">
+                    <div class="text-xs uppercase font-black text-slate-500 mb-3">
                         Plants
                     </div>
 
@@ -850,9 +835,7 @@ function loadTrades() {
                             firstOffer.items.length > 0
                             ? firstOffer.items.map(i => `
 
-                                <div class="
-                                px-3 py-2 rounded-xl
-                                bg-black/40 border border-white/10">
+                                <div class="px-3 py-2 rounded-xl bg-black/40 border border-white/10">
 
                                     ${i.icon}
                                     ${i.name}
@@ -872,21 +855,13 @@ function loadTrades() {
 
                 </div>
 
-                ${
-                    trade.status !== "completed"
-                    ? `
-                    <button
+                <button
                     onclick="joinTrade('${trade.id}')"
-                    class="mt-6 w-full py-3 rounded-2xl
-                    bg-sky-500 hover:bg-sky-400
-                    text-white font-black">
+                    class="mt-6 w-full py-3 rounded-2xl bg-sky-500 hover:bg-sky-400 text-white font-black">
 
-                        OPEN TRADE
+                    OPEN TRADE
 
-                    </button>
-                    `
-                    : ""
-                }
+                </button>
 
             `;
 
@@ -899,57 +874,59 @@ function joinTrade(tradeId) {
 
     currentTradeId = tradeId;
     selectedTradeOffer = [];
-    const userRaw =
-        localStorage.getItem("errorinc_user");
+    tradeCompleted = false;
 
-    let user;
-
-    try {
-        user = JSON.parse(userRaw);
-    } catch {
-        user = {
-            username: userRaw
-        };
-    }
+    const user = getUser();
 
     tradeDB.ref("trades/" + tradeId)
     .once("value")
     .then(snapshot => {
+
         const trade = snapshot.val();
+
         if (!trade) return;
+
         if (!trade.offers[user.username]) {
+
             tradeDB.ref(
                 "trades/" + tradeId + "/offers/" + user.username
             ).set({
+
                 username: user.username,
                 accepted: false,
                 money: 0,
                 items: []
             });
-
         }
+
         document.getElementById("trade-view-modal")
-            .classList.remove("hidden");
+        .classList.remove("hidden");
+
         renderYourTradeInventory();
+
         watchTrade(tradeId);
     });
 }
+
 function closeTradeView() {
+
     document.getElementById("trade-view-modal")
-        .classList.add("hidden");
+    .classList.add("hidden");
+
     currentTradeId = null;
 }
 
 function renderYourTradeInventory() {
+
     const container =
         document.getElementById("your-trade-items");
+
     container.innerHTML = "";
+
     state.inventory.forEach(item => {
 
-        const amountId =
-            "amt_" + item.id;
-
-        const div = document.createElement("div");
+        const div =
+            document.createElement("div");
 
         div.className =
             "glass p-4 rounded-2xl border border-white/10";
@@ -969,21 +946,20 @@ function renderYourTradeInventory() {
             </div>
 
             <input
-                id="${amountId}"
+                id="amt_${item.id}"
                 type="number"
                 min="0"
                 max="${item.count}"
                 value="0"
-                class="w-full bg-black/40 border border-white/10
-                rounded-xl p-2 mb-3"
+                class="w-full bg-black/40 border border-white/10 rounded-xl p-2 mb-3"
             >
 
             <button
                 onclick="addTradeItem('${item.id}')"
-                class="w-full py-2 rounded-xl
-                bg-sky-500 hover:bg-sky-400
-                text-white font-black">
+                class="w-full py-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-black">
+
                 OFFER
+
             </button>
 
         `;
@@ -991,6 +967,7 @@ function renderYourTradeInventory() {
         container.appendChild(div);
     });
 }
+
 function addTradeItem(itemId) {
 
     const item =
@@ -1008,12 +985,15 @@ function addTradeItem(itemId) {
     if (amount <= 0) return;
 
     if (amount > item.count) {
-        notify("NOT ENOUGH PLANTS", "error");
+
+        notify("NOT ENOUGH ITEMS", "error");
         return;
     }
 
     const existing =
-        selectedTradeOffer.find(i => i.id === item.id);
+        selectedTradeOffer.find(
+            i => i.id === item.id
+        );
 
     if (existing) {
 
@@ -1022,11 +1002,13 @@ function addTradeItem(itemId) {
     } else {
 
         selectedTradeOffer.push({
+
             id: item.id,
             name: item.name,
             icon: item.icon,
             rarity: item.rarity,
             amount: amount
+
         });
     }
 
@@ -1040,18 +1022,7 @@ function acceptTrade() {
 
     if (!currentTradeId) return;
 
-    const userRaw =
-        localStorage.getItem("errorinc_user");
-
-    let user;
-
-    try {
-        user = JSON.parse(userRaw);
-    } catch {
-        user = {
-            username: userRaw
-        };
-    }
+    const user = getUser();
 
     const money =
         Number(
@@ -1060,18 +1031,14 @@ function acceptTrade() {
             ).value
         ) || 0;
 
-    if (money > state.credits) {
-
-        notify("NOT ENOUGH MONEY", "error");
-        return;
-    }
-
     tradeDB.ref(
         "trades/" + currentTradeId + "/offers/" + user.username
     ).once("value")
     .then(snapshot => {
 
-        const oldData = snapshot.val() || {};
+        const oldData =
+            snapshot.val() || {};
+
         tradeDB.ref(
             "trades/" + currentTradeId + "/offers/" + user.username
         ).set({
@@ -1080,34 +1047,27 @@ function acceptTrade() {
             accepted: !oldData.accepted,
             money: money,
             items: selectedTradeOffer
-
         });
-
     });
 }
+
 function watchTrade(tradeId) {
 
-    const userRaw =
-        localStorage.getItem("errorinc_user");
-
-    let user;
-
-    try {
-        user = JSON.parse(userRaw);
-    } catch {
-        user = {
-            username: userRaw
-        };
-    }
+    const user = getUser();
 
     tradeDB.ref("trades/" + tradeId)
     .on("value", snapshot => {
 
         const trade = snapshot.val();
 
-        if (!trade) return;
+        if (!trade) {
 
-        const offers = trade.offers || {};
+            closeTradeView();
+            return;
+        }
+
+        const offers =
+            trade.offers || {};
 
         const myOffer =
             offers[user.username];
@@ -1118,23 +1078,8 @@ function watchTrade(tradeId) {
 
         if (myOffer) {
 
-            if (myOffer.accepted) {
-                document.getElementById("your-accept-status")
-                .className =
-                    "px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 font-black text-xs uppercase";
-
-                document.getElementById("your-accept-status")
-                .innerText = "ACCEPTED";
-
-            } else {
-                document.getElementById("your-accept-status")
-                .className =
-                    "px-4 py-2 rounded-xl bg-red-500/20 text-red-400 font-black text-xs uppercase";
-
-                document.getElementById("your-accept-status")
-                .innerText = "NOT ACCEPTED";
-            }
-            document.getElementById("your-current-offer").innerHTML =
+            document.getElementById("your-current-offer")
+            .innerHTML =
                 (myOffer.items || []).map(i => `
 
                     <div class="glass p-3 rounded-2xl border border-white/10">
@@ -1155,12 +1100,18 @@ function watchTrade(tradeId) {
 
                 `).join("");
 
+            document.getElementById("your-accept-status")
+            .innerText =
+                myOffer.accepted
+                ? "ACCEPTED"
+                : "NOT ACCEPTED";
         }
 
         if (otherOffer) {
 
             document.getElementById("other-player-name")
-            .innerText = otherOffer.username;
+            .innerText =
+                otherOffer.username;
 
             document.getElementById("other-money-display")
             .innerText =
@@ -1169,80 +1120,61 @@ function watchTrade(tradeId) {
             document.getElementById("other-offer-items")
             .innerHTML =
                 (otherOffer.items || []).map(i => `
+
                     <div class="glass p-3 rounded-2xl border border-white/10">
+
                         <div class="text-3xl mb-2">
                             ${i.icon}
                         </div>
+
                         <div class="font-black text-sm">
                             ${i.name}
                         </div>
+
                         <div class="text-xs text-slate-400">
                             x${i.amount}
                         </div>
+
                     </div>
 
                 `).join("");
 
-        } else {
-            document.getElementById("other-player-name")
-            .innerText = "Waiting for player...";
-
-            document.getElementById("other-money-display")
-            .innerText = "$0";
-
-            document.getElementById("other-offer-items")
-            .innerHTML =
-                "<div class='text-slate-500'>No offer yet</div>";
+            document.getElementById("other-accept-status")
+            .innerText =
+                otherOffer.accepted
+                ? "ACCEPTED"
+                : "NOT ACCEPTED";
         }
-        if (otherOffer.accepted) {
-            document.getElementById("other-accept-status").className = "px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 font-black text-xs uppercase";
-            document.getElementById("other-accept-status").innerText = "ACCEPTED";
-        } else {
-            document.getElementById("other-accept-status").className = "px-4 py-2 rounded-xl bg-red-500/20 text-red-400 font-black text-xs uppercase";
-            document.getElementById("other-accept-status").innerText = "NOT ACCEPTED";
-        }
-        checkTradeCompletion();
+
+        checkTradeCompletion(trade);
     });
 }
-    
-function checkTradeCompletion() {
 
-    if (!currentTradeId) return;
+function checkTradeCompletion(trade) {
 
-    const userRaw =
-        localStorage.getItem("errorinc_user");
+    if (!trade) return;
+    if (tradeCompleted) return;
 
-    let user;
+    const offers =
+        Object.values(trade.offers || {});
 
-    try {
-        user = JSON.parse(userRaw);
-    } catch {
-        user = {
-            username: userRaw
-        };
-    }
+    if (
+        offers.length < 2 ||
+        !offers.every(o => o.accepted)
+    ) return;
 
-    tradeDB.ref("trades/" + currentTradeId)
-    .once("value")
-    .then(snapshot => {
+    if (trade.processing) return;
 
-        const trade = snapshot.val();
-        if (!trade) return;
-        if (trade.status === "completed") return;
-        const offers =
-            Object.values(trade.offers || {});
-
-        if (
-    offers.length >= 2 &&
-    offers.every(o => o.accepted) &&
-    trade.status !== "completed"
-) {
+    tradeCompleted = true;
 
     tradeDB.ref(
-        "trades/" + currentTradeId
+        "trades/" + trade.id
     ).update({
-        status: "completed"
+        processing: true
     });
+
+    const user =
+        getUser();
 
     const myOffer =
         offers.find(o =>
@@ -1253,6 +1185,8 @@ function checkTradeCompletion() {
         offers.find(o =>
             o.username !== user.username
         );
+
+    if (!myOffer || !otherOffer) return;
 
     /* REMOVE YOUR ITEMS */
 
@@ -1299,7 +1233,6 @@ function checkTradeCompletion() {
                 rarity: item.rarity,
                 count: item.amount,
                 baseValue: 1000
-
             });
         }
     });
@@ -1311,24 +1244,22 @@ function checkTradeCompletion() {
 
     saveGame();
 
+    updateFullUI();
+
     notify(
         "TRADE COMPLETED!",
         "success"
     );
 
-    updateFullUI();
-
     setTimeout(() => {
 
         tradeDB.ref(
-            "trades/" + currentTradeId
+            "trades/" + trade.id
         ).remove();
 
-    }, 5000);
+    }, 3000);
 
     closeTradeView();
-}
-    });
 }
 
 </script>
