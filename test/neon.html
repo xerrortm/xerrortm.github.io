@@ -1228,9 +1228,8 @@ function checkTradeCompletion() {
     .then(snapshot => {
 
         const trade = snapshot.val();
-
         if (!trade) return;
-
+        if (trade.status === "completed") return;
         const offers =
             Object.values(trade.offers || {});
 
