@@ -1089,11 +1089,11 @@ function acceptTrade() {
     ).set({
 
         username: user.username,
-
-        accepted: true,
-
+        accepted:
+            !(
+            document.getElementById("your-accept-status").innerText === "ACCEPTED"
+            ),
         money: money,
-
         items: selectedTradeOffer
 
     });
