@@ -1718,36 +1718,27 @@ function renderDailyUI() {
 function calculateOfflineEarnings() {
     const now = Date.now();
     const last = state.lastSaveTime || now;
-
     const secondsAway = Math.floor((now - last) / 1000);
-
+    
     if (secondsAway < 5) return;
-
     const incomePerSec = state.inventory.reduce(
         (a, i) => a + (RARITIES[i.rarity].income * i.count),
         0
     );
-
     const earned = Math.floor(incomePerSec * secondsAway);
-
     if (earned <= 0) return;
-
     state.credits += earned;
-
     notify(
         `🕒 Offline Earnings: +$${earned.toLocaleString()}`,
         "success"
     );
-
     showOfflinePopup(earned, secondsAway);
 }
 function showOfflinePopup(earned, seconds) {
     const div = document.createElement("div");
-
     div.className = `
         fixed inset-0 flex items-center justify-center bg-black/80 z-[999]
     `;
-
     div.innerHTML = `
         <div class="glass p-8 rounded-3xl text-center max-w-md ">
             <div class="text-4xl mb-4">⏳💰</div>
@@ -1764,23 +1755,17 @@ function showOfflinePopup(earned, seconds) {
             </button>
         </div>
     `;
-
     document.body.appendChild(div);
 }
 function formatNumber(num) {
     if (num < 1000) return Math.floor(num).toString();
-
     const units = [
         "", "K", "M", "B", "T",
         "Qa", "Qi", "Sx", "Sp", "Oc", "No", "Dc"
     ];
-
     let tier = Math.floor(Math.log10(num) / 3);
-
     if (tier >= units.length) tier = units.length - 1;
-
     const scaled = num / Math.pow(1000, tier);
-
     return scaled.toFixed(2).replace(/\.0$/, "") + units[tier];
 }
 function getQuestResetTimeLeft() {
