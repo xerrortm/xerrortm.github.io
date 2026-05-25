@@ -917,32 +917,51 @@ function joinTrade(tradeId) {
 
     selectedTradeOffer = [];
 
-    document.getElementById("trade-view-modal")
-        .classList.remove("hidden");
+    const userRaw =
+        localStorage.getItem("errorinc_user");
 
-    renderYourTradeInventory();
+    let user;
 
-    watchTrade(tradeId);
+    try {
+        user = JSON.parse(userRaw);
+    } catch {
+        user = {
+            username: userRaw
+        };
+    }
+
+    tradeDB.ref("trades/" + tradeId)
+    .once("value")
+    .then(snapshot => {
+        const trade = snapshot.val();
+        if (!trade) return;
+        if (!trade.offers[user.username]) {
+            tradeDB.ref(
+                "trades/" + tradeId + "/offers/" + user.username
+            ).set({
+                username: user.username,
+                accepted: false,
+                money: 0,
+                items: []
+            });
+
+        }
+        document.getElementById("trade-view-modal")
+            .classList.remove("hidden");
+        renderYourTradeInventory();
+        watchTrade(tradeId);
+    });
 }
-
-
-
 function closeTradeView() {
-
     document.getElementById("trade-view-modal")
         .classList.add("hidden");
-
     currentTradeId = null;
 }
 
-
 function renderYourTradeInventory() {
-
     const container =
         document.getElementById("your-trade-items");
-
     container.innerHTML = "";
-
     state.inventory.forEach(item => {
 
         const amountId =
@@ -990,11 +1009,6 @@ function renderYourTradeInventory() {
         container.appendChild(div);
     });
 }
-
-/* =========================
-   ADD OFFER ITEM
-========================= */
-
 function addTradeItem(itemId) {
 
     const item =
@@ -1039,10 +1053,6 @@ function addTradeItem(itemId) {
         "success"
     );
 }
-
-/* =========================
-   ACCEPT TRADE
-========================= */
 
 function acceptTrade() {
 
@@ -1098,11 +1108,6 @@ function acceptTrade() {
 
     checkTradeCompletion();
 }
-
-/* =========================
-   WATCH TRADE
-========================= */
-
 function watchTrade(tradeId) {
 
     const userRaw =
@@ -1125,65 +1130,117 @@ function watchTrade(tradeId) {
 
         if (!trade) return;
 
-        const offers =
-            trade.offers || {};
+        const offers = trade.offers || {};
 
+        // YOUR OFFER
+        const myOffer = offers[user.username];
+
+        // OTHER PLAYER
         const otherOffer =
             Object.values(offers)
             .find(o => o.username !== user.username);
 
-        if (!otherOffer) return;
+        // -------------------
+        // YOUR SIDE
+        // -------------------
 
-        document.getElementById("other-player-name")
-        .innerText =
-            otherOffer.username;
+        if (myOffer) {
 
-        document.getElementById("other-money-display")
-        .innerText =
-            "$" + formatNumber(otherOffer.money);
+            document.getElementById("your-trade-money")
+            .value = myOffer.money || 0;
 
-        document.getElementById("other-offer-items")
-        .innerHTML =
-            otherOffer.items.map(i => `
+            if (myOffer.accepted) {
 
-                <div class="glass p-3 rounded-2xl
-                border border-white/10">
+                document.getElementById("your-accept-status")
+                .className =
+                    "px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 font-black text-xs uppercase";
 
-                    <div class="text-3xl mb-2">
-                        ${i.icon}
-                    </div>
+                document.getElementById("your-accept-status")
+                .innerText = "ACCEPTED";
 
-                    <div class="font-black text-sm">
-                        ${i.name}
-                    </div>
+            } else {
 
-                    <div class="text-xs text-slate-400">
-                        x${i.amount}
-                    </div>
+                document.getElementById("your-accept-status")
+                .className =
+                    "px-4 py-2 rounded-xl bg-red-500/20 text-red-400 font-black text-xs uppercase";
 
-                </div>
+                document.getElementById("your-accept-status")
+                .innerText = "NOT ACCEPTED";
+            }
+        }
 
-            `).join("");
+        // -------------------
+        // OTHER SIDE
+        // -------------------
 
-        if (otherOffer.accepted) {
+        if (otherOffer) {
 
-            document.getElementById("other-accept-status")
-            .className =
-                "px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 font-black text-xs uppercase";
-
-            document.getElementById("other-accept-status")
+            document.getElementById("other-player-name")
             .innerText =
-                "ACCEPTED";
+                otherOffer.username;
+
+            document.getElementById("other-money-display")
+            .innerText =
+                "$" + formatNumber(otherOffer.money || 0);
+
+            document.getElementById("other-offer-items")
+            .innerHTML =
+                (otherOffer.items || []).map(i => `
+
+                    <div class="glass p-3 rounded-2xl
+                    border border-white/10">
+
+                        <div class="text-3xl mb-2">
+                            ${i.icon}
+                        </div>
+
+                        <div class="font-black text-sm">
+                            ${i.name}
+                        </div>
+
+                        <div class="text-xs text-slate-400">
+                            x${i.amount}
+                        </div>
+
+                    </div>
+
+                `).join("");
+
+            if (otherOffer.accepted) {
+
+                document.getElementById("other-accept-status")
+                .className =
+                    "px-4 py-2 rounded-xl bg-emerald-500/20 text-emerald-400 font-black text-xs uppercase";
+
+                document.getElementById("other-accept-status")
+                .innerText = "ACCEPTED";
+
+            } else {
+
+                document.getElementById("other-accept-status")
+                .className =
+                    "px-4 py-2 rounded-xl bg-red-500/20 text-red-400 font-black text-xs uppercase";
+
+                document.getElementById("other-accept-status")
+                .innerText = "NOT ACCEPTED";
+            }
+
+        } else {
+
+            document.getElementById("other-player-name")
+            .innerText = "Waiting for player...";
+
+            document.getElementById("other-money-display")
+            .innerText = "$0";
+
+            document.getElementById("other-offer-items")
+            .innerHTML = "";
         }
 
         checkTradeCompletion();
+
     });
 }
-
-/* =========================
-   COMPLETE TRADE
-========================= */
-
 function checkTradeCompletion() {
 
     if (!currentTradeId) return;
@@ -1228,16 +1285,8 @@ function checkTradeCompletion() {
                 o.username !== user.username
             );
 
-        /* =========================
-           RECEIVE MONEY
-        ========================= */
-
         state.credits -= myOffer.money;
         state.credits += otherOffer.money;
-
-        /* =========================
-           REMOVE YOUR ITEMS
-        ========================= */
 
         myOffer.items.forEach(item => {
 
@@ -1258,10 +1307,6 @@ function checkTradeCompletion() {
                     );
             }
         });
-
-        /* =========================
-           RECEIVE ITEMS
-        ========================= */
 
         otherOffer.items.forEach(item => {
 
