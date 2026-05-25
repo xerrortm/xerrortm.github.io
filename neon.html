@@ -1381,53 +1381,38 @@ text-pink-400 flex items-center gap-4">
  
                 div.innerHTML = `
 <div class="relative overflow-hidden glass p-6 rounded-3xl border border-pink-500/20">
- 
     <div class="absolute top-0 right-0 text-7xl opacity-10">
         🌸
     </div>
- 
     <div class="flex justify-between items-start mb-4">
- 
         <div>
             <div class="text-xl font-black text-pink-300">
                 ${q.title}
             </div>
- 
             <div class="text-sm text-slate-400 mt-1">
                 ${q.desc}
             </div>
         </div>
- 
-        <div class="bg-pink-500/10 border border-pink-500/30
-        px-3 py-2 rounded-xl text-pink-300 text-xs font-black uppercase">
- 
+        <div class="bg-pink-500/10 border border-pink-500/30 px-3 py-2 rounded-xl text-pink-300 text-xs font-black uppercase">
             Event Quest
- 
         </div>
- 
     </div>
- 
     <div class="mb-3 text-xs font-bold uppercase text-slate-400">
         ${Math.floor(q.progress)} / ${q.target}
     </div>
- 
     <div class="h-3 bg-black/40 rounded-full overflow-hidden mb-5">
         <div class="h-full bg-gradient-to-r from-pink-500 to-emerald-400"
         style="width:${(q.progress/q.target)*100}%"></div>
     </div>
- 
     <div class="flex justify-between items-center">
- 
         <div>
             <div class="text-[10px] uppercase text-slate-500 font-black">
                 Reward
             </div>
- 
             <div class="font-black text-emerald-400">
                 ${rewardText}
             </div>
         </div>
- 
         ${
             q.progress >= q.target
             ? `
@@ -1443,9 +1428,7 @@ text-pink-400 flex items-center gap-4">
             </div>
             `
         }
- 
     </div>
- 
 </div>
 `;
  
@@ -1738,7 +1721,7 @@ function calculateOfflineEarnings() {
 
     const secondsAway = Math.floor((now - last) / 1000);
 
-    if (secondsAway < 5) return; // ignore tiny gaps
+    if (secondsAway < 5) return;
 
     const incomePerSec = state.inventory.reduce(
         (a, i) => a + (RARITIES[i.rarity].income * i.count),
@@ -1769,15 +1752,12 @@ function showOfflinePopup(earned, seconds) {
         <div class="glass p-8 rounded-3xl text-center max-w-md ">
             <div class="text-4xl mb-4">⏳💰</div>
             <div class="text-xl font-black mb-2">WELCOME BACK!</div>
-
             <div class="text-emerald-400 font-bold text-lg">
                 +$${formatNumber(earned)}
             </div>
-
             <div class="text-slate-400 text-xs mt-2">
                 Earned while you were away (${Math.floor(seconds/60)} min)
             </div>
-
             <button onclick="this.parentElement.parentElement.remove()"
                 class="mt-6 px-6 py-3 bg-emerald-500 text-black font-black rounded-xl">
                 COLLECT
