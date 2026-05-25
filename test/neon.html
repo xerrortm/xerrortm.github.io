@@ -1208,7 +1208,6 @@ function watchTrade(tradeId) {
 function checkTradeCompletion() {
 
     if (!currentTradeId) return;
-    if (trade.status === "completed") return;
 
     const userRaw =
         localStorage.getItem("errorinc_user");
@@ -1953,6 +1952,10 @@ text-pink-400 flex items-center gap-4">
  
             document.getElementById('btn-inventory').className =
                 tab === 'inventory' ?
+                'px-6 py-2 rounded-md font-bold text-sm bg-sky-500 text-white shadow-lg shadow-sky-500/20' :
+                'px-6 py-2 rounded-md font-bold text-sm text-slate-400 hover:text-white';
+            document.getElementById('btn-trading').className =
+                tab === 'trading' ?
                 'px-6 py-2 rounded-md font-bold text-sm bg-sky-500 text-white shadow-lg shadow-sky-500/20' :
                 'px-6 py-2 rounded-md font-bold text-sm text-slate-400 hover:text-white';
  
