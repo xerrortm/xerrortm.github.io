@@ -1045,7 +1045,7 @@ function acceptTrade() {
         ).set({
 
             username: user.username,
-            accepted: !oldData.accepted,
+            accepted: true,
             money: money,
             items: selectedTradeOffer
         });
@@ -1167,8 +1167,8 @@ function checkTradeCompletion(trade) {
     const offerList = Object.values(offers);
 
     const ready =
-        offerList.length >= 2 &&
-        offerList.every(o => o.accepted === true);
+    offerList.length >= 2 &&
+    offerList.every(o => o.accepted === true || o.accepted === "true");
 
     if (!ready) return;
 
