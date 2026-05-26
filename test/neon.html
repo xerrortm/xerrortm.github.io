@@ -2,7 +2,7 @@
     <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>[TRADE] Neon Merchant</title>
+    <title>1.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
@@ -524,7 +524,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
-
 const firebaseConfig = {
     apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
     authDomain: "error-inc.firebaseapp.com",
@@ -1056,14 +1055,15 @@ function watchTrade(tradeId) {
             closeTradeView();
             return;
         }
-        if (!tradeCompleted) {
+        if(!tradeCompleted){
             const offers = trade.offers || {};
             const offerList = Object.values(offers);
+
             const ready =
                 offerList.length >= 2 &&
-                offerList.every(o => o.accepted === true);
+                offerList.every(o => o.accepted === true || o.accepted === "true");
 
-            if (trade.processing === true && trade.status === "completed" && !tradeCompleted) {
+            if(ready && trade.status === "open" && !trade.processing){
                 checkTradeCompletion(trade);
             }
         }
