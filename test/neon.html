@@ -2,7 +2,7 @@
     <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Merchant</title>
+    <title>[TRADE]Neon Merchant</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
@@ -1063,7 +1063,7 @@ function watchTrade(tradeId) {
                 offerList.length >= 2 &&
                 offerList.every(o => o.accepted === true);
 
-            if (ready && trade.status === "open") {
+            if (trade.processing === true && trade.status === "completed" && !tradeCompleted) {
                 checkTradeCompletion(trade);
             }
         }
@@ -1174,10 +1174,13 @@ function checkTradeCompletion(trade) {
     ref.transaction(current => {
         if (!current) return current;
         if (current.processing) return;
+        if (current.status === "completed") return;
+        
         current.processing = true;
         current.status = "completed";
+        current.completedAt = Date.now();
         return current;
-    }).then(result => {
+    });.then(result => {
         if (!result.committed) return;
         const freshTrade = result.snapshot.val();
         if (!freshTrade) return;
