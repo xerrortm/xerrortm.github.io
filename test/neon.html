@@ -1020,32 +1020,28 @@ function addTradeItem(itemId) {
 }
 
 function acceptTrade() {
-
     if (!currentTradeId) return;
-
     const user = getUser();
-
     const money =
         Number(
             document.getElementById(
                 "your-trade-money"
             ).value
         ) || 0;
-
-    tradeDB.ref(
-        "trades/" + currentTradeId + "/offers/" + user.username
-    ).once("value")
-    .then(snapshot => {
-
-        const oldData =
-            snapshot.val() || {};
-
+    const ref =
         tradeDB.ref(
             "trades/" + currentTradeId + "/offers/" + user.username
-        ).update({
+        );
+    ref.once("value").then(snapshot => {
+        const oldData = snapshot.val() || {};
+        ref.update({
+            username: user.username,
             accepted: true,
             money: money,
-            items: selectedTradeOffer || []
+            items:
+                selectedTradeOffer.length > 0
+                ? selectedTradeOffer
+                : (oldData.items || [])
         });
     });
 }
