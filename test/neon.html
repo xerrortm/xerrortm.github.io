@@ -1049,8 +1049,7 @@ function acceptTrade() {
 function watchTrade(tradeId) {
     const user = getUser();
 
-    tradeDB.ref("trades/" + tradeId)
-    .on("value", snapshot => {
+    tradeDB.ref("trades/" + tradeId).on("value", snapshot => {
 
         const trade = snapshot.val();
         if (!trade) {
@@ -1141,13 +1140,7 @@ function watchTrade(tradeId) {
                 ? "ACCEPTED"
                 : "NOT ACCEPTED";
         }
-if (
-    trade &&
-    trade.status === "completed" &&
-    !tradeCompleted
-) {
-    checkTradeCompletion(trade);
-}
+    checkTradeCompletion(trade)
     });
 }
 
@@ -1173,20 +1166,16 @@ function checkTradeCompletion(trade) {
     const ref = tradeDB.ref("trades/" + trade.id);
 
     ref.transaction(current => {
-
-        if (!current || current.processing) return;
-
+        if (!current) return current;
+        if (current.processing) return;
         current.processing = true;
         current.status = "completed";
-
         return current;
     }).then(result => {
-
+        if (!result.committed) return;
         const freshTrade = result.snapshot.val();
         if (!freshTrade) return;
-
         const offers = freshTrade.offers || {};
-
         const myOffer = offers[user.username];
 
         let otherOffer = null;
