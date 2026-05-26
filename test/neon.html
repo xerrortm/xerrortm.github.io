@@ -1042,12 +1042,10 @@ function acceptTrade() {
 
         tradeDB.ref(
             "trades/" + currentTradeId + "/offers/" + user.username
-        ).set({
-
-            username: user.username,
+        ).update({
             accepted: true,
             money: money,
-            items: selectedTradeOffer
+            items: selectedTradeOffer || []
         });
     });
 }
