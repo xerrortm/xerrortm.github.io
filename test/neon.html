@@ -2,7 +2,7 @@
     <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1.2</title>
+    <title>1.3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&display=swap');
@@ -1044,7 +1044,48 @@ function acceptTrade() {
         });
     });
 }
+function applyTrade(trade) {
+    const user = getUser();
+    const offers = trade.offers || {};
 
+    const myOffer = offers[user.username];
+
+    const otherOffer = Object.values(offers)
+        .find(o => o.username !== user.username);
+
+    if (!myOffer || !otherOffer) return;
+
+    // remove my items
+    (myOffer.items || []).forEach(item => {
+        const inv = state.inventory.find(i => i.id === item.id);
+        if (inv) inv.count -= item.amount;
+    });
+
+    // give other items
+    (otherOffer.items || []).forEach(item => {
+        const inv = state.inventory.find(i => i.id === item.id);
+
+        if (inv) inv.count += item.amount;
+        else state.inventory.push({
+            id: item.id,
+            name: item.name,
+            icon: item.icon,
+            rarity: item.rarity,
+            count: item.amount
+        });
+    });
+
+    // money swap
+    state.credits -= myOffer.money;
+    state.credits += otherOffer.money;
+
+    saveGame();
+    updateFullUI();
+
+    notify("TRADE COMPLETED! 🎉", "success");
+
+    closeTradeView();
+}
 function watchTrade(tradeId) {
     const user = getUser();
 
@@ -1055,16 +1096,14 @@ function watchTrade(tradeId) {
             closeTradeView();
             return;
         }
-        if (trade.processing === true && tradeCompleted) return;
 
-        const myOffer =
-            offers[user.username];
-
-        const otherOffer =
-            Object.values(offers)
-            .find(o => o.username !== user.username);
         const offers = trade.offers || {};
         const offerList = Object.values(offers);
+
+        const myOffer = offers[user.username];
+
+        const otherOffer = Object.values(offers)
+            .find(o => o.username !== user.username);
 
         const ready =
             offerList.length >= 2 &&
@@ -1076,165 +1115,70 @@ function watchTrade(tradeId) {
 
         if (trade.status === "completed" && !tradeCompleted) {
             applyTrade(trade);
+            tradeCompleted = true;
         }
+
+        // UI update
         if (myOffer) {
-
-            document.getElementById("your-current-offer")
-            .innerHTML =
+            document.getElementById("your-current-offer").innerHTML =
                 (myOffer.items || []).map(i => `
-
                     <div class="glass p-3 rounded-2xl border border-white/10">
-
-                        <div class="text-3xl mb-2">
-                            ${i.icon}
-                        </div>
-
-                        <div class="font-black text-sm">
-                            ${i.name}
-                        </div>
-
-                        <div class="text-xs text-slate-400">
-                            x${i.amount}
-                        </div>
-
+                        <div class="text-3xl mb-2">${i.icon}</div>
+                        <div class="font-black text-sm">${i.name}</div>
+                        <div class="text-xs text-slate-400">x${i.amount}</div>
                     </div>
-
                 `).join("");
 
-            document.getElementById("your-accept-status")
-            .innerText =
-                myOffer.accepted
-                ? "ACCEPTED"
-                : "NOT ACCEPTED";
+            document.getElementById("your-accept-status").innerText =
+                myOffer.accepted ? "ACCEPTED" : "NOT ACCEPTED";
         }
 
         if (otherOffer) {
+            document.getElementById("other-player-name").innerText = otherOffer.username;
 
-            document.getElementById("other-player-name")
-            .innerText =
-                otherOffer.username;
-
-            document.getElementById("other-money-display")
-            .innerText =
+            document.getElementById("other-money-display").innerText =
                 "$" + formatNumber(otherOffer.money || 0);
 
-            document.getElementById("other-offer-items")
-            .innerHTML =
+            document.getElementById("other-offer-items").innerHTML =
                 (otherOffer.items || []).map(i => `
-
                     <div class="glass p-3 rounded-2xl border border-white/10">
-
-                        <div class="text-3xl mb-2">
-                            ${i.icon}
-                        </div>
-
-                        <div class="font-black text-sm">
-                            ${i.name}
-                        </div>
-
-                        <div class="text-xs text-slate-400">
-                            x${i.amount}
-                        </div>
-
+                        <div class="text-3xl mb-2">${i.icon}</div>
+                        <div class="font-black text-sm">${i.name}</div>
+                        <div class="text-xs text-slate-400">x${i.amount}</div>
                     </div>
-
                 `).join("");
 
-            document.getElementById("other-accept-status")
-            .innerText =
-                otherOffer.accepted
-                ? "ACCEPTED"
-                : "NOT ACCEPTED";
+            document.getElementById("other-accept-status").innerText =
+                otherOffer.accepted ? "ACCEPTED" : "NOT ACCEPTED";
         }
     });
 }
 
 function checkTradeCompletion(trade) {
-
     if (!trade || !currentTradeId) return;
     if (tradeCompleted) return;
 
     const offers = trade.offers || {};
-
     const offerList = Object.values(offers);
 
     const ready =
-    offerList.length >= 2 &&
-    offerList.every(o => o.accepted === true || o.accepted === "true");
+        offerList.length >= 2 &&
+        offerList.every(o => o.accepted === true || o.accepted === "true");
 
     if (!ready) return;
 
     tradeCompleted = true;
 
-    const user = getUser();
-
     const ref = tradeDB.ref("trades/" + trade.id);
 
     ref.transaction(current => {
         if (!current) return current;
-        if (current.status === "completed") return;
+        if (current.status === "completed") return current;
 
         current.processing = true;
         current.status = "completed";
         current.completedAt = Date.now();
-
         return current;
-    }).then(result => {
-        if (!result.committed) return;
-        const freshTrade = result.snapshot.val();
-        if (!freshTrade) return;
-        const offers = freshTrade.offers || {};
-        const myOffer = offers[user.username];
-
-        let otherOffer = null;
-        for (const key in offers) {
-            if (key !== user.username) {
-                otherOffer = offers[key];
-                break;
-            }
-        }
-
-        if (!myOffer || !otherOffer) return;
-
-        for(const username in offers){
-    const offer = offers[username];
-
-    if(username === getUser().username){
-        offer.items.forEach(item => {
-            const inv = state.inventory.find(i => i.id === item.id);
-            if(inv) inv.count -= item.amount;
-        });
-    } else {
-        // apply received items
-        offer.items.forEach(item => {
-            const inv = state.inventory.find(i => i.id === item.id);
-
-            if(inv) inv.count += item.amount;
-            else state.inventory.push({
-                id:item.id,
-                name:item.name,
-                icon:item.icon,
-                rarity:item.rarity,
-                count:item.amount
-            });
-        });
-    }
-}
-
-        // 💰 MONEY SWAP
-        state.credits -= myOffer.money;
-        state.credits += otherOffer.money;
-
-        saveGame();
-        updateFullUI();
-
-        notify("TRADE COMPLETED! 🎉", "success");
-
-        closeTradeView();
-
-        setTimeout(() => {
-            tradeDB.ref("trades/" + trade.id).remove();
-        }, 1500);
     });
 }
 </script>
