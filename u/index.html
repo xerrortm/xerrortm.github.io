@@ -163,7 +163,7 @@ const badgesSection = document.getElementById("badgesSection");
 const privateMsg = document.getElementById("private");
 
 if(!name){
-    privateMsg.classList.remove("hidden");
+    window.location.href="/search";
 } else {
 
     const snap = await get(ref(db, "err-user/" + name));
