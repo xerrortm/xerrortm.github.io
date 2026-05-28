@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Profile | ERROR Inc.</title>
 <script src="https://cdn.tailwindcss.com"></script>
-
 <style>
 
 body{
@@ -68,77 +67,49 @@ body{
 
 <!-- PROFILE -->
 <section id="profile" class="hidden max-w-6xl mx-auto px-6 py-14">
-
     <div class="bg-white border border-slate-200 rounded-[2rem] p-10 shadow-sm">
-
         <div class="flex flex-col lg:flex-row gap-10 justify-between">
-
             <div class="flex gap-6">
-
                 <div id="profileAvatar"
                 class="w-32 h-32 rounded-[2rem] bg-gradient-to-br from-indigo-500 to-indigo-700 text-white flex items-center justify-center text-5xl font-black shadow-lg">
                     U
                 </div>
-
                 <div>
-
                     <div class="flex items-center gap-3">
-
                         <h1 id="profileName"
                         class="text-5xl font-black">username</h1>
-
                     </div>
-
                     <p class="text-slate-500 mt-4 text-lg">
                         ERROR Inc. Community Member
                     </p>
-
                     <div id="topBadges" class="mt-6 flex flex-wrap gap-3"></div>
-
                 </div>
-
             </div>
-
             <div class="grid gap-4 w-full lg:w-[320px]">
-
                 <div class="bg-slate-50 border border-slate-200 rounded-3xl p-6">
-
                     <div class="text-sm text-slate-400">
                         Badges Earned
                     </div>
-
                     <div id="badgeCount"
                     class="text-4xl font-black mt-2">
                         0
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
     </div>
-
 </section>
 
 <!-- BADGES -->
 <section id="badgesSection" class="hidden max-w-6xl mx-auto px-6 pb-20">
-
     <div class="bg-white border border-slate-200 rounded-[2rem] p-8">
-
         <div class="flex items-center justify-between">
-
             <h2 class="text-3xl font-black">Badges</h2>
-
         </div>
-
         <div id="badgesContainer"
         class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5 mt-8">
         </div>
-
     </div>
-
 </section>
 
 <script type="module">
@@ -163,7 +134,7 @@ const badgesSection = document.getElementById("badgesSection");
 const privateMsg = document.getElementById("private");
 
 if(!name){
-    window.location.href="/search";
+    window.location.href="/u/search";
 } else {
 
     const snap = await get(ref(db, "err-user/" + name));
