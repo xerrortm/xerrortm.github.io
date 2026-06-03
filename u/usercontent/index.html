@@ -15,13 +15,11 @@ body{
     justify-content:center;
     height:100vh;
 }
-
 #status{
     text-align:center;
     max-width:500px;
     padding:40px;
 }
-
 .spinner{
     width:48px;
     height:48px;
@@ -31,7 +29,6 @@ body{
     margin:0 auto 20px;
     animation:spin 1s linear infinite;
 }
-
 @keyframes spin{
     to{
         transform:rotate(360deg);
@@ -40,13 +37,11 @@ body{
 </style>
 </head>
 <body>
-
 <div id="status">
     <div class="spinner"></div>
 </div>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
 <script>
 var firebaseConfig = {
     apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
@@ -69,7 +64,7 @@ var projectId = getParam("p");
 
 if(!projectId){
     document.getElementById("status").innerHTML = `
-        <h1>⚠️ Missing Project ID</h1>
+        <h1>Missing Project ID</h1>
         <p>Use the URL like:</p>
         <code>?p=12345678</code>
     `;
@@ -78,20 +73,17 @@ if(!projectId){
         .ref("usercontent/" + projectId)
         .once("value")
         .then(function(snapshot){
-
             if(!snapshot.exists()){
                 document.getElementById("status").innerHTML = `
-                    <h1>❌ Project Not Found</h1>
+                    <h1Project Not Found</h1>
                     <p>No published website exists with ID <b>${projectId}</b>.</p>
                 `;
                 return;
             }
-
             var data = snapshot.val();
-
             if(!data.content){
                 document.getElementById("status").innerHTML = `
-                    <h1>⚠️ Invalid Project</h1>
+                    <h1>Invalid Project</h1>
                     <p>This project contains no HTML.</p>
                 `;
                 return;
@@ -99,18 +91,14 @@ if(!projectId){
             document.open();
             document.write(data.content);
             document.close();
-
         })
         .catch(function(error){
-
             document.getElementById("status").innerHTML = `
-                <h1>🔥 Error</h1>
+                <h1>Error</h1>
                 <p>${error.message}</p>
             `;
-
         });
 }
 </script>
-
 </body>
 </html>
