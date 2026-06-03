@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en" class="antialiased">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ULTRA COOL GSAP Showcase</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['"Space Grotesk"', 'sans-serif'],
+                    },
+                    colors: {
+                        'neon-pink': '#ff007f',
+                        'neon-cyan': '#00f3ff',
+                        'neon-lime': '#ccff00',
+                        'dark-bg': '#050505',
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Space+Grotesk:wght@700;900&display=swap" rel="stylesheet">
+    <style>
+        body { background-color: #050505; color: white; overflow-x: hidden; }
+        
+        /* Lenis Smooth Scroll Recommended CSS */
+        html.lenis, html.lenis body { height: auto; }
+        .lenis.lenis-smooth { scroll-behavior: auto !important; }
+        .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+        .lenis.lenis-stopped { overflow: hidden; }
+        .lenis.lenis-scrolling iframe { pointer-events: none; }
+
+        /* Custom Styles & Utilities */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        
+        .clip-circle { clip-path: circle(0% at 50% 50%); }
+        
+        .text-outline {
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+            background-clip: text;
+            -webkit-background-clip: text;
+        }
+
+        .svg-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+        }
+
+        .char { display: inline-block; } /* For SplitType */
+    </style>
+</head>
+<body class="selection:bg-neon-pink selection:text-white">
+
+    <!-- 1. Progress Bar -->
+    <div id="progress-bar" class="fixed top-0 left-0 h-2 bg-gradient-to-r from-neon-pink via-neon-cyan to-neon-lime z-50 origin-left scale-x-0 w-full"></div>
+
+    <!-- SVG Background Line (Animation 3) -->
+    <svg class="fixed top-0 left-0 w-full h-full pointer-events-none z-0 opacity-20" preserveAspectRatio="none" viewBox="0 0 100 100">
+        <path id="bg-line" class="svg-path" d="M 10 0 C 40 20, 60 80, 90 100" fill="none" stroke="#00f3ff" stroke-width="0.5" />
+    </svg>
+
+    <!-- HERO SECTION -->
+    <section id="hero" class="relative h-screen flex flex-col items-center justify-center overflow-hidden z-10">
+        <!-- 4. Parallax BG Elements -->
+        <div class="parallax-bg absolute top-10 left-10 w-32 h-32 bg-neon-pink rounded-full blur-[100px] opacity-50"></div>
+        <div class="parallax-bg absolute bottom-10 right-10 w-64 h-64 bg-neon-cyan rounded-full blur-[120px] opacity-50" data-speed="0.5"></div>
+        
+        <!-- 5. Massive Scale Intro Text -->
+        <h1 id="hero-title" class="text-[15vw] font-display font-black leading-none text-transparent bg-clip-text bg-gradient-to-br from-white to-gray-500 text-center z-10">
+            ULTRA
+        </h1>
+        <h1 id="hero-title-2" class="text-[15vw] font-display font-black leading-none text-outline text-center z-10 -mt-[4vw]">
+            SCROLL
+        </h1>
+        
+        <!-- 6. Staggered Subtitle -->
+        <p id="hero-subtitle" class="mt-8 text-xl md:text-2xl font-light tracking-widest text-gray-400">
+            EXPERIENCE THE IMPOSSIBLE
+        </p>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-10 flex flex-col items-center gap-2 opacity-50 animate-bounce">
+            <span class="text-xs uppercase tracking-widest">Scroll down</span>
+            <div class="w-[1px] h-12 bg-white"></div>
+        </div>
+    </section>
+
+    <!-- VELOCITY SKEW SECTION -->
+    <section class="py-32 px-4 md:px-20 z-10 relative">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-10">
+            <!-- 7. Velocity Skew Elements -->
+            <div class="skew-elem bg-zinc-900 border border-zinc-800 p-10 rounded-3xl transform-gpu">
+                <div class="w-16 h-16 bg-neon-lime rounded-full mb-6"></div>
+                <h3 class="text-4xl font-display font-bold mb-4">Velocity Skew</h3>
+                <p class="text-gray-400">Scroll faster to see these elements physically react to your scroll speed. They skew dynamically based on scroll delta.</p>
+            </div>
+            <div class="skew-elem bg-zinc-900 border border-zinc-800 p-10 rounded-3xl transform-gpu md:mt-20">
+                <div class="w-16 h-16 bg-neon-pink rounded-lg mb-6"></div>
+                <h3 class="text-4xl font-display font-bold mb-4">Dynamic Response</h3>
+                <p class="text-gray-400">GSAP's QuickSetter allows for extremely performant per-frame updates based on momentum.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 8 & 9. PINNED STACKING CARDS -->
+    <section id="cards-section" class="relative py-20 bg-zinc-950">
+        <div class="container mx-auto px-4 h-screen flex items-center justify-center">
+            <div class="relative w-full max-w-4xl h-[60vh] perspective-1000">
+                <!-- Cards stack on top of each other -->
+                <div class="stack-card absolute top-0 left-0 w-full h-full bg-gradient-to-br from-indigo-600 to-purple-800 rounded-3xl p-10 flex flex-col justify-center transform-style-3d shadow-2xl z-[1]">
+                    <h2 class="text-6xl font-display font-black text-white transform translate-z-10">01. STACK</h2>
+                    <p class="text-2xl text-indigo-200 mt-4 max-w-lg">Cards pin to the screen and stack progressively with a slight 3D rotation.</p>
+                </div>
+                <div class="stack-card absolute top-0 left-0 w-full h-full bg-gradient-to-br from-emerald-500 to-teal-800 rounded-3xl p-10 flex flex-col justify-center transform-style-3d shadow-2xl z-[2] translate-y-full">
+                    <h2 class="text-6xl font-display font-black text-white">02. LAYER</h2>
+                    <p class="text-2xl text-emerald-200 mt-4 max-w-lg">Creating depth by scaling down previous cards while bringing new ones in.</p>
+                </div>
+                <div class="stack-card absolute top-0 left-0 w-full h-full bg-gradient-to-br from-rose-500 to-orange-600 rounded-3xl p-10 flex flex-col justify-center transform-style-3d shadow-2xl z-[3] translate-y-full">
+                    <h2 class="text-6xl font-display font-black text-white">03. PIN</h2>
+                    <p class="text-2xl text-rose-200 mt-4 max-w-lg">The entire section stays pinned until all cards have been revealed.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 10. TEXT REVEAL & 11. COLOR FILL -->
+    <section id="typography-section" class="py-40 px-4 md:px-20 min-h-screen flex flex-col justify-center bg-black relative z-20">
+        <h2 id="split-text-1" class="text-5xl md:text-8xl font-display font-black uppercase max-w-6xl leading-[0.9]">
+            Words carry weight.
+        </h2>
+        <div class="h-32"></div>
+        <!-- Color Fill Text -->
+        <h2 class="text-5xl md:text-8xl font-display font-black uppercase max-w-6xl leading-[0.9] text-outline relative group">
+            <span id="fill-text" class="absolute top-0 left-0 w-[0%] overflow-hidden text-neon-cyan whitespace-nowrap">
+                Watch them fill up.
+            </span>
+            Watch them fill up.
+        </h2>
+    </section>
+
+    <!-- 12, 13, 14. HORIZONTAL SCROLL & INTERNAL PARALLAX -->
+    <section id="horizontal-wrapper" class="relative overflow-hidden bg-zinc-900">
+        <div id="horizontal-container" class="flex h-screen w-[400vw]">
+            <!-- Panel 1 -->
+            <div class="w-screen h-full flex items-center justify-center p-20 relative">
+                <div class="absolute inset-0 bg-zinc-900"></div>
+                <h2 class="text-[10vw] font-display font-black z-10 mix-blend-difference text-white">SIDEWAYS</h2>
+            </div>
+            <!-- Panel 2 (With Image Parallax inside) -->
+            <div class="w-screen h-full flex items-center justify-center p-20 relative">
+                <div class="w-[60vw] h-[60vh] overflow-hidden rounded-3xl relative">
+                    <img class="horizontal-img absolute top-[-20%] left-0 w-full h-[140%] object-cover" src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop" alt="Abstract">
+                </div>
+                <h3 class="absolute text-8xl font-display font-black text-white z-10 drop-shadow-2xl h-text" data-speed="1.5">PARALLAX</h3>
+            </div>
+            <!-- Panel 3 (Clip Path Reveal) -->
+            <div class="w-screen h-full flex items-center justify-center p-20 relative">
+                <div id="clip-image-container" class="w-[60vw] h-[60vh] relative">
+                    <div class="absolute inset-0 bg-zinc-800 rounded-3xl flex items-center justify-center text-4xl font-display">Wait for it...</div>
+                    <img id="clip-image" class="absolute inset-0 w-full h-full object-cover rounded-3xl clip-circle" src="https://images.unsplash.com/photo-1550684848-fac1c5b4e853?q=80&w=2670&auto=format&fit=crop" alt="Neon">
+                </div>
+            </div>
+            <!-- Panel 4 -->
+            <div class="w-screen h-full flex items-center justify-center p-20 bg-neon-lime text-black">
+                <h2 class="text-[10vw] font-display font-black uppercase leading-none tracking-tighter">End<br>of line.</h2>
+            </div>
+        </div>
+    </section>
+
+    <!-- 15 & 16. Z-AXIS TUNNEL (FLY THROUGH) & BLUR -->
+    <section id="tunnel-section" class="h-[300vh] relative bg-black">
+        <div class="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center perspective-1000">
+            <h2 class="absolute z-50 text-white font-display text-4xl tunnel-text text-center pointer-events-none">
+                FLYING THROUGH <br> <span class="text-neon-pink">THE VOID</span>
+            </h2>
+            
+            <!-- Tunnel Shapes -->
+            <div class="tunnel-shape absolute border border-zinc-800 rounded-sm w-[10vw] h-[10vw] z-10"></div>
+            <div class="tunnel-shape absolute border border-zinc-700 rounded-sm w-[15vw] h-[15vw] z-20 transform rotate-12"></div>
+            <div class="tunnel-shape absolute border border-neon-cyan rounded-full w-[20vw] h-[20vw] z-30 transform -rotate-12"></div>
+            <div class="tunnel-shape absolute border-[5px] border-neon-pink rounded-sm w-[30vw] h-[30vw] z-40 transform rotate-45"></div>
+            <div class="tunnel-shape absolute border border-neon-lime rounded-full w-[50vw] h-[50vw] z-[45]"></div>
+        </div>
+    </section>
+
+    <!-- 17. EXPLODING GRID -->
+    <section id="grid-section" class="min-h-screen py-32 flex flex-col items-center justify-center relative overflow-hidden bg-zinc-950 z-20">
+        <h2 class="text-6xl font-display font-black mb-20 text-center relative z-10">EXPLODING GRID</h2>
+        <div id="exploding-grid" class="grid grid-cols-5 md:grid-cols-10 gap-2 md:gap-4 w-[90vw] md:w-[70vw] h-[50vh] relative z-10">
+            <!-- Grid items injected via JS -->
+        </div>
+    </section>
+
+    <!-- 18. COLOR MORPH BACKGROUND SECTION -->
+    <section id="color-morph" class="h-screen flex items-center justify-center transition-colors duration-1000 relative z-20">
+        <h2 class="text-6xl md:text-[8vw] font-display font-black mix-blend-difference text-white">
+            MOOD SHIFT
+        </h2>
+    </section>
+
+    <!-- 19 & 20. FOOTER SUCK-IN & ROTATION -->
+    <footer id="footer" class="h-screen flex flex-col items-center justify-center bg-black relative overflow-hidden z-20">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-zinc-900 to-black opacity-50"></div>
+        
+        <h1 id="footer-text" class="text-[12vw] font-display font-black text-transparent bg-clip-text bg-gradient-to-r from-neon-cyan to-neon-lime z-10">
+            FIN.
+        </h1>
+        
+        <p class="text-gray-500 mt-8 tracking-widest uppercase z-10">Powered by GSAP & Lenis</p>
+        
+        <!-- Interactive floating particles in footer -->
+        <div class="particle absolute w-4 h-4 bg-white rounded-full opacity-20"></div>
+        <div class="particle absolute w-8 h-8 bg-neon-pink rounded-full opacity-20"></div>
+        <div class="particle absolute w-6 h-6 bg-neon-cyan rounded-full opacity-20"></div>
+        <div class="particle absolute w-12 h-12 border border-neon-lime rounded-full opacity-20"></div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.32/dist/lenis.min.js"></script>
+    <!-- SplitType for Text -->
+    <script src="https://unpkg.com/split-type"></script>
+
+    <script>
+        // --- 1. INITIALIZATION ---
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Initialize Lenis for Smooth Scrolling
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            direction: 'vertical',
+            gestureDirection: 'vertical',
+            smooth: true,
+            mouseMultiplier: 1,
+            smoothTouch: false,
+            touchMultiplier: 2,
+            infinite: false,
+        });
+
+        // Sync Lenis with GSAP ScrollTrigger
+        lenis.on('scroll', ScrollTrigger.update);
+        gsap.ticker.add((time) => { lenis.raf(time * 1000) });
+        gsap.ticker.lagSmoothing(0);
+
+        // --- 2. GLOBAL ANIMATIONS ---
+
+        // Anim 1: Top Progress Bar
+        gsap.to("#progress-bar", {
+            scaleX: 1,
+            ease: "none",
+            scrollTrigger: {
+                trigger: "body",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 0.3
+            }
+        });
+
+        // Anim 3: SVG Background Line Draw
+        gsap.to("#bg-line", {
+            strokeDashoffset: 0,
+            ease: "none",
+            scrollTrigger: {
+                trigger: "body",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 1
+            }
+        });
+
+        // --- 3. HERO SECTION ---
+
+        // Anim 4: Hero Title Scale Down & Fade
+        let tlHero = gsap.timeline({
+            scrollTrigger: {
+                trigger: "#hero",
+                start: "top top",
+                end: "bottom top",
+                scrub: 1,
+                pin: true
+            }
+        });
+        
+        tlHero.to("#hero-title", { scale: 0.5, opacity: 0, y: -100, duration: 1 })
+              .to("#hero-title-2", { scale: 1.5, opacity: 0, y: 100, duration: 1 }, "<")
+              .to("#hero-subtitle", { opacity: 0, y: 50, duration: 0.5 }, "-=0.8");
+
+        // Anim 5: Hero Parallax Elements
+        gsap.utils.toArray(".parallax-bg").forEach(layer => {
+            const speed = layer.dataset.speed || 1;
+            gsap.to(layer, {
+                y: () => -150 * speed,
+                scale: 1.2,
+                scrollTrigger: {
+                    trigger: "#hero",
+                    start: "top top",
+                    end: "bottom top",
+                    scrub: true
+                }
+            });
+        });
+
+        // --- 4. VELOCITY SKEW ---
+        // Anim 6: Elements skew based on scroll velocity
+        let proxy = { skew: 0 },
+            skewSetter = gsap.quickSetter(".skew-elem", "skewY", "deg"),
+            clamp = gsap.utils.clamp(-20, 20);
+
+        ScrollTrigger.create({
+            onUpdate: (self) => {
+                let skew = clamp(self.getVelocity() / -100);
+                // Only animate if the difference is significant
+                if (Math.abs(skew) > Math.abs(proxy.skew)) {
+                    proxy.skew = skew;
+                    gsap.to(proxy, {skew: 0, duration: 0.8, ease: "power3", overwrite: true, onUpdate: () => skewSetter(proxy.skew)});
+                }
+            }
+        });
+
+        // --- 5. PINNED STACKING CARDS ---
+        // Anim 7, 8, 9: Stacking and Scaling
+        const cards = gsap.utils.toArray(".stack-card");
+        
+        ScrollTrigger.create({
+            trigger: "#cards-section",
+            start: "top top",
+            end: "+=200%", // Pin for 2 screen heights
+            pin: true,
+            scrub: true,
+            animation: gsap.timeline()
+                // Card 2 comes in
+                .to(cards[0], { scale: 0.95, y: -20, opacity: 0.5, rotationX: 5 })
+                .to(cards[1], { y: 0, ease: "power1.inOut" }, "<")
+                // Card 3 comes in
+                .to(cards[0], { scale: 0.90, y: -40, opacity: 0.2, rotationX: 10 })
+                .to(cards[1], { scale: 0.95, y: -20, opacity: 0.5, rotationX: 5 }, "<")
+                .to(cards[2], { y: 0, ease: "power1.inOut" }, "<")
+        });
+
+        // --- 6. TYPOGRAPHY (SPLIT TEXT) ---
+        // Anim 10: Split text words staggered bounce
+        const splitText = new SplitType('#split-text-1', { types: 'words, chars' });
+        
+        gsap.from(splitText.chars, {
+            scrollTrigger: {
+                trigger: "#typography-section",
+                start: "top 70%",
+                end: "top 30%",
+                scrub: false,
+                toggleActions: "play none none reverse"
+            },
+            y: 100,
+            opacity: 0,
+            rotationX: -90,
+            stagger: 0.02,
+            duration: 1,
+            ease: "back.out(1.5)",
+            transformOrigin: "bottom center"
+        });
+
+        // Anim 11: Text Outline Fill
+        gsap.to("#fill-text", {
+            width: "100%",
+            ease: "none",
+            scrollTrigger: {
+                trigger: "#fill-text",
+                start: "top 80%",
+                end: "bottom 40%",
+                scrub: 0.5
+            }
+        });
+
+        // --- 7. HORIZONTAL SCROLL ---
+        // Anim 12: The horizontal scroll container
+        let horizontalContainer = document.getElementById("horizontal-container");
+        
+        let tlHorizontal = gsap.timeline({
+            scrollTrigger: {
+                trigger: "#horizontal-wrapper",
+                start: "top top",
+                end: () => "+=" + horizontalContainer.offsetWidth,
+                pin: true,
+                scrub: 1,
+                invalidateOnRefresh: true
+            }
+        });
+
+        tlHorizontal.to(horizontalContainer, {
+            x: () => -(horizontalContainer.scrollWidth - window.innerWidth),
+            ease: "none"
+        });
+
+        // Anim 13: Internal Image Parallax within Horizontal Scroll
+        gsap.to(".horizontal-img", {
+            y: "20%",
+            ease: "none",
+            scrollTrigger: {
+                trigger: "#horizontal-wrapper",
+                start: "top top",
+                end: () => "+=" + horizontalContainer.offsetWidth,
+                scrub: true
+            }
+        });
+
+        // Anim 14: Text Parallax within Horizontal
+        gsap.to(".h-text", {
+            x: 200,
+            ease: "none",
+            scrollTrigger: {
+                trigger: "#horizontal-wrapper",
+                start: "top top",
+                end: () => "+=" + horizontalContainer.offsetWidth,
+                scrub: true
+            }
+        });
+
+        // Anim 15: Clip Path Circle Reveal
+        gsap.to("#clip-image", {
+            clipPath: "circle(100% at 50% 50%)",
+            ease: "power2.inOut",
+            scrollTrigger: {
+                trigger: "#clip-image-container",
+                containerAnimation: tlHorizontal, // Link to horizontal timeline!
+                start: "left center",
+                end: "right center",
+                scrub: 1
+            }
+        });
+
+        // --- 8. Z-AXIS TUNNEL ---
+        // Anim 16 & 17: Infinite scaling effect (flying into the screen) and blur
+        const tunnelShapes = gsap.utils.toArray(".tunnel-shape");
+        
+        let tlTunnel = gsap.timeline({
+            scrollTrigger: {
+                trigger: "#tunnel-section",
+                start: "top top",
+                end: "bottom bottom",
+                scrub: 1
+            }
+        });
+
+        tunnelShapes.forEach((shape, i) => {
+            tlTunnel.to(shape, {
+                scale: 50 + (i * 20), // Scale massively
+                opacity: 0,
+                rotation: "+=90", // Spin while flying
+                ease: "power2.in",
+            }, 0); // Start all at time 0 but ease handles the depth feel
+        });
+
+        // Blur out the text as we fly in
+        tlTunnel.to(".tunnel-text", {
+            scale: 5,
+            opacity: 0,
+            filter: "blur(20px)",
+            ease: "power1.in"
+        }, 0);
+
+        // --- 9. EXPLODING GRID ---
+        // Generate grid items dynamically
+        const gridContainer = document.getElementById("exploding-grid");
+        for(let i=0; i<50; i++) {
+            let div = document.createElement("div");
+            // Random bright colors
+            let colors = ['bg-neon-pink', 'bg-neon-cyan', 'bg-neon-lime', 'bg-white', 'bg-zinc-800'];
+            let randomColor = colors[Math.floor(Math.random() * colors.length)];
+            div.className = `w-full h-10 md:h-20 ${randomColor} rounded-md grid-item transform-gpu`;
+            gridContainer.appendChild(div);
+        }
+
+        // Anim 18: Explode Grid
+        const gridItems = gsap.utils.toArray(".grid-item");
+        
+        gsap.to(gridItems, {
+            scrollTrigger: {
+                trigger: "#grid-section",
+                start: "top center",
+                end: "bottom center",
+                scrub: 1
+            },
+            x: () => gsap.utils.random(-800, 800),
+            y: () => gsap.utils.random(-800, 800),
+            rotation: () => gsap.utils.random(-360, 360),
+            scale: () => gsap.utils.random(0.1, 3),
+            opacity: 0,
+            ease: "power2.out"
+        });
+
+        // --- 10. COLOR MORPH ---
+        // Anim 19: Background color transitions based on scroll
+        ScrollTrigger.create({
+            trigger: "#color-morph",
+            start: "top 60%",
+            end: "bottom 40%",
+            onEnter: () => gsap.to("body", { backgroundColor: "#ff007f", duration: 1 }), // Neon Pink
+            onLeave: () => gsap.to("body", { backgroundColor: "#050505", duration: 1 }), // Back to Black
+            onEnterBack: () => gsap.to("body", { backgroundColor: "#ff007f", duration: 1 }),
+            onLeaveBack: () => gsap.to("body", { backgroundColor: "#050505", duration: 1 })
+        });
+
+        // --- 11. FOOTER SUCK-IN ---
+        // Anim 20 & 21: Reverse zoom (sucking in from screen bounds)
+        gsap.from("#footer-text", {
+            scrollTrigger: {
+                trigger: "#footer",
+                start: "top bottom",
+                end: "center center",
+                scrub: 1
+            },
+            scale: 0,
+            rotation: 180,
+            opacity: 0,
+            ease: "power3.out"
+        });
+
+        // Anim 22: Floating Particles in Footer
+        gsap.utils.toArray(".particle").forEach(p => {
+            gsap.set(p, {
+                x: () => gsap.utils.random(0, window.innerWidth),
+                y: () => gsap.utils.random(0, window.innerHeight)
+            });
+            
+            gsap.to(p, {
+                scrollTrigger: {
+                    trigger: "#footer",
+                    start: "top bottom",
+                    end: "bottom top",
+                    scrub: 2
+                },
+                y: () => "-=" + gsap.utils.random(200, 500),
+                x: () => "+=" + gsap.utils.random(-100, 100),
+                rotation: () => "+=" + gsap.utils.random(100, 300),
+                ease: "none"
+            });
+        });
+
+        // Refresh ScrollTrigger on resize to maintain correct start/end points
+        window.addEventListener("resize", () => ScrollTrigger.refresh());
+    </script>
+</body>
+</html>
