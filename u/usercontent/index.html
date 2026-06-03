@@ -68,6 +68,12 @@ if(!projectId){
         <p>No published website exists with ID <b>${projectId}</b>.</p>
     `;
 }else{
+    setTimeout(() => {
+        document.getElementById("status").innerHTML = `
+            <h1>408 Request Timeout</h1>
+            <p>The server took too long to respond.</p>
+        `;
+    }, 10000);
     firebase.database()
         .ref("usercontent/" + projectId)
         .once("value")
@@ -87,12 +93,6 @@ if(!projectId){
                 `;
                 return;
             }
-            setTimeout(() => {
-                document.getElementById("status").innerHTML = `
-                    <h1>408 Request Timeout</h1>
-                    <p>The server took too long to respond.</p>
-                `;
-            }, 10000);
             document.open();
             document.write(data.content);
             document.close();
