@@ -64,9 +64,8 @@ var projectId = getParam("p");
 
 if(!projectId){
     document.getElementById("status").innerHTML = `
-        <h1>Missing Project ID</h1>
-        <p>Use the URL like:</p>
-        <code>?p=12345678</code>
+        <h1>Project Not Found</h1>
+        <p>No published website exists with ID <b>${projectId}</b>.</p>
     `;
 }else{
     firebase.database()
@@ -75,7 +74,7 @@ if(!projectId){
         .then(function(snapshot){
             if(!snapshot.exists()){
                 document.getElementById("status").innerHTML = `
-                    <h1Project Not Found</h1>
+                    <h1>Project Not Found</h1>
                     <p>No published website exists with ID <b>${projectId}</b>.</p>
                 `;
                 return;
