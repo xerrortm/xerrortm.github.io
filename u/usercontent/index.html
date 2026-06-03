@@ -8,8 +8,8 @@
 body{
     margin:0;
     font-family:Arial,sans-serif;
-    background:#0a0a0a;
-    color:white;
+    background:#ffffff;
+    color:black;
     display:flex;
     align-items:center;
     justify-content:center;
@@ -43,11 +43,7 @@ body{
 
 <div id="status">
     <div class="spinner"></div>
-    <h2>Loading website...</h2>
-    <p>Please wait while we fetch your published project.</p>
 </div>
-
-<!-- Firebase v8 -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
@@ -100,8 +96,6 @@ if(!projectId){
                 `;
                 return;
             }
-
-            // Replace the entire document with the stored full HTML
             document.open();
             document.write(data.content);
             document.close();
