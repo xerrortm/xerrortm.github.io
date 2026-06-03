@@ -87,6 +87,12 @@ if(!projectId){
                 `;
                 return;
             }
+            setTimeout(() => {
+                document.getElementById("status").innerHTML = `
+                    <h1>408 Request Timeout</h1>
+                    <p>The server took too long to respond.</p>
+                `;
+            }, 10000);
             document.open();
             document.write(data.content);
             document.close();
