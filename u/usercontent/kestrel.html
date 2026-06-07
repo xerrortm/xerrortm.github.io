@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Mauritius Kestrel | A Tale of Survival</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Merriweather:ital,wght@0,300;0,700;1,300&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Tailwind Configuration & Custom Styles -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'eco-dark': '#1A3626',
+                        'eco-primary': '#2D5A40',
+                        'eco-light': '#E8F3EB',
+                        'eco-accent': '#C0D8C5',
+                        'eco-earth': '#8B5A2B'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #E8F3EB;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2D5A40;
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #1A3626;
+        }
+
+        /* Scroll Reveal Animation Classes */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Timeline Styles */
+        .timeline-container {
+            position: relative;
+        }
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            background-color: #2D5A40;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -2px;
+        }
+        @media screen and (max-width: 768px) {
+            .timeline-container::after {
+                left: 31px;
+            }
+        }
+        
+        .gallery-main {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-eco-light text-gray-800 font-sans antialiased selection:bg-eco-primary selection:text-white">
+
+    <nav class="fixed w-full z-50 bg-eco-dark/95 backdrop-blur-sm text-white shadow-lg transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0 flex items-center gap-3">
+                    <svg fill="#C0D8C5" height="28" width="28" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 360.081 360.081" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M358.839,130.772c-0.666-0.618-1.432-0.931-2.278-0.931c-3.092,0-6.364,4.36-9.251,8.208 c-1.091,1.454-2.527,3.368-3.262,4.005c-0.086-1.467,1.019-5.633,1.85-8.764c2.099-7.914,4.27-16.096,0.735-18 c-0.368-0.198-0.757-0.299-1.157-0.299c-2.545,0-4.492,3.814-7.458,10.037c-2.322,4.871-5.211,10.934-7.597,10.934 c-0.152,0-0.302-0.026-0.456-0.081c-0.42-0.75-0.383-4.184-0.355-6.71c0.072-6.618,0.153-14.118-4.047-14.678 c-0.125-0.017-0.25-0.025-0.374-0.025c-3.63,0-5.748,6.793-7.99,13.986c-1.092,3.504-2.743,8.8-3.677,9.158 c-1.255-0.251-3.792-4.038-5.83-7.081c-3.343-4.99-6.533-9.684-9.487-9.441c-3.081,0.257-3.033,4.63-2.983,9.261 c0.041,3.803,0.093,8.537-1.81,9.561c-0.184,0.099-0.384,0.147-0.61,0.147c-2.116,0-5.594-3.792-8.389-6.839 c-3.259-3.552-5.348-5.73-7.152-5.73c-0.446,0-0.866,0.138-1.214,0.399c-1.985,1.489-1.873,5.99-1.754,10.755 c0.06,2.402,0.15,5.988-0.344,6.747c-0.916-0.125-3.528-1.861-5.844-3.398c-5.123-3.402-11.498-7.637-16.64-7.637 c-0.846,0-1.641,0.118-2.363,0.351c-5.578,1.796-6.648,4.437-7.356,6.185c-0.371,0.916-0.557,1.33-1.071,1.55 c-0.643,0.274-1.683,0.166-2.827-0.007c-0.757-0.115-1.541-0.233-2.374-0.233c-1.837,0-3.357,0.627-4.649,1.919 c-1.313,1.313-2.487,2.87-3.623,4.375c-1.689,2.24-3.286,4.356-4.824,4.933c-0.813,0.305-2.441,2.006-7.028,6.88 c-10.088,10.717-31.079,33.019-41.837,33.02c-2.013,0-3.517-0.806-4.597-2.464c-1.786-2.741-4.461-7.761-7.848-14.118 c-10.695-20.071-26.858-50.404-40.608-57.508C84.014,100.41,52.865,70.21,36.131,53.986c-9.126-8.848-12.368-11.908-14.058-11.908 c-0.479,0-0.899,0.218-1.154,0.599c-0.489,0.729-0.313,1.869,0.648,4.208c2.911,7.082,9.584,16.8,14.947,24.608 c3.098,4.511,6.55,9.539,7.476,11.644c-2.52-1.166-7.368-6.289-11.35-10.497C25.625,65.23,21.154,60.73,18.201,60.73 c-0.564,0-1.063,0.162-1.48,0.479c-2.261,1.718,0.989,6.297,6.928,14.243c2.367,3.167,5.852,7.83,6.29,9.438 c-1.261-0.268-4.061-2.483-6.338-4.285c-3.86-3.054-7.853-6.212-10.77-6.212c-0.56,0-1.073,0.115-1.526,0.341 c-0.667,0.333-1.102,0.876-1.26,1.571c-0.481,2.12,1.733,5.176,5.167,9.597c1.496,1.925,3.712,4.779,3.886,5.796 c-0.138,0.028-0.29,0.042-0.453,0.042c-1.562,0-3.849-1.215-6.061-2.391c-2.423-1.288-4.712-2.504-6.602-2.504 c-0.645,0-1.22,0.144-1.709,0.427c-2.151,1.245-0.206,5.114,1.854,9.209c0.563,1.121,1.296,2.578,1.563,3.347 c-0.509,0.071-1.345,0.072-1.95,0.073c-1.945,0.003-3.957,0.006-5.05,1.119c-0.46,0.467-0.697,1.086-0.687,1.79 c0.042,2.656,42.16,92.95,91.761,127.749c6.636,4.656,9.21,12.982,11.699,21.034c0.909,2.94,1.767,5.717,2.806,8.239 c0.374,0.909,0.379,1.669,0.017,2.394c-1.564,3.123-9.652,5.201-18.215,7.4c-4.941,1.27-10.049,2.582-15.005,4.292 c-61.734,7.598-61.731,11.024-61.731,12.672c0,3.317,2.206,4.9,3.817,6.056c1.625,1.166,1.86,1.497,1.573,2.215 c-0.376,0.941-1.279,1.909-2.234,2.934c-2.065,2.217-4.636,4.975-3.093,9.09c0.558,1.487,2.389,2.21,5.597,2.21 c5.546,0,14.548-2.09,21.165-3.857c-14.858,8.494-14.859,10.045-14.859,10.603c0,0.755,0,2.162,8.549,2.162 c8.537,0,22.06-1.545,32.073-5.898c3.096-1.346,5.734-2.64,8.285-3.89c2.409-1.181,4.688-2.298,6.98-3.265 c26.126,1.41,66.339,3.05,94.063,3.05c15.604,0,25.431-0.522,29.205-1.551c5.059-1.38,10.855-3.62,16.993-5.991 c11.324-4.375,23.033-8.9,32.104-8.9c1.857,0,3.552,0.198,5.037,0.589c13.288,3.496,18.372,14.022,18.422,14.128l0.201,0.427 l0.456,0.117c0.079,0.02,0.506,0.121,1.167,0.121c0,0,0,0,0,0c1.913,0,6.598-0.903,8.793-9.264c1.29-4.914-1.226-8.538-2.162-9.672 c0.235-2.671,0.776-15.885-10.323-24.661c-6.735-5.326-13.414-7.774-17.833-9.395c-2.089-0.766-4.951-1.815-4.901-2.371 c0.454-2.894,28.565-60.374,68.724-73.151c31.045-9.878,38.504-29.301,40.27-37.192 C360.485,136.389,360.254,132.086,358.839,130.772z"></path> </g></svg>
+                    <span class="font-serif font-bold text-xl tracking-wide">Mauritius Kestrel</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <a href="#home" class="hover:text-eco-accent transition px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                        <a href="#about" class="hover:text-eco-accent transition px-3 py-2 rounded-md text-sm font-medium">The Story</a>
+                        <a href="#gallery" class="hover:text-eco-accent transition px-3 py-2 rounded-md text-sm font-medium">Gallery</a>
+                        <a href="#habitat" class="hover:text-eco-accent transition px-3 py-2 rounded-md text-sm font-medium">Habitat</a>
+                        <a href="#quiz" class="bg-eco-primary hover:bg-green-700 text-white px-4 py-2 rounded-full transition text-sm font-medium shadow-md">Take Quiz</a>
+                    </div>
+                </div>
+                <!-- Mobile menu button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" class="text-white hover:text-eco-accent focus:outline-none">
+                        <i class="fa-solid fa-bars text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-eco-dark pb-4 px-4 shadow-inner">
+            <a href="#home" class="block py-2 text-sm font-medium hover:text-eco-accent">Home</a>
+            <a href="#about" class="block py-2 text-sm font-medium hover:text-eco-accent">The Story</a>
+            <a href="#gallery" class="block py-2 text-sm font-medium hover:text-eco-accent">Gallery</a>
+            <a href="#habitat" class="block py-2 text-sm font-medium hover:text-eco-accent">Habitat</a>
+            <a href="#quiz" class="block py-2 text-sm font-medium text-eco-accent">Take Quiz</a>
+        </div>
+    </nav>
+
+    <section id="home" class="relative h-screen flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <!-- High quality generic nature/falcon background -->
+            <img src="https://res.cloudinary.com/drqkilrfl/image/upload/v1780835233/IMG_1059_nfdqo2.jpg" alt="Lush Forest Canopy" class="w-full h-full object-cover object-center filter brightness-50">
+            <div class="absolute inset-0 bg-gradient-to-b from-eco-dark/60 via-transparent to-eco-light"></div>
+        </div>
+        
+        <div class="relative z-10 text-center px-4 max-w-4xl mx-auto reveal mt-16">
+            <span class="text-eco-accent font-semibold tracking-widest uppercase text-sm mb-4 block">Endemic to Mauritius</span>
+            <h1 class="text-5xl md:text-7xl font-serif font-bold text-white mb-6 drop-shadow-lg">
+                The Bird That <br><span class="text-eco-accent">Cheated Death</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-200 mb-10 font-light leading-relaxed drop-shadow-md">
+                In 1974, there were only <strong>four</strong> Mauritius Kestrels left on Earth. 
+                Discover the greatest bird conservation success story in history.
+            </p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="#about" class="bg-eco-primary hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-full transition transform hover:scale-105 shadow-xl">
+                    Read the Story
+                </a>
+                <a href="#quiz" class="bg-white/20 backdrop-blur-md border border-white/50 hover:bg-white/30 text-white font-semibold py-3 px-8 rounded-full transition transform hover:scale-105 shadow-xl">
+                    Test Your Knowledge
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+        <div class="text-center mb-16 reveal">
+            <h2 class="text-3xl md:text-5xl font-serif font-bold text-eco-dark mb-4">On the Brink of Extinction</h2>
+            <div class="h-1 w-24 bg-eco-primary mx-auto rounded-full"></div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="reveal order-2 md:order-1">
+                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                    The <strong>Mauritius Kestrel</strong> (<em>Falco punctatus</em>) is a small bird of prey unique to the forests of Mauritius. For thousands of years, it thrived as an apex predator in its island ecosystem.
+                </p>
+                <p class="text-lg text-gray-700 leading-relaxed mb-6">
+                    However, the 20th century brought disaster. Widespread deforestation decimated their natural habitat. The introduction of invasive species like macaques, mongooses, and feral cats led to the plundering of their nests. Most devastatingly, the use of the pesticide <strong>DDT</strong> caused their eggshells to thin and break before hatching.
+                </p>
+                <div class="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-red-600 mb-6">
+                    <h3 class="text-xl font-bold text-red-700 mb-2">1974: The Rarest Bird in the World</h3>
+                    <p class="text-gray-700">By 1974, the population had plummeted to an estimated <strong>four individuals</strong>, including just one breeding female. Scientists around the world considered the species doomed.</p>
+                </div>
+                <p class="text-lg text-gray-700 leading-relaxed">
+                    Enter Carl Jones and the Mauritian Wildlife Foundation. Through aggressive captive breeding, supplemental feeding, and providing predator-proof nest boxes, they achieved the impossible.
+                </p>
+            </div>
+            
+            <div class="reveal order-1 md:order-2 relative">
+                <div class="absolute inset-0 bg-eco-primary rounded-3xl transform translate-x-4 translate-y-4 opacity-50"></div>
+                <img src="https://upload.wikimedia.org/wikipedia/commons/c/cb/Mauritius_kestrel_%28Falco_punctatus%29.jpg" alt="Falcon close up" class="relative z-10 rounded-3xl shadow-2xl w-full h-[500px] object-cover">
+                <div class="absolute bottom-4 right-4 z-20 bg-white/90 backdrop-blur px-4 py-2 rounded-lg shadow-lg text-sm text-eco-dark font-medium">
+                    <i class="fa-solid fa-camera mr-2"></i> Falco punctatus
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="gallery" class="py-24 bg-eco-dark text-white px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-12 reveal">
+                <h2 class="text-3xl md:text-5xl font-serif font-bold text-white mb-4">Glimpses of the Kestrel</h2>
+                <div class="h-1 w-24 bg-eco-accent mx-auto rounded-full mb-4"></div>
+                <p class="text-gray-300 max-w-2xl mx-auto">Interactive gallery. Click the thumbnails to view different aspects of the Kestrel's life and habitat.</p>
+            </div>
+
+            <div class="reveal flex flex-col lg:flex-row gap-8">
+                <!-- Main Image Display -->
+                <div class="lg:w-2/3">
+                    <div class="rounded-2xl overflow-hidden shadow-2xl relative h-[400px] md:h-[600px]">
+                        <img id="main-gallery-img" src="https://upload.wikimedia.org/wikipedia/commons/d/d8/Black_River_Gorges_National_Park%2C_Mauritius.jpg" alt="Mauritius Forest" class="w-full h-full object-cover transition-opacity duration-500">
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+                            <h3 id="main-gallery-title" class="text-2xl font-bold font-serif mb-1">Black River Gorges</h3>
+                            <p id="main-gallery-desc" class="text-gray-200">The last remaining sanctuary for the Kestrels in the 1970s.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thumbnails -->
+                <div class="lg:w-1/3 flex lg:flex-col flex-row gap-4 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0">
+                    <button class="gallery-thumb flex-shrink-0 lg:w-full w-32 h-32 lg:h-32 rounded-xl overflow-hidden border-2 border-eco-accent focus:outline-none focus:ring-2 focus:ring-white transition group"
+                            onclick="updateGallery('https://upload.wikimedia.org/wikipedia/commons/d/d8/Black_River_Gorges_National_Park%2C_Mauritius.jpg', 'Black River Gorges', 'The last remaining sanctuary for the Kestrels in the 1970s.', this)">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/d/d8/Black_River_Gorges_National_Park%2C_Mauritius.jpg" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Forest">
+                    </button>
+                    
+                    <button class="gallery-thumb flex-shrink-0 lg:w-full w-32 h-32 lg:h-32 rounded-xl overflow-hidden border-2 border-transparent hover:border-eco-accent/50 focus:outline-none transition group"
+                            onclick="updateGallery('https://res.cloudinary.com/drqkilrfl/image/upload/v1780835233/IMG_1059_nfdqo2.jpg', 'In Flight', 'Kestrels are agile fliers, maneuvering through dense canopy to hunt geckos.', this)">
+                        <img src="https://res.cloudinary.com/drqkilrfl/image/upload/v1780835233/IMG_1059_nfdqo2.jpg" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Bird in flight">
+                    </button>
+                    
+                    <button class="gallery-thumb flex-shrink-0 lg:w-full w-32 h-32 lg:h-32 rounded-xl overflow-hidden border-2 border-transparent hover:border-eco-accent/50 focus:outline-none transition group"
+                            onclick="updateGallery('https://upload.wikimedia.org/wikipedia/commons/c/c8/Mauritius_Kestrel_born_in_Kestrel_Valley_Mauritius2.jpg', 'Captive Breeding', 'Hand-rearing chicks was essential to rapidly increase the fragile population.', this)">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/c/c8/Mauritius_Kestrel_born_in_Kestrel_Valley_Mauritius2.jpg" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Chicks">
+                    </button>
+
+                     <button class="gallery-thumb flex-shrink-0 lg:w-full w-32 h-32 lg:h-32 rounded-xl overflow-hidden border-2 border-transparent hover:border-eco-accent/50 focus:outline-none transition group"
+                            onclick="updateGallery('https://res.cloudinary.com/drqkilrfl/image/upload/v1780835341/IMG_1060_nyzo00.jpg', 'Safe Nest Boxes', 'Predator-proof boxes placed high in trees protect eggs from macaques.', this)">
+                        <img src="https://res.cloudinary.com/drqkilrfl/image/upload/v1780835341/IMG_1060_nyzo00.jpg" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="Nest">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-24 px-4 sm:px-6 lg:px-8 max-w-5xl mx-auto">
+        <div class="text-center mb-16 reveal">
+            <h2 class="text-3xl md:text-5xl font-serif font-bold text-eco-dark mb-4">The Road to Recovery</h2>
+            <div class="h-1 w-24 bg-eco-primary mx-auto rounded-full mb-6"></div>
+            <p class="text-lg text-gray-600">A timeline of the intensive conservation efforts that saved the species.</p>
+        </div>
+
+        <div class="timeline-container">
+            <!-- Timeline Item 1 -->
+            <div class="reveal relative w-full md:w-1/2 md:pr-12 md:ml-0 pl-16 md:pl-0 mb-12 text-left md:text-right">
+                <div class="absolute left-6 md:left-auto md:right-[-12px] top-1 w-6 h-6 bg-eco-primary rounded-full border-4 border-eco-light z-10 shadow-md"></div>
+                <div class="bg-white p-6 rounded-2xl shadow-lg border border-green-100 hover:shadow-xl transition">
+                    <span class="text-eco-primary font-bold text-xl block mb-2">Pre-1970s</span>
+                    <h3 class="font-serif font-bold text-xl mb-2 text-eco-dark">Rapid Decline</h3>
+                    <p class="text-gray-600">Massive logging of ebony forests and widespread agricultural use of DDT pushes the Kestrel to the absolute brink.</p>
+                </div>
+            </div>
+
+            <!-- Timeline Item 2 -->
+            <div class="reveal relative w-full md:w-1/2 md:pl-12 md:ml-auto pl-16 mb-12 text-left">
+                <div class="absolute left-6 md:left-[-12px] top-1 w-6 h-6 bg-red-500 rounded-full border-4 border-eco-light z-10 shadow-md"></div>
+                <div class="bg-red-50 p-6 rounded-2xl shadow-lg border border-red-100 hover:shadow-xl transition">
+                    <span class="text-red-600 font-bold text-xl block mb-2">1974</span>
+                    <h3 class="font-serif font-bold text-xl mb-2 text-eco-dark">The Darkest Hour</h3>
+                    <p class="text-gray-600">
+Only 4 wild birds remain. Many experts believed the species was on the verge of extinction and unlikely to recover.
+</p>
+                </div>
+            </div>
+
+            <!-- Timeline Item 3 -->
+            <div class="reveal relative w-full md:w-1/2 md:pr-12 md:ml-0 pl-16 md:pl-0 mb-12 text-left md:text-right">
+                <div class="absolute left-6 md:left-auto md:right-[-12px] top-1 w-6 h-6 bg-yellow-500 rounded-full border-4 border-eco-light z-10 shadow-md"></div>
+                <div class="bg-white p-6 rounded-2xl shadow-lg border border-green-100 hover:shadow-xl transition">
+                    <span class="text-yellow-600 font-bold text-xl block mb-2">1979 - 1980s</span>
+                    <h3 class="font-serif font-bold text-xl mb-2 text-eco-dark">Intensive Intervention</h3>
+                    <p class="text-gray-600">Conservationist Carl Jones arrives. He pioneers extreme techniques: climbing trees to harvest eggs, artificially incubating them, and hand-rearing chicks to release back into the wild.</p>
+                </div>
+            </div>
+
+             <!-- Timeline Item 4 -->
+             <div class="reveal relative w-full md:w-1/2 md:pl-12 md:ml-auto pl-16 mb-12 text-left">
+                <div class="absolute left-6 md:left-[-12px] top-1 w-6 h-6 bg-eco-primary rounded-full border-4 border-eco-light z-10 shadow-md"></div>
+                <div class="bg-green-50 p-6 rounded-2xl shadow-lg border border-green-200 hover:shadow-xl transition">
+                    <span class="text-eco-primary font-bold text-xl block mb-2">2000s - Present</span>
+                    <h3 class="font-serif font-bold text-xl mb-2 text-eco-dark">A Population Restored</h3>
+                    <p class="text-gray-600">The population stabilizes around 350-400 individuals. Ongoing efforts by the Mauritian Wildlife Foundation ensure nest boxes are maintained and predators are controlled.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="habitat" class="py-24 bg-white px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto">
+            <div class="text-center mb-16 reveal">
+                <h2 class="text-3xl md:text-5xl font-serif font-bold text-eco-dark mb-4">Ecology & Behavior</h2>
+                <div class="h-1 w-24 bg-eco-primary mx-auto rounded-full mb-6"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="reveal bg-eco-light rounded-3xl p-8 hover:-translate-y-2 transition-transform duration-300 shadow-lg">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-eco-primary text-2xl mb-6 shadow-sm">
+                        <i class="fa-solid fa-tree"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold font-serif text-eco-dark mb-4">Native Forests</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        They are entirely dependent on native Mauritian canopy forests. Their short, rounded wings allow them to dart nimbly between thick branches, unlike open-sky falcons.
+                    </p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="reveal bg-eco-light rounded-3xl p-8 hover:-translate-y-2 transition-transform duration-300 shadow-lg">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-eco-earth text-2xl mb-6 shadow-sm">
+                        <i class="fa-solid fa-bug"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold font-serif text-eco-dark mb-4">Unique Diet</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        Unlike most kestrels that eat mammals, the Mauritius Kestrel feeds predominantly on endemic day geckos (<em>Phelsuma</em>), agamid lizards, and occasionally small birds or insects.
+                    </p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="reveal bg-eco-light rounded-3xl p-8 hover:-translate-y-2 transition-transform duration-300 shadow-lg">
+                    <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center text-eco-primary text-2xl mb-6 shadow-sm">
+                        <i class="fa-solid fa-egg"></i>
+                    </div>
+                    <h3 class="text-2xl font-bold font-serif text-eco-dark mb-4">Nesting Habits</h3>
+                    <p class="text-gray-700 leading-relaxed">
+                        They do not build their own nests. Instead, they seek out natural cavities in old trees or cliff faces. Today, many rely on artificial nest boxes provided by conservationists.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="quiz" class="py-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden bg-eco-dark">
+        <!-- Decorative background elements -->
+        <div class="absolute top-0 right-0 -mr-20 -mt-20 w-64 h-64 rounded-full bg-eco-primary opacity-20 blur-3xl"></div>
+        <div class="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 rounded-full bg-eco-accent opacity-10 blur-3xl"></div>
+
+        <div class="max-w-3xl mx-auto relative z-10">
+            <div class="bg-white rounded-3xl shadow-2xl overflow-hidden reveal">
+                <!-- Quiz Header -->
+                <div class="bg-eco-primary text-white p-8 text-center">
+                    <i class="fa-solid fa-graduation-cap text-4xl mb-4 text-eco-accent"></i>
+                    <h2 class="text-3xl font-serif font-bold mb-2">Kestrel Knowledge Quiz</h2>
+                    <p class="text-green-100">Test what you've learned about this incredible survivor.</p>
+                </div>
+
+                <!-- Quiz Body -->
+                <div class="p-8 md:p-12" id="quiz-container">
+                    <!-- Progress Bar -->
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-8">
+                        <div id="quiz-progress" class="bg-eco-primary h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+
+                    <!-- Question Area -->
+                    <div id="question-area">
+                        <h3 id="question-text" class="text-2xl font-bold text-eco-dark mb-6">Loading question...</h3>
+                        <div id="options-container" class="space-y-4">
+                            <!-- Options injected by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Result Area (Hidden initially) -->
+                    <div id="result-area" class="hidden text-center py-8">
+                        <div id="score-icon" class="text-6xl mb-6">🏆</div>
+                        <h3 class="text-3xl font-bold text-eco-dark mb-4">Quiz Complete!</h3>
+                        <p id="score-text" class="text-xl text-gray-700 mb-8">You scored X out of Y.</p>
+                        <button onclick="initQuiz()" class="bg-eco-primary hover:bg-green-700 text-white font-semibold py-3 px-8 rounded-full transition transform hover:scale-105 shadow-md">
+                            <i class="fa-solid fa-rotate-right mr-2"></i> Retake Quiz
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-black text-gray-400 py-12 px-4 sm:px-6 lg:px-8 text-center">
+        <div class="max-w-7xl mx-auto flex flex-col items-center">
+            <div class="flex items-center gap-3 mb-6">
+<svg fill="#C0D8C5" height="28" width="28" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 360.081 360.081" xml:space="preserve"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M358.839,130.772c-0.666-0.618-1.432-0.931-2.278-0.931c-3.092,0-6.364,4.36-9.251,8.208 c-1.091,1.454-2.527,3.368-3.262,4.005c-0.086-1.467,1.019-5.633,1.85-8.764c2.099-7.914,4.27-16.096,0.735-18 c-0.368-0.198-0.757-0.299-1.157-0.299c-2.545,0-4.492,3.814-7.458,10.037c-2.322,4.871-5.211,10.934-7.597,10.934 c-0.152,0-0.302-0.026-0.456-0.081c-0.42-0.75-0.383-4.184-0.355-6.71c0.072-6.618,0.153-14.118-4.047-14.678 c-0.125-0.017-0.25-0.025-0.374-0.025c-3.63,0-5.748,6.793-7.99,13.986c-1.092,3.504-2.743,8.8-3.677,9.158 c-1.255-0.251-3.792-4.038-5.83-7.081c-3.343-4.99-6.533-9.684-9.487-9.441c-3.081,0.257-3.033,4.63-2.983,9.261 c0.041,3.803,0.093,8.537-1.81,9.561c-0.184,0.099-0.384,0.147-0.61,0.147c-2.116,0-5.594-3.792-8.389-6.839 c-3.259-3.552-5.348-5.73-7.152-5.73c-0.446,0-0.866,0.138-1.214,0.399c-1.985,1.489-1.873,5.99-1.754,10.755 c0.06,2.402,0.15,5.988-0.344,6.747c-0.916-0.125-3.528-1.861-5.844-3.398c-5.123-3.402-11.498-7.637-16.64-7.637 c-0.846,0-1.641,0.118-2.363,0.351c-5.578,1.796-6.648,4.437-7.356,6.185c-0.371,0.916-0.557,1.33-1.071,1.55 c-0.643,0.274-1.683,0.166-2.827-0.007c-0.757-0.115-1.541-0.233-2.374-0.233c-1.837,0-3.357,0.627-4.649,1.919 c-1.313,1.313-2.487,2.87-3.623,4.375c-1.689,2.24-3.286,4.356-4.824,4.933c-0.813,0.305-2.441,2.006-7.028,6.88 c-10.088,10.717-31.079,33.019-41.837,33.02c-2.013,0-3.517-0.806-4.597-2.464c-1.786-2.741-4.461-7.761-7.848-14.118 c-10.695-20.071-26.858-50.404-40.608-57.508C84.014,100.41,52.865,70.21,36.131,53.986c-9.126-8.848-12.368-11.908-14.058-11.908 c-0.479,0-0.899,0.218-1.154,0.599c-0.489,0.729-0.313,1.869,0.648,4.208c2.911,7.082,9.584,16.8,14.947,24.608 c3.098,4.511,6.55,9.539,7.476,11.644c-2.52-1.166-7.368-6.289-11.35-10.497C25.625,65.23,21.154,60.73,18.201,60.73 c-0.564,0-1.063,0.162-1.48,0.479c-2.261,1.718,0.989,6.297,6.928,14.243c2.367,3.167,5.852,7.83,6.29,9.438 c-1.261-0.268-4.061-2.483-6.338-4.285c-3.86-3.054-7.853-6.212-10.77-6.212c-0.56,0-1.073,0.115-1.526,0.341 c-0.667,0.333-1.102,0.876-1.26,1.571c-0.481,2.12,1.733,5.176,5.167,9.597c1.496,1.925,3.712,4.779,3.886,5.796 c-0.138,0.028-0.29,0.042-0.453,0.042c-1.562,0-3.849-1.215-6.061-2.391c-2.423-1.288-4.712-2.504-6.602-2.504 c-0.645,0-1.22,0.144-1.709,0.427c-2.151,1.245-0.206,5.114,1.854,9.209c0.563,1.121,1.296,2.578,1.563,3.347 c-0.509,0.071-1.345,0.072-1.95,0.073c-1.945,0.003-3.957,0.006-5.05,1.119c-0.46,0.467-0.697,1.086-0.687,1.79 c0.042,2.656,42.16,92.95,91.761,127.749c6.636,4.656,9.21,12.982,11.699,21.034c0.909,2.94,1.767,5.717,2.806,8.239 c0.374,0.909,0.379,1.669,0.017,2.394c-1.564,3.123-9.652,5.201-18.215,7.4c-4.941,1.27-10.049,2.582-15.005,4.292 c-61.734,7.598-61.731,11.024-61.731,12.672c0,3.317,2.206,4.9,3.817,6.056c1.625,1.166,1.86,1.497,1.573,2.215 c-0.376,0.941-1.279,1.909-2.234,2.934c-2.065,2.217-4.636,4.975-3.093,9.09c0.558,1.487,2.389,2.21,5.597,2.21 c5.546,0,14.548-2.09,21.165-3.857c-14.858,8.494-14.859,10.045-14.859,10.603c0,0.755,0,2.162,8.549,2.162 c8.537,0,22.06-1.545,32.073-5.898c3.096-1.346,5.734-2.64,8.285-3.89c2.409-1.181,4.688-2.298,6.98-3.265 c26.126,1.41,66.339,3.05,94.063,3.05c15.604,0,25.431-0.522,29.205-1.551c5.059-1.38,10.855-3.62,16.993-5.991 c11.324-4.375,23.033-8.9,32.104-8.9c1.857,0,3.552,0.198,5.037,0.589c13.288,3.496,18.372,14.022,18.422,14.128l0.201,0.427 l0.456,0.117c0.079,0.02,0.506,0.121,1.167,0.121c0,0,0,0,0,0c1.913,0,6.598-0.903,8.793-9.264c1.29-4.914-1.226-8.538-2.162-9.672 c0.235-2.671,0.776-15.885-10.323-24.661c-6.735-5.326-13.414-7.774-17.833-9.395c-2.089-0.766-4.951-1.815-4.901-2.371 c0.454-2.894,28.565-60.374,68.724-73.151c31.045-9.878,38.504-29.301,40.27-37.192 C360.485,136.389,360.254,132.086,358.839,130.772z"></path> </g></svg>
+                <span class="font-serif font-bold text-2xl text-white tracking-wide">Mauritius Kestrel</span>
+            </div>
+            <p class="mb-6 max-w-xl mx-auto">
+                Dedicated to the ongoing conservation of the Mauritius Kestrel and the dedicated teams at the Mauritian Wildlife Foundation.
+            </p>
+            <div class="flex space-x-6 mb-8">
+                <a href="#" class="text-gray-400 hover:text-white transition text-xl"><i class="fa-brands fa-twitter"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white transition text-xl"><i class="fa-brands fa-facebook"></i></a>
+                <a href="#" class="text-gray-400 hover:text-white transition text-xl"><i class="fa-brands fa-instagram"></i></a>
+            </div>
+            <p class="text-sm border-t border-gray-800 pt-8 w-full">
+                &copy; 2026 ERROR Inc. Educational purposes only.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // --- Mobile Menu Toggle ---
+        const btn = document.getElementById('mobile-menu-btn');
+        const menu = document.getElementById('mobile-menu');
+
+        btn.addEventListener('click', () => {
+            menu.classList.toggle('hidden');
+        });
+
+        // Close mobile menu on link click
+        menu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                menu.classList.add('hidden');
+            });
+        });
+
+        // --- Scroll Reveal Animation ---
+        const revealElements = document.querySelectorAll('.reveal');
+
+        const revealCallback = (entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target); // Only animate once
+                }
+            });
+        };
+
+        const revealOptions = {
+            threshold: 0.15,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const revealObserver = new IntersectionObserver(revealCallback, revealOptions);
+
+        revealElements.forEach(el => {
+            revealObserver.observe(el);
+        });
+
+        // --- Interactive Gallery Logic ---
+        function updateGallery(imgSrc, title, desc, element) {
+            const mainImg = document.getElementById('main-gallery-img');
+            const mainTitle = document.getElementById('main-gallery-title');
+            const mainDesc = document.getElementById('main-gallery-desc');
+
+            // Fade out
+            mainImg.style.opacity = '0.4';
+            
+            setTimeout(() => {
+                // Update content
+                mainImg.src = imgSrc;
+                mainTitle.textContent = title;
+                mainDesc.textContent = desc;
+                
+                // Fade in
+                mainImg.style.opacity = '1';
+            }, 300);
+
+            // Update active state on thumbnails
+            document.querySelectorAll('.gallery-thumb').forEach(thumb => {
+                thumb.classList.remove('border-eco-accent');
+                thumb.classList.add('border-transparent');
+            });
+            element.classList.remove('border-transparent');
+            element.classList.add('border-eco-accent');
+        }
+
+        // --- Quiz Logic ---
+        const quizData = [
+            {
+                question: "In 1974, how many Mauritius Kestrels were estimated to remain in the wild?",
+                options: ["Around 400", "Exactly 4", "Roughly 50", "0 (They were extinct)"],
+                correct: 1
+            },
+            {
+                question: "What chemical pesticide contributed heavily to the decline of the Kestrel?",
+                options: ["Glyphosate", "Penicillin", "DDT", "Agent Orange"],
+                correct: 2
+            },
+            {
+                question: "Unlike many other falcons, what makes up a huge part of the Mauritius Kestrel's diet?",
+                options: ["Mice and Rats", "Fish", "Day Geckos", "Fruit"],
+                correct: 2
+            },
+            {
+                question: "Who was the lead conservationist that pioneered their dramatic recovery?",
+                options: ["Jane Goodall", "Charles Darwin", "Carl Jones", "Steve Irwin"],
+                correct: 2
+            }
+        ];
+
+        let currentQuestion = 0;
+        let score = 0;
+
+        const questionEl = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+        const progressEl = document.getElementById('quiz-progress');
+        const questionArea = document.getElementById('question-area');
+        const resultArea = document.getElementById('result-area');
+        const scoreText = document.getElementById('score-text');
+        const scoreIcon = document.getElementById('score-icon');
+
+        function initQuiz() {
+            currentQuestion = 0;
+            score = 0;
+            questionArea.classList.remove('hidden');
+            resultArea.classList.add('hidden');
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            const currentQuizData = quizData[currentQuestion];
+            questionEl.textContent = currentQuizData.question;
+            
+            // Update Progress
+            const progress = ((currentQuestion) / quizData.length) * 100;
+            progressEl.style.width = `${progress}%`;
+
+            // Clear previous options
+            optionsContainer.innerHTML = '';
+
+            // Generate options
+            currentQuizData.options.forEach((option, index) => {
+                const button = document.createElement('button');
+                button.className = "w-full text-left p-4 rounded-xl border-2 border-gray-200 hover:border-eco-primary hover:bg-green-50 transition-all font-medium text-gray-700 focus:outline-none";
+                button.textContent = option;
+                button.onclick = () => selectOption(index, button);
+                optionsContainer.appendChild(button);
+            });
+        }
+
+        function selectOption(selectedIndex, buttonElement) {
+            const correctIndex = quizData[currentQuestion].correct;
+            
+            // Disable all buttons to prevent multiple clicks
+            const allButtons = optionsContainer.querySelectorAll('button');
+            allButtons.forEach(btn => {
+                btn.onclick = null;
+                btn.classList.remove('hover:border-eco-primary', 'hover:bg-green-50');
+            });
+
+            if (selectedIndex === correctIndex) {
+                score++;
+                buttonElement.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+                buttonElement.innerHTML += ' <i class="fa-solid fa-circle-check float-right text-green-500 text-xl"></i>';
+            } else {
+                buttonElement.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+                buttonElement.innerHTML += ' <i class="fa-solid fa-circle-xmark float-right text-red-500 text-xl"></i>';
+                // Highlight correct answer
+                allButtons[correctIndex].classList.add('border-green-500', 'text-green-800');
+            }
+
+            // Wait a moment before moving to next question
+            setTimeout(() => {
+                currentQuestion++;
+                if (currentQuestion < quizData.length) {
+                    loadQuestion();
+                } else {
+                    showResults();
+                }
+            }, 1500);
+        }
+
+        function showResults() {
+            questionArea.classList.add('hidden');
+            resultArea.classList.remove('hidden');
+            progressEl.style.width = '100%';
+
+            scoreText.textContent = `You scored ${score} out of ${quizData.length}.`;
+            
+            if (score === quizData.length) {
+                scoreIcon.textContent = "🦅";
+                scoreText.innerHTML += "<br><span class='text-eco-primary font-bold block mt-2'>Perfect! You are a true Kestrel Expert!</span>";
+            } else if (score >= quizData.length / 2) {
+                scoreIcon.textContent = "🌿";
+                scoreText.innerHTML += "<br><span class='text-yellow-600 font-bold block mt-2'>Good job! You know your conservation history.</span>";
+            } else {
+                scoreIcon.textContent = "📚";
+                scoreText.innerHTML += "<br><span class='text-gray-500 font-bold block mt-2'>Keep exploring the site to learn more!</span>";
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', initQuiz);
+    </script>
+    <script src="../../scripts/c.js">
+</body>
+</html>
