@@ -14,11 +14,10 @@ return txt?w[d.getDay()]:d.getDay();
 }
 function u(){
 let d=new Date;
-document.querySelectorAll("[data-time]").forEach(e=>{
-let t = e.dataset.time;
-if(t) e.textContent = f(t,d,!!e.dataset.date);
+document.querySelectorAll("[data-time],[data-date]").forEach(e=>{
+e.textContent=f(e.dataset.time||e.dataset.date,d,e.dataset.date);
 });
 }
 u();
-setInterval(u,1000);
+setInterval(u,100);
 })();
