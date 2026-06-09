@@ -14,7 +14,7 @@ return txt?w[d.getDay()]:d.getDay();
 }
 function u(){
 let d=new Date;
-document.querySelectorAll("[data-time],[data-date]").forEach(e=>{
+document.querySelectorAll("[clock-time],[clock-date]").forEach(e=>{
 e.textContent=f(e.dataset.time||e.dataset.date,d,e.dataset.date);
 });
 }
