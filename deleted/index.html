@@ -93,9 +93,7 @@ class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justi
 </div>
 
 <script type="module">
-
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 
 import {
     getDatabase,
@@ -103,222 +101,173 @@ import {
     get,
     set,
     remove
-}
-from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+
+import {
+    getAuth,
+    createUserWithEmailAndPassword,
+    signInWithPopup,
+    GoogleAuthProvider
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
 
 const firebaseConfig = {
-
     apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
-
     authDomain: "error-inc.firebaseapp.com",
-
     databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
-
     projectId: "error-inc",
-
     storageBucket: "error-inc.firebasestorage.app",
-
     messagingSenderId: "876188868410",
-
     appId: "1:876188868410:web:ca7de451707bd9975c7a03"
-
 };
 
-const app =
-initializeApp(firebaseConfig);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
 
-const db =
-getDatabase(app);
+const params = new URLSearchParams(location.search);
+const uid = params.get("user");
 
-const params =
-new URLSearchParams(location.search);
+const statusText = document.getElementById("statusText");
+const recoverSection = document.getElementById("recoverText");
 
-const username =
-params.get("user");
-
-const statusText =
-document.getElementById("statusText");
-
-const recoverSection =
-document.getElementById("recoverText");
-
-if(!username){
-
-    statusText.innerHTML =
-    "Invalid recovery link.";
-
-    throw new Error("No username");
-
+if (!uid) {
+    statusText.innerHTML = "Invalid recovery link.";
+    throw new Error("Missing UID");
 }
 
-const deletedSnap =
-await get(
-    ref(db, "deleted-users/" + username)
-);
+const deletedSnap = await get(ref(db, "deleted-users/" + uid));
 
-const normalSnap =
-await get(
-    ref(db, "err-user/" + username)
-);
-
-if(
-
-    deletedSnap.exists() &&
-    !normalSnap.exists()
-
-){
+if (deletedSnap.exists()) {
 
     statusText.innerHTML = `
-        You have successfully deleted your account "${username}".<br>
+        This account was deleted.<br>
+        You can recover it by signing in again.
     `;
 
     recoverSection.classList.remove("hidden");
 
 } else {
 
-    statusText.innerHTML =
-    "This deleted account could not be found.";
-
+    statusText.innerHTML = "No deleted account found for this user.";
 }
 
-const recoverPopup =
-document.getElementById("recoverPopup");
+const recoverPopup = document.getElementById("recoverPopup");
 
 document.getElementById("recoverBtn").onclick = () => {
-
     recoverPopup.classList.remove("hidden");
-
 };
 
 document.getElementById("closeRecoverPopup").onclick = () => {
-
     recoverPopup.classList.add("hidden");
-
 };
 
 recoverPopup.onclick = (e) => {
-
-    if(e.target === recoverPopup){
-
+    if (e.target === recoverPopup) {
         recoverPopup.classList.add("hidden");
-
     }
-
 };
 
 document.getElementById("confirmRecoverBtn").onclick = async () => {
 
-    const email =
-    document.getElementById("recoverEmail").value.trim();
+    const email = document.getElementById("recoverEmail").value.trim();
+    const password = document.getElementById("recoverPassword").value.trim();
 
-    const password =
-    document.getElementById("recoverPassword").value.trim();
-
-    const btn =
-    document.getElementById("confirmRecoverBtn");
-
-    const loader =
-    document.getElementById("recoverLoader");
-
-    const msg =
-    document.getElementById("recoverMsg");
+    const btn = document.getElementById("confirmRecoverBtn");
+    const loader = document.getElementById("recoverLoader");
+    const msg = document.getElementById("recoverMsg");
 
     msg.innerText = "";
-
     btn.disabled = true;
-
     loader.classList.remove("hidden");
 
-    if(!email || !password){
-
+    if (!email || !password) {
         msg.innerText = "Fill in all fields";
-
         btn.disabled = false;
-
         loader.classList.add("hidden");
-
         return;
-
     }
 
     try {
 
-        const deletedRef =
-        ref(db, "deleted-users/" + username);
+        const deletedRef = ref(db, "deleted-users/" + uid);
+        const snap = await get(deletedRef);
 
-        const snap =
-        await get(deletedRef);
-
-        if(!snap.exists()){
-
-            msg.innerText =
-            "Deleted account not found";
-
+        if (!snap.exists()) {
+            msg.innerText = "Deleted account not found";
             return;
-
         }
 
-        const deletedData =
-        snap.val();
+        const deletedData = snap.val();
 
-        const accountData =
-        deletedData.accountData;
-
-        if(
-
-            accountData.email !== email ||
-
-            accountData.password !== password
-
-        ){
-
-            msg.innerText =
-            "Incorrect email or password";
-
+        if (deletedData.accountData.email !== email) {
+            msg.innerText = "Email does not match deleted account";
             return;
-
         }
 
-        await set(
-            ref(db, "err-user/" + username),
-            accountData
-        );
+        const cred = await createUserWithEmailAndPassword(auth, email, password);
+        const newUid = cred.user.uid;
+
+        await set(ref(db, "err-user/" + newUid), {
+            ...deletedData.accountData,
+            email,
+            uid: newUid
+        });
 
         await remove(deletedRef);
 
-        localStorage.setItem(
-            "errorinc_user",
-            username
-        );
-
-        msg.classList.remove("text-red-500");
-
-        msg.classList.add("text-green-600");
-
-        msg.innerText =
-        "Account recovered successfully";
+        msg.className = "mt-4 text-sm text-center text-green-600";
+        msg.innerText = "Account recovered successfully 🚀";
 
         setTimeout(() => {
-
             location.href = "/profile";
-
         }, 1000);
 
-    } catch(err){
+    } catch (err) {
 
         console.error(err);
-
-        msg.innerText =
-        "Something went wrong";
+        msg.innerText = err.message || "Recovery failed";
 
     } finally {
 
         btn.disabled = false;
-
         loader.classList.add("hidden");
-
     }
+};
 
+window.recoverWithGoogle = async () => {
+
+    const provider = new GoogleAuthProvider();
+
+    try {
+
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        const deletedSnap = await get(
+            ref(db, "deleted-users/" + uid)
+        );
+
+        if (!deletedSnap.exists()) {
+            alert("No deleted account found.");
+            return;
+        }
+
+        const deletedData = deletedSnap.val();
+        await set(ref(db, "err-user/" + user.uid), {
+            ...deletedData.accountData,
+            email: user.email,
+            username: deletedData.accountData.username,
+            uid: user.uid
+        });
+
+        await remove(ref(db, "deleted-users/" + uid));
+
+        location.href = "/profile";
+
+    } catch (e) {
+        console.error(e);
+        alert("Google recovery failed");
+    }
 };
 </script>
 
