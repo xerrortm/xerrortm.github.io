@@ -106,8 +106,7 @@ btn.onclick = async () => {
         const googleUid = localStorage.getItem("temp_google_uid");
 
         if (googleUid) {
-            user = { uid: googleUid };
-
+            user = username;
             localStorage.removeItem("temp_google_uid");
 
         } else {
@@ -127,9 +126,7 @@ btn.onclick = async () => {
                 }
             }
         });
-
         localStorage.setItem("errorinc_user", user.uid);
-
         window.location.href = "/";
 
     } catch (e) {
