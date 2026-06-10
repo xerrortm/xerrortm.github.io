@@ -115,7 +115,7 @@ btn.onclick = async () => {
             user = userCred.user;
         }
 
-        await set(ref(db, "err-user/" + user.uid), {
+        await set(ref(db, "err-user/" + user), {
             username,
             email,
             provider: googleUid ? "google" : "email",
@@ -132,7 +132,6 @@ btn.onclick = async () => {
     } catch (e) {
 
         msg.innerText = e.message;
-
         btn.disabled = false;
         signupLoader.classList.add("hidden");
 
