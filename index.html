@@ -659,15 +659,12 @@
                 <div class="mt-6 w-full space-y-3 border-t-2 border-[#2D2A26] pt-4">
                     <div class="flex justify-between text-xs font-bold text-neutral-600">
                         <span>Access Level</span>
-                        <span class="text-[#FF7043] font-bold">Infinite Sandbox</span>
+                        <span class="text-[#FF7043] font-bold">User</span>
                     </div>
                 </div>
                 <div class="grid grid-cols-2 gap-3 w-full mt-6">
                     <button onclick="location.href='/profile'" class="hype-btn-secondary py-3 rounded-2xl text-xs uppercase font-bold">
                         Full Profile
-                    </button>
-                    <button id="logoutBtn" class="hype-btn-primary py-3 rounded-2xl text-xs uppercase font-bold">
-                        Log Out
                     </button>
                 </div>
             </div>
@@ -912,7 +909,6 @@ onValue(ref(db, "community-chat"), snapshot => {
             const titleDisplay = document.getElementById('frameTitleDisplay');
             const preview = document.getElementById('steve');
             
-            // Switch active highlight classes on buttons
             ['mla', 'obby', 'notifications', 'emap'].forEach(app => {
                 const btn = document.getElementById('tab-' + app);
                 if (btn) {
