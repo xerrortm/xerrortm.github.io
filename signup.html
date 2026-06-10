@@ -41,7 +41,9 @@
                 Sign Up
             </span>
             <div id="signupLoader" class="hidden w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-
+        </button>
+        <button id="googleSignupBtn"class="w-full border border-slate-300 py-3 rounded-xl flex items-center justify-center gap-2">
+            Continue with Google
         </button>
         <p onclick="location.href='/login'"class="text-sm text-blue-500 hover:underline cursor-pointer">Already have an account?</p>
         <div id="msg" class="text-sm text-red-500"></div>
@@ -63,7 +65,13 @@ get,
 set
 }
 from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
-
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+const auth = getAuth(app);
 const firebaseConfig = {
     apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
     authDomain: "error-inc.firebaseapp.com",
@@ -92,53 +100,27 @@ btn.onclick = async () => {
 
     const msg =
     document.getElementById("msg");
-    
+
     const signupLoader =
     document.getElementById("signupLoader");
 
     msg.innerText = "";
     btn.disabled = true;
     signupLoader.classList.remove("hidden");
-    msg.innerText = "";
 
-    if (!username || !email || !password) {
-        msg.innerText = "Fill all fields";
-        btn.disabled = false;
-        signupLoader.classList.add("hidden");
-        return;
-    }
-    
-    const snapshot =
-    await get(ref(db, "err-user"));
+    try {
 
-    const users = snapshot.val() || {};
+        const userCred =
+        await createUserWithEmailAndPassword(auth, email, password);
 
-    for (const uid in users) {
+        const user = userCred.user;
 
-        const user = users[uid];
-
-        if (user.username === username) {
-            msg.innerText = "Username already exists";
-            btn.disabled = false;
-            signupLoader.classList.add("hidden");
-            return;
-        }
-
-        if (user.email === email) {
-            msg.innerText = "Email already exists";
-            btn.disabled = false;
-            signupLoader.classList.add("hidden");
-            return;
-        }
-
-    }
-
-    await set(
-        ref(db, "err-user/" + username),
-        {
+        await set(ref(db, "err-user/" + user.uid), {
             username,
             email,
-            password,
+            password: null,
+
+            provider: "email",
 
             badges: {
                 welcome: {
@@ -146,18 +128,49 @@ btn.onclick = async () => {
                     image: "media/badge-welcome.png"
                 }
             }
-        }
-    );
+        });
 
-    localStorage.setItem(
-        "errorinc_user",
-        username
-    );
+        localStorage.setItem("errorinc_user", user.uid);
 
-    window.location.href = "/";
+        window.location.href = "/";
 
+    } catch (e) {
+
+        msg.innerText = e.message;
+
+        btn.disabled = false;
+        signupLoader.classList.add("hidden");
+
+    }
 };
+document.getElementById("googleSignupBtn").onclick = async () => {
+    const provider = new GoogleAuthProvider();
 
+    try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+        await set(ref(db, "err-user/" + user.uid), {
+            username: user.displayName,
+            email: user.email,
+
+            provider: "google",
+
+            badges: {
+                welcome: {
+                    name: "Welcome",
+                    image: "media/badge-welcome.png"
+                }
+            }
+        });
+
+        localStorage.setItem("errorinc_user", user.uid);
+
+        window.location.href = "/";
+
+    } catch (e) {
+        document.getElementById("msg").innerText = e.message;
+    }
+};
 </script>
 
 </body>
