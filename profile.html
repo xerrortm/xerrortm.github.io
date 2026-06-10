@@ -58,9 +58,6 @@ body{
 </head>
 
 <body class="text-slate-900">
-
-<!-- NAV -->
-
 <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur border-b border-slate-200 px-10 py-4 flex justify-between items-center">
 
     <img
@@ -427,9 +424,7 @@ class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center 
 
 </div>
 <script type="module">
-
-import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
 
 import {
     getDatabase,
@@ -438,370 +433,230 @@ import {
     update,
     set,
     remove
-}
-from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
 
+import {
+    getAuth,
+    onAuthStateChanged,
+    signOut
+} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-auth.js";
+    
 const firebaseConfig = {
-
     apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
-
     authDomain: "error-inc.firebaseapp.com",
-
     databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
-
     projectId: "error-inc",
-
     storageBucket: "error-inc.firebasestorage.app",
-
     messagingSenderId: "876188868410",
-
     appId: "1:876188868410:web:ca7de451707bd9975c7a03"
-
 };
+    
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const auth = getAuth(app);
+let currentUser = null;
+let userData = null;
 
-const app =
-initializeApp(firebaseConfig);
+onAuthStateChanged(auth, async (user) => {
 
-const db =
-getDatabase(app);
-const currentUser =
-localStorage.getItem("errorinc_user");
+    if (!user) {
+        location.href = "/login";
+        return;
+    }
 
-if(!currentUser){
+    currentUser = user;
 
-    location.href = "/login";
+    const snap = await get(ref(db, "err-user/" + user.uid));
 
-}
+    if (!snap.exists()) {
+        location.href = "/login";
+        return;
+    }
 
-const profileName =
-document.getElementById("profileName");
+    userData = snap.val();
 
-const profileAvatar =
-document.getElementById("profileAvatar");
+    loadProfile(user, userData);
+});
+const profileName = document.getElementById("profileName");
+const profileAvatar = document.getElementById("profileAvatar");
+const profileEmail = document.getElementById("profileEmail");
 
-const profileEmail =
-document.getElementById("profileEmail");
+const badgesContainer = document.getElementById("badgesContainer");
+const badgeCount = document.getElementById("badgeCount");
+const topBadges = document.getElementById("topBadges");
 
-const badgesContainer =
-document.getElementById("badgesContainer");
+function loadProfile(user, data) {
 
-const badgeCount =
-document.getElementById("badgeCount");
+    profileName.innerText = data.username || "User";
+    profileEmail.innerText = data.email || "No email";
 
-const topBadges =
-document.getElementById("topBadges");
-
-profileName.innerText =
-currentUser;
-
-const snapshot =
-await get(ref(db, "err-user/" + currentUser));
-
-if(snapshot.exists()){
-
-    const data = snapshot.val();
-
-    profileEmail.innerText =
-    data.email || "No email found";
+    profileAvatar.innerText =
+        (data.username || "U").charAt(0).toUpperCase();
 
     document.getElementById("editUsername").value =
-    currentUser;
+        data.username || "";
 
     document.getElementById("editEmail").value =
-    data.email || "";
-    
-    document.getElementById("publicProfile").checked =
-    data.public === true;
-    
-    profileAvatar.innerText =
-    currentUser.charAt(0).toUpperCase();
+        data.email || "";
 
     document.getElementById("publicProfile").checked =
-    data.public === true;
-    
-    const badges =
-    data.badges || {};
+        data.public === true;
 
-    const badgeValues =
-    Object.values(badges);
+    const badges = Object.values(data.badges || {});
 
-    if (badgeValues.length >= 2) {
+    badgeCount.innerText = badges.length;
 
-    topBadges.innerHTML = `
-    
+    topBadges.innerHTML = badges.slice(0, 2).map(b => `
         <div class="px-4 py-2 rounded-xl bg-indigo-100 text-indigo-700 text-sm font-semibold">
-            ${badgeValues[0].name}
+            ${b.name}
         </div>
-
-        <div class="px-4 py-2 rounded-xl bg-purple-100 text-purple-700 text-sm font-semibold">
-            ${badgeValues[1].name}
-        </div>
-
-    `;
-
-} else {
-
-    topBadges.innerHTML = `
-    
+    `).join("") || `
         <div class="px-4 py-2 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold">
             Member
         </div>
-
     `;
 
-}
-
-    badgeCount.innerText =
-    badgeValues.length;
-
-    if(badgeValues.length === 0){
-
-        badgesContainer.innerHTML = `
-
-        <div class="col-span-full text-center py-10 text-slate-400">
-
-            No badges earned yet.
-
-        </div>
-
-        `;
-
-    }
-
-    badgeValues.forEach(badge => {
-
-        badgesContainer.innerHTML += `
-
-        <div
-        onclick="openBadge('${badge.name}', '${badge.image}')"
-        class="cursor-pointer bg-white border border-slate-200 rounded-3xl p-5 hover:shadow-lg transition">
-
-            <img
-            src="${badge.image}"
-            class="w-24 h-24 object-contain mx-auto">
-
-            <div class="mt-4 text-center font-bold">
-                ${badge.name}
+    badgesContainer.innerHTML = badges.length
+        ? badges.map(b => `
+            <div onclick="openBadge('${b.name}', '${b.image}')"
+            class="cursor-pointer bg-white border rounded-3xl p-5 hover:shadow-lg transition">
+                <img src="${b.image}" class="w-24 h-24 mx-auto">
+                <div class="mt-4 text-center font-bold">${b.name}</div>
             </div>
-
-        </div>
-
-        `;
-
-    });
-
+        `).join("")
+        : `<div class="col-span-full text-center py-10 text-slate-400">
+            No badges earned yet.
+        </div>`;
 }
-
 document.getElementById("saveProfileBtn").onclick = async () => {
 
-    const newUsername =
-    document.getElementById("editUsername").value.trim();
+    const btn = document.getElementById("saveProfileBtn");
+    const loader = document.getElementById("saveProfileLoader");
+    const msg = document.getElementById("saveProfileMsg");
 
-    const newEmail =
-    document.getElementById("editEmail").value.trim();
-
-    const isPublic =
-    document.getElementById("publicProfile").checked;
-
-    const btn =
-    document.getElementById("saveProfileBtn");
-
-    const loader =
-    document.getElementById("saveProfileLoader");
-
-    const msg =
-    document.getElementById("saveProfileMsg");
+    const newUsername = document.getElementById("editUsername").value.trim();
+    const newEmail = document.getElementById("editEmail").value.trim();
+    const isPublic = document.getElementById("publicProfile").checked;
 
     msg.innerText = "";
+    msg.className = "text-sm text-center text-red-500";
 
-    msg.className =
-    "text-sm text-center text-red-500";
-
-    btn.disabled = true;
-
-    loader.classList.remove("hidden");
+    if (!auth.currentUser) {
+        msg.innerText = "Not logged in";
+        return;
+    }
 
     if (!newUsername || !newEmail) {
-
-        msg.innerText =
-        "Fill in all fields";
-
-        btn.disabled = false;
-
-        loader.classList.add("hidden");
-
+        msg.innerText = "Fill in all fields";
         return;
-
     }
+
+    btn.disabled = true;
+    loader.classList.remove("hidden");
+
+    const uid = auth.currentUser.uid;
 
     try {
 
-        const allUsers =
-        await get(ref(db, "err-user"));
+        const userRef = ref(db, "err-user/" + uid);
+        const snap = await get(userRef);
 
-        let usernameTaken = false;
+        if (!snap.exists()) {
+            msg.innerText = "User not found";
+            return;
+        }
+
+        const currentData = snap.val();
+
+        const allUsersSnap = await get(ref(db, "err-user"));
+
         let emailTaken = false;
 
-        if (allUsers.exists()) {
+        if (allUsersSnap.exists()) {
+            allUsersSnap.forEach(child => {
 
-            allUsers.forEach(child => {
-
-                const key = child.key;
-                const value = child.val();
+                const data = child.val();
 
                 if (
-                    key.toLowerCase() === newUsername.toLowerCase() &&
-                    key !== currentUser
-                ) {
-                    usernameTaken = true;
-                }
-
-                if (
-                    value.email &&
-                    value.email.toLowerCase() === newEmail.toLowerCase() &&
-                    key !== currentUser
+                    data.email &&
+                    data.email.toLowerCase() === newEmail.toLowerCase() &&
+                    child.key !== uid
                 ) {
                     emailTaken = true;
                 }
 
             });
-
-        }
-
-        if (usernameTaken) {
-
-            msg.innerText =
-            "Username already exists";
-
-            return;
-
         }
 
         if (emailTaken) {
-
-            msg.innerText =
-            "Email already exists";
-
+            msg.innerText = "Email already exists";
             return;
-
         }
-
-        const currentSnap =
-        await get(ref(db, "err-user/" + currentUser));
-
-        const currentData =
-        currentSnap.val();
 
         const updatedData = {
-
             ...currentData,
-
             username: newUsername,
-
             email: newEmail,
-
-            public: !!isPublic
-
+            public: isPublic
         };
 
-        if (newUsername !== currentUser) {
+        await update(userRef, updatedData);
 
-            await set(
-                ref(db, "err-user/" + newUsername),
-                updatedData
-            );
-
-            await remove(
-                ref(db, "err-user/" + currentUser)
-            );
-
-        } else {
-
-            await update(
-                ref(db, "err-user/" + currentUser),
-                updatedData
-            );
-
+        if (auth.currentUser.email !== newEmail) {
+            try {
+                await auth.currentUser.updateEmail(newEmail);
+            } catch (err) {
+                console.log("Email update failed:", err);
+            }
         }
 
-        localStorage.setItem(
-            "errorinc_user",
-            newUsername
-        );
-
-        msg.className =
-        "text-sm text-center text-green-600";
-
-        msg.innerText =
-        "Profile updated successfully";
+        msg.className = "text-sm text-center text-green-600";
+        msg.innerText = "Profile updated successfully";
 
         setTimeout(() => {
-
             location.reload();
-
-        }, 1000);
+        }, 800);
 
     } catch (err) {
-
         console.error(err);
-
-        msg.innerText =
-        "Failed to update profile";
-
-    } finally {
-
-        btn.disabled = false;
-
-        loader.classList.add("hidden");
-
+        msg.innerText = "Failed to update profile";
     }
 
+    btn.disabled = false;
+    loader.classList.add("hidden");
 };
-const logoutBtn =
-document.getElementById("logoutBtn");
+    
+const logoutBtn = document.getElementById("logoutBtn");
+logoutBtn.onclick = async () => {
 
-logoutBtn.onclick = () => {
+    if (!confirm("Are you sure you want to log out?")) return;
 
-    if(!confirm("Are you sure you want to log out?")) return;
-    localStorage.removeItem("errorinc_user");
-    location.href = "/";
+    try {
+        await signOut(auth);
+    } catch (e) {
+        console.log(e);
+    }
 
+    location.href = "/login";
 };
 
-const editPopup =
-document.getElementById("editPopup");
-
+const editPopup = document.getElementById("editPopup");
 document.getElementById("editBtn").onclick = () => {
-
     editPopup.classList.remove("hidden");
-
 };
-
 document.getElementById("closeEdit").onclick = () => {
-
     editPopup.classList.add("hidden");
-
 };
 
 editPopup.onclick = (e) => {
-
     if(e.target === editPopup){
-
         editPopup.classList.add("hidden");
-
     }
-
 };
 
-const badgePopup =
-document.getElementById("badgePopup");
-
-const badgePopupImage =
-document.getElementById("badgePopupImage");
-
-const badgePopupName =
-document.getElementById("badgePopupName");
-
+const badgePopup =document.getElementById("badgePopup");
+const badgePopupImage =document.getElementById("badgePopupImage");
+const badgePopupName =document.getElementById("badgePopupName");
 window.openBadge = function(name, image){
 
     badgePopupImage.src =
@@ -996,114 +851,84 @@ document.getElementById("goToDeleteStep2").onclick = () => {
 
 document.getElementById("confirmDeleteBtn").onclick = async () => {
 
-    const reason =
-    document.getElementById("deleteReason").value;
+    const reason = document.getElementById("deleteReason").value;
+    const password = document.getElementById("deletePassword").value;
 
-    const password =
-    document.getElementById("deletePassword").value;
-
-    const btn =
-    document.getElementById("confirmDeleteBtn");
-
-    const loader =
-    document.getElementById("deleteLoader");
-
-    const msg =
-    document.getElementById("deleteMsg");
+    const btn = document.getElementById("confirmDeleteBtn");
+    const loader = document.getElementById("deleteLoader");
+    const msg = document.getElementById("deleteMsg");
 
     msg.innerText = "";
+    msg.className = "mt-4 text-sm text-center text-red-500";
 
-    msg.className =
-    "mt-4 text-sm text-center text-red-500";
+    if (!auth.currentUser) {
+        msg.innerText = "Not logged in";
+        return;
+    }
+
+    if (!password) {
+        msg.innerText = "Enter your password";
+        return;
+    }
 
     btn.disabled = true;
-
     loader.classList.remove("hidden");
 
-    if(!password){
+    const uid = auth.currentUser.uid; // 💥 SAVE EARLY
 
-        msg.innerText =
-        "Enter your password";
-
-        btn.disabled = false;
-
-        loader.classList.add("hidden");
-
-        return;
-
-    }
+    const userRef = ref(db, "err-user/" + uid);
 
     try {
 
-        const userRef =
-        ref(db, "err-user/" + currentUser);
+        const snap = await get(userRef);
 
-        const snap =
-        await get(userRef);
-
-        if(!snap.exists()){
-
-            msg.innerText =
-            "User not found";
-
+        if (!snap.exists()) {
+            msg.innerText = "User not found";
             return;
-
         }
 
-        const userData =
-        snap.val();
-
-        if(userData.password !== password){
-
-            msg.innerText =
-            "Wrong password";
-
+        const userData = snap.val();
+        if (userData.password && userData.password !== password) {
+            msg.innerText = "Wrong password";
             return;
-
         }
 
-        await set(
-            ref(db, "deleted-users/" + currentUser),
-            {
-
-                username: currentUser,
-                deletedAt: Date.now(),
-                deleteReason: reason,
-                accountData: userData
-
-            }
-        );
+        await set(ref(db, "deleted-users/" + uid), {
+            uid,
+            username: userData.username,
+            email: userData.email,
+            deletedAt: Date.now(),
+            reason,
+            accountData: userData
+        });
 
         await remove(userRef);
 
-        localStorage.removeItem("errorinc_user");
+        try {
+            await auth.currentUser.delete();
+        } catch (err) {
+            console.log("Auth delete failed:", err);
+        }
 
-        msg.className =
-        "mt-4 text-sm text-center text-green-600";
+        await signOut(auth);
 
-        setTimeout(() => { 
-            msg.innerText = "Account deleted successfully";
+        msg.className = "mt-4 text-sm text-center text-green-600";
+        msg.innerText = "Account deleted successfully";
 
-            location.href =
-            `/deleted?user=${currentUser}`;
+        setTimeout(() => {
+            location.href = `/deleted?user=${encodeURIComponent(uid)}`;
+        }, 1000);
 
-        }, 2000);
-
-    } catch(err){
+    } catch (err) {
 
         console.error(err);
-
-        msg.innerText =
-        "Failed to delete account";
+        msg.innerText = "Failed to delete account";
 
     } finally {
 
         btn.disabled = false;
-
         loader.classList.add("hidden");
-
     }
-
 };
 </script>
 </body>
