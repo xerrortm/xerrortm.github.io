@@ -90,20 +90,11 @@ const btn = document.getElementById("signupBtn");
 
 btn.onclick = async () => {
 
-    const username =
-    document.getElementById("username").value.trim();
-
-    const email =
-    document.getElementById("email").value.trim();
-
-    const password =
-    document.getElementById("password").value;
-
-    const msg =
-    document.getElementById("msg");
-
-    const signupLoader =
-    document.getElementById("signupLoader");
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const msg = document.getElementById("msg");
+    const signupLoader = document.getElementById("signupLoader");
 
     msg.innerText = "";
     btn.disabled = true;
@@ -111,18 +102,24 @@ btn.onclick = async () => {
 
     try {
 
-        const userCred =
-        await createUserWithEmailAndPassword(auth, email, password);
+        let user;
+        const googleUid = localStorage.getItem("temp_google_uid");
 
-        const user = userCred.user;
+        if (googleUid) {
+            user = { uid: googleUid };
+
+            localStorage.removeItem("temp_google_uid");
+
+        } else {
+            const userCred =
+                await createUserWithEmailAndPassword(auth, email, password);
+            user = userCred.user;
+        }
 
         await set(ref(db, "err-user/" + user.uid), {
             username,
             email,
-            password: null,
-
-            provider: "email",
-
+            provider: googleUid ? "google" : "email",
             badges: {
                 welcome: {
                     name: "Welcome",
@@ -144,29 +141,22 @@ btn.onclick = async () => {
 
     }
 };
+    
 document.getElementById("googleSignupBtn").onclick = async () => {
+
     const provider = new GoogleAuthProvider();
 
     try {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
-        await set(ref(db, "err-user/" + user.uid), {
-            username: user.displayName,
-            email: user.email,
+        document.getElementById("email").value = user.email;
+        document.getElementById("username").value =
+            user.displayName?.replace(/\s/g, "") || "";
+        document.getElementById("password").style.display = "none";
+        document.getElementById("msg").innerText =
+            "Google connected. Choose your username";
 
-            provider: "google",
-
-            badges: {
-                welcome: {
-                    name: "Welcome",
-                    image: "media/badge-welcome.png"
-                }
-            }
-        });
-
-        localStorage.setItem("errorinc_user", user.uid);
-
-        window.location.href = "/";
+        localStorage.setItem("temp_google_uid", user.uid);
 
     } catch (e) {
         document.getElementById("msg").innerText = e.message;
