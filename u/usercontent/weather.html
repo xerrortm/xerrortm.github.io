@@ -307,10 +307,10 @@
                 </div>
             </section>
 
-            <!-- 3-Day Forecast Section -->
+            <!-- 6-Day Forecast Section -->
             <section class="glass-panel rounded-2xl p-4">
                 <h3 class="text-xs text-[var(--text-secondary)] uppercase tracking-wider font-bold mb-3 flex items-center gap-2">
-                    <i class="ph ph-calendar"></i> 3-Day Forecast Outlook
+                    <i class="ph ph-calendar"></i> 6-Day Forecast
                 </h3>
                 <div id="daily-container" class="flex flex-col gap-3.5">
                     <!-- Dynamic daily forecast segments -->
@@ -360,7 +360,7 @@
             2: { desc: 'Partly cloudy', icon: 'ph-cloud', effect: 'clouds', 
                  dayBg: 'linear-gradient(to bottom, #cbd5e1, #e2e8f0)', 
                  nightBg: 'linear-gradient(to bottom, #0b1528, #1e293b)' },
-            3: { desc: 'Overcast', icon: 'ph-clouds', effect: 'clouds', 
+            3: { desc: 'Overcast', icon: 'ph-cloud', effect: 'clouds', 
                  dayBg: 'linear-gradient(to bottom, #94a3b8, #cbd5e1)', 
                  nightBg: 'linear-gradient(to bottom, #1e293b, #334155)' },
             45: { desc: 'Foggy', icon: 'ph-cloud-fog', effect: 'clouds', 
@@ -599,10 +599,10 @@
                     `;
                 }
 
-                // Populate 3-Day Atmospheric Progression
+                // Populate 6-Day Atmospheric Progression
                 ui.daily.innerHTML = '';
                 const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-                for (let i = 1; i <= 3; i++) {
+                for (let i = 1; i <= 6; i++) {
                     const dayIdx = (dateObj.getDay() + i) % 7;
                     const maxVal = Math.round(daily.temperature_2m_max[i]);
                     const minVal = Math.round(daily.temperature_2m_min[i]);
