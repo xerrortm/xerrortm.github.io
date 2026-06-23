@@ -106,6 +106,14 @@
         .vibrate-active {
             animation: subtle-vibrate 0.1s infinite;
         }
+        #search-suggestions {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .theme-light #search-suggestions {
+            background: rgba(255, 255, 255, 0.9);
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 sm:p-6 relative">
@@ -123,10 +131,12 @@
                 <input 
                     type="text" 
                     id="city-input"
-                    placeholder="Search global atmospheres..." 
+                    placeholder="Search city..." 
                     class="w-full bg-black/10 dark:bg-white/5 border border-white/10 dark:border-white/5 rounded-full py-3.5 pl-12 pr-4 text-inherit placeholder-inherit opacity-80 focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-cyan-500/50 transition-all text-base"
                     onkeypress="if(event.key === 'Enter') handleSearch()"
                 >
+                <!-- Search Suggestions Dropdown -->
+                <ul id="search-suggestions" class="absolute w-full mt-2 rounded-2xl glass-panel border border-white/10 hidden max-h-60 overflow-y-auto custom-scroll z-500 overflow-hidden shadow-2xl"></ul>
             </div>
             <button onclick="getUserLocation()" class="glass-panel hover:bg-white/10 rounded-full w-12 h-12 flex items-center justify-center transition-all group shrink-0" title="Locate Current Environment">
                 <i class="ph ph-navigation-arrow text-xl group-hover:text-cyan-400 transition-colors"></i>
@@ -134,7 +144,7 @@
         </header>
 
         <!-- Dynamic Status Message Overlay -->
-        <div id="status-msg" class="text-center text-sm font-medium animate-pulse py-4 text-[var(--text-secondary)] hidden">Analyzing atmospheric signatures...</div>
+        <div id="status-msg" class="text-center text-sm font-medium animate-pulse py-4 text-[var(--text-secondary)] hidden">Loading weather...</div>
 
         <!-- Core Dynamic Weather Output Display -->
         <div id="weather-display" class="flex flex-col gap-6 opacity-0 transition-opacity duration-1000 hidden">
@@ -235,7 +245,7 @@
                 <div class="glass-panel rounded-2xl p-4 flex items-center gap-3">
                     <i class="ph ph-umbrella text-3xl text-pink-400 shrink-0"></i>
                     <div>
-                        <span class="block text-[9px] text-[var(--text-muted)] uppercase tracking-wider font-bold">Precipitation</span>
+                        <span class="block text-[9px] text-[var(--text-muted)] uppercase tracking-wider font-bold">Precip Prob</span>
                         <span id="precip-prob" class="text-sm font-bold text-[var(--text-primary)]">--%</span>
                     </div>
                 </div>
@@ -245,7 +255,7 @@
             <!-- Air Quality Index (AQI) Callout -->
             <section class="glass-panel rounded-2xl p-4">
                 <h3 class="text-xs text-[var(--text-secondary)] uppercase tracking-wider font-bold mb-3 flex items-center gap-2">
-                    <i class="ph ph-ruler"></i> Air Quality index (AQI)
+                    <i class="ph ph-mask-happy"></i> Real-time Air Quality index (AQI)
                 </h3>
                 <div class="grid grid-cols-3 gap-2 text-center">
                     <div class="p-2 rounded-xl bg-black/10 dark:bg-white/[0.01]">
@@ -266,11 +276,11 @@
             <!-- Astronomical Data Dashboard -->
             <section class="glass-panel rounded-2xl p-4">
                 <h3 class="text-xs text-[var(--text-secondary)] uppercase tracking-wider font-bold mb-3 flex items-center gap-2">
-                    <i class="ph ph-planet"></i> Astronomy
+                    <i class="ph ph-planet"></i> Astronomical Analytics
                 </h3>
                 <div class="grid grid-cols-3 gap-3">
                     <div class="flex flex-col items-center p-2 rounded-xl bg-black/10 dark:bg-white/[0.01]">
-                        <i class="ph ph-sun-horizon text-2xl text-amber-400"></i>
+                        <i class="ph ph-sunrise text-2xl text-amber-400"></i>
                         <span class="text-[8px] text-[var(--text-muted)] uppercase mt-1">Sunrise</span>
                         <span id="astro-sunrise" class="text-xs font-bold mt-0.5">--:--</span>
                     </div>
@@ -280,7 +290,7 @@
                         <span id="astro-moon-phase" class="text-xs font-bold mt-0.5 text-center">--</span>
                     </div>
                     <div class="flex flex-col items-center p-2 rounded-xl bg-black/10 dark:bg-white/[0.01]">
-                        <i class="ph ph-sun-horizon text-2xl text-orange-500"></i>
+                        <i class="ph ph-sunset text-2xl text-orange-500"></i>
                         <span class="text-[8px] text-[var(--text-muted)] uppercase mt-1">Sunset</span>
                         <span id="astro-sunset" class="text-xs font-bold mt-0.5">--:--</span>
                     </div>
@@ -297,10 +307,10 @@
                 </div>
             </section>
 
-            <!-- 6-Day Forecast Section -->
+            <!-- 3-Day Forecast Section -->
             <section class="glass-panel rounded-2xl p-4">
                 <h3 class="text-xs text-[var(--text-secondary)] uppercase tracking-wider font-bold mb-3 flex items-center gap-2">
-                    <i class="ph ph-calendar"></i> 6-Day Forecast
+                    <i class="ph ph-calendar"></i> 3-Day Forecast Outlook
                 </h3>
                 <div id="daily-container" class="flex flex-col gap-3.5">
                     <!-- Dynamic daily forecast segments -->
@@ -339,10 +349,7 @@
         /* =====================================================================
            STREAMING_CHUNK: Weather Mapping Definitions & Custom Gradients
            ===================================================================== */
-        function getWindDirection(deg) {
-            const directions = ["North", "North Northeast", "Northeast", "East Northeast", "East", "East Southeast", "Southeast", "South Southeast", "South", "South Southwest", "Southwest", "West Southwest", "West", "West Northwest", "Northwest", "North Northwest"];
-            return directions[Math.round(deg / 22.5) % 16];
-        }
+        
         const weatherMap = {
             0: { desc: 'Clear sky', icon: 'ph-sun', effect: 'clear', 
                  dayBg: 'linear-gradient(to bottom, #7dd3fc, #fef08a)', 
@@ -353,7 +360,7 @@
             2: { desc: 'Partly cloudy', icon: 'ph-cloud', effect: 'clouds', 
                  dayBg: 'linear-gradient(to bottom, #cbd5e1, #e2e8f0)', 
                  nightBg: 'linear-gradient(to bottom, #0b1528, #1e293b)' },
-            3: { desc: 'Overcast', icon: 'ph-cloud', effect: 'clouds', 
+            3: { desc: 'Overcast', icon: 'ph-clouds', effect: 'clouds', 
                  dayBg: 'linear-gradient(to bottom, #94a3b8, #cbd5e1)', 
                  nightBg: 'linear-gradient(to bottom, #1e293b, #334155)' },
             45: { desc: 'Foggy', icon: 'ph-cloud-fog', effect: 'clouds', 
@@ -380,16 +387,16 @@
             65: { desc: 'Heavy rain', icon: 'ph-drop', effect: 'rain', 
                   dayBg: 'linear-gradient(to bottom, #475569, #64748b)', 
                   nightBg: 'linear-gradient(to bottom, #020617, #0b0f19)' },
-            71: { desc: 'Slight snow', icon: 'ph-cloud-snow', effect: 'snow', 
+            71: { desc: 'Slight snow', icon: 'ph-snowflake', effect: 'snow', 
                   dayBg: 'linear-gradient(to bottom, #e2e8f0, #f8fafc)', 
                   nightBg: 'linear-gradient(to bottom, #1e293b, #334155)' },
-            73: { desc: 'Moderate snow', icon: 'ph-cloud-snow', effect: 'snow', 
+            73: { desc: 'Moderate snow', icon: 'ph-snowflake', effect: 'snow', 
                   dayBg: 'linear-gradient(to bottom, #e2e8f0, #f8fafc)', 
                   nightBg: 'linear-gradient(to bottom, #1e293b, #334155)' },
-            75: { desc: 'Heavy snow', icon: 'ph-cloud-snow', effect: 'snow', 
+            75: { desc: 'Heavy snow', icon: 'ph-snowflake', effect: 'snow', 
                   dayBg: 'linear-gradient(to bottom, #cbd5e1, #e2e8f0)', 
                   nightBg: 'linear-gradient(to bottom, #0f172a, #1e293b)' },
-            77: { desc: 'Snow grains', icon: 'ph-cloud-snow', effect: 'snow', 
+            77: { desc: 'Snow grains', icon: 'ph-snowflake', effect: 'snow', 
                   dayBg: 'linear-gradient(to bottom, #e2e8f0, #f8fafc)', 
                   nightBg: 'linear-gradient(to bottom, #1e293b, #334155)' },
             80: { desc: 'Slight rain showers', icon: 'ph-cloud-rain', effect: 'rain', 
@@ -401,10 +408,10 @@
             82: { desc: 'Violent rain showers', icon: 'ph-drop', effect: 'rain', 
                   dayBg: 'linear-gradient(to bottom, #64748b, #475569)', 
                   nightBg: 'linear-gradient(to bottom, #020617, #000000)' },
-            85: { desc: 'Slight snow showers', icon: 'ph-cloud-snow', effect: 'snow', 
+            85: { desc: 'Slight snow showers', icon: 'ph-snowflake', effect: 'snow', 
                   dayBg: 'linear-gradient(to bottom, #e2e8f0, #cbd5e1)', 
                   nightBg: 'linear-gradient(to bottom, #334155, #1e293b)' },
-            86: { desc: 'Heavy snow showers', icon: 'ph-cloud-snow', effect: 'snow', 
+            86: { desc: 'Heavy snow showers', icon: 'ph-snowflake', effect: 'snow', 
                   dayBg: 'linear-gradient(to bottom, #cbd5e1, #94a3b8)', 
                   nightBg: 'linear-gradient(to bottom, #111827, #0f172a)' },
             95: { desc: 'Thunderstorm', icon: 'ph-cloud-lightning', effect: 'thunder', 
@@ -463,6 +470,7 @@
             display: document.getElementById('weather-display'),
             status: document.getElementById('status-msg'),
             input: document.getElementById('city-input'),
+            suggestions: document.getElementById('search-suggestions'),
             locName: document.getElementById('location-name'),
             time: document.getElementById('current-time'),
             desc: document.getElementById('weather-desc'),
@@ -504,7 +512,7 @@
         
         async function updateWeatherUI(lat, lon, locationName) {
             try {
-                showStatus('Fetching data...');
+                showStatus('Loading weather data...');
                 ui.display.classList.add('hidden');
                 ui.display.classList.remove('opacity-100');
 
@@ -591,10 +599,10 @@
                     `;
                 }
 
-                // Populate 6-Day Atmospheric Progression
+                // Populate 3-Day Atmospheric Progression
                 ui.daily.innerHTML = '';
                 const weekday = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-                for (let i = 1; i <= 6; i++) {
+                for (let i = 1; i <= 3; i++) {
                     const dayIdx = (dateObj.getDay() + i) % 7;
                     const maxVal = Math.round(daily.temperature_2m_max[i]);
                     const minVal = Math.round(daily.temperature_2m_min[i]);
@@ -635,7 +643,7 @@
 
             } catch (err) {
                 console.error(err);
-                showStatus('Something went wrong while fetching data.', true);
+                showStatus('Failed to load weather data.', true);
             }
         }
 
@@ -643,15 +651,16 @@
             const city = ui.input.value.trim();
             if(!city) return;
             
+            ui.suggestions.classList.add('hidden');
             showStatus(`Searching for "${city}"...`);
             const locData = await getCoords(city);
             
             if(!locData) {
-                showStatus('City not found.', true);
+                showStatus('Location not found.', true);
                 return;
             }
 
-            const displayName = locData.admin1 ? `${locData.name}, ${locData.admin1}` : `${locData.name}, ${locData.country}`;
+            const displayName = `${locData.name}, ${locData.country || ''}`;
             updateWeatherUI(locData.latitude, locData.longitude, displayName);
             ui.input.value = '';
             ui.input.blur();
@@ -659,18 +668,62 @@
 
         function getUserLocation() {
             if (!navigator.geolocation) {
-                showStatus("Location fetching failed.", true);
+                showStatus("Geolocation is unavailable.", true);
                 return;
             }
 
-            showStatus("Locating...");
+            showStatus("Getting your location...");
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
                     updateWeatherUI(position.coords.latitude, position.coords.longitude, "Your Location");
                 },
-                () => showStatus("Location fetching failed. Loading defaults...", true)
+                () => showStatus("Location access denied. Loading default...", true)
             );
         }
+
+        // Search Autocomplete Logic
+        let searchTimeout;
+        ui.input.addEventListener('input', (e) => {
+            clearTimeout(searchTimeout);
+            const val = e.target.value.trim();
+            if(val.length < 2) {
+                ui.suggestions.classList.add('hidden');
+                return;
+            }
+            searchTimeout = setTimeout(async () => {
+                try {
+                    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(val)}&count=5`);
+                    const data = await res.json();
+                    if(data.results && data.results.length > 0) {
+                        ui.suggestions.innerHTML = '';
+                        data.results.forEach(item => {
+                            const li = document.createElement('li');
+                            li.className = "px-4 py-3 hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer text-sm border-b border-white/5 last:border-0 transition-colors flex flex-col text-left";
+                            const adminStr = item.admin1 ? `${item.admin1}, ` : '';
+                            li.innerHTML = `<span class="font-bold text-[var(--text-primary)]">${item.name}</span><span class="text-[10px] text-[var(--text-secondary)] mt-0.5">${adminStr}${item.country || ''}</span>`;
+                            li.onclick = () => {
+                                ui.input.value = '';
+                                ui.suggestions.classList.add('hidden');
+                                updateWeatherUI(item.latitude, item.longitude, `${item.name}, ${item.country || ''}`);
+                            };
+                            ui.suggestions.appendChild(li);
+                        });
+                        ui.suggestions.classList.remove('hidden');
+                    } else {
+                        ui.suggestions.classList.add('hidden');
+                    }
+                } catch (err) {
+                    console.error("Suggestion fetch failed", err);
+                }
+            }, 300);
+        });
+
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', (e) => {
+            if(!ui.input.contains(e.target) && !ui.suggestions.contains(e.target)) {
+                ui.suggestions.classList.add('hidden');
+            }
+        });
 
         /* =====================================================================
            STREAMING_CHUNK: High Fidelity Weather Physics Engine (HTML5 Canvas)
@@ -808,7 +861,10 @@
             }
             lightnings.push({ points, opacity: 0.8, life: 8, width: 1 });
         }
-
+        function getWindDirection(deg) {
+            const directions = ["North", "North Northeast", "Northeast", "East Northeast", "East", "East Southeast", "Southeast", "South Southeast", "South", "South Southwest", "Southwest", "West Southwest", "West", "West Northwest", "Northwest", "North Northwest"];
+            return directions[Math.round(deg / 22.5) % 16];
+        }
         // Draw dynamic scrolling aurora ribbons
         function drawAurora() {
             auroraOffset += 0.002;
@@ -1074,7 +1130,7 @@
             // Timeout backup load
             setTimeout(() => {
                 if(ui.display.classList.contains('hidden')) {
-                    updateWeatherUI(-20.2596, 57.4789, "Quatre Bornes"); // Localized default fallback
+                    updateWeatherUI(-20.2596, 57.4789, "Quatre Bornes, Mauritius"); // Localized default fallback
                 }
             }, 5500);
         });
