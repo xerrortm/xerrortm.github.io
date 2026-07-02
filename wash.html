@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>The Washing Machine | Premium HTML Formatter</title>
+		<!-- Dependencies -->
+		<script src="https://cdn.tailwindcss.com"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js"></script>
+		<!-- Fonts -->
+		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0c;
+            --surface: rgba(25, 25, 30, 0.6);
+            --border: rgba(255, 255, 255, 0.08);
+            --text-main: #f0f0f5;
+            --text-muted: #888899;
+            --accent: #00e5ff;
+            --accent-glow: rgba(0, 229, 255, 0.4);
+            --glass-blur: 16px;
+        }
+        .light {
+            --bg: #f0f2f5;
+            --surface: rgba(255, 255, 255, 0.7);
+            --border: rgba(0, 0, 0, 0.1);
+            --text-main: #111116;
+            --text-muted: #666677;
+            --accent: #0055ff;
+            --accent-glow: rgba(0, 85, 255, 0.3);
+            --glass-blur: 24px;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text-main);
+            font-family: 'Inter', -apple-system, sans-serif;
+            overflow: hidden;
+            transition: background-color 0.8s ease, color 0.8s ease;
+        }
+        /* Glassmorphism */
+        .glass {
+            background: var(--surface);
+            backdrop-filter: blur(var(--glass-blur));
+            -webkit-backdrop-filter: blur(var(--glass-blur));
+            border: 1px solid var(--border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .glass:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.3);
+        }
+        .light .glass:hover {
+            border-color: rgba(0, 0, 0, 0.2);
+            box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.1);
+        }
+        /* Editor Overrides */
+        .editor-container {
+            position: relative;
+            height: 100%;
+            width: 100%;
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+        /* Ambient Background */
+        #ambient-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 50% 50%, rgba(0, 229, 255, 0.05) 0%, transparent 60%);
+            pointer-events: none;
+        }
+        /* Neumorphic / Glowing Buttons */
+        .btn-premium {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0));
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .btn-premium::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: all 0.5s ease;
+        }
+        .btn-premium:hover::before {
+            left: 100%;
+        }
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px var(--accent-glow);
+            border-color: var(--accent);
+        }
+        .btn-wash {
+            background: var(--accent);
+            color: #000;
+            font-weight: 600;
+            box-shadow: 0 0 20px var(--accent-glow);
+            border: none;
+        }
+        .light .btn-wash {
+            color: #fff;
+        }
+        .btn-wash:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 40px var(--accent-glow);
+        }
+        /* Cinematic Particles Overlay */
+        #particles-canvas {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 50;
+        }
+        /* Stat Card */
+        .stat-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem;
+            border-radius: 12px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border);
+        }
+        .light .stat-card {
+            background: rgba(255,255,255,0.4);
+        }
+        .stat-value {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.25rem;
+            color: var(--accent);
+            font-weight: 500;
+        }
+        .stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+        /* Flying Code Lines */
+        .flying-code {
+            position: absolute;
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            color: var(--accent);
+            white-space: pre;
+            pointer-events: none;
+            z-index: 100;
+            text-shadow: 0 0 8px var(--accent-glow);
+            opacity: 0;
+            filter: blur(0px);
+        }
+	</style>
+</head>
+<body class="flex flex-col h-screen antialiased selection:bg-cyan-500/30">
+	<!-- Ambient Lighting Background -->
+	<div id="ambient-bg"></div>
+	<canvas id="particles-canvas"></canvas>
+	<!-- Header -->
+	<header class="relative z-10 flex items-center justify-between px-8 py-5 w-full glass border-b-0 rounded-b-2xl mx-auto max-w-[1920px]">
+		<div>
+			<h1 class="text-3xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400 dark:from-white dark:to-gray-400 light:from-gray-900 light:to-gray-600" style="background-image: linear-gradient(to right, var(--text-main), var(--text-muted)); -webkit-background-clip: text; color: transparent;">
+				The Washing Machine
+			</h1>
+			<p class="text-sm mt-1 text-[var(--text-muted)]">Give your HTML a proper, premium wash.</p>
+		</div>
+		<div class="flex items-center gap-4">
+			<button id="btn-sound" class="p-3 rounded-full glass hover:bg-white/10 transition-colors" aria-label="Toggle Sound">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="icon-sound">
+					<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+					<path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+				</svg>
+			</button>
+			<button id="btn-theme" class="p-3 rounded-full glass hover:bg-white/10 transition-colors" aria-label="Toggle Theme">
+				<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="icon-theme">
+					<circle cx="12" cy="12" r="5"></circle>
+					<line x1="12" y1="1" x2="12" y2="3"></line>
+					<line x1="12" y1="21" x2="12" y2="23"></line>
+					<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+					<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+					<line x1="1" y1="12" x2="3" y2="12"></line>
+					<line x1="21" y1="12" x2="23" y2="12"></line>
+					<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+					<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+				</svg>
+			</button>
+		</div>
+	</header>
+	<!-- Main Workspace -->
+	<main class="relative z-10 flex-1 flex flex-col lg:flex-row gap-6 p-6 max-w-[1920px] w-full mx-auto overflow-hidden">
+		<!-- Left: Input -->
+		<div class="flex-1 flex flex-col glass rounded-2xl relative group transform transition-transform duration-500">
+			<div class="px-4 py-3 border-b border-[var(--border)] flex justify-between items-center">
+				<span class="text-sm font-semibold tracking-wide flex items-center gap-2">
+					<span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+					Messy HTML
+				</span>
+				<button id="btn-clear" class="text-xs text-[var(--text-muted)] hover:text-white transition-colors">Clear</button>
+			</div>
+			<div class="flex-1 p-2">
+				<div id="editor-in" class="editor-container"></div>
+			</div>
+		</div>
+		<!-- Center: The Machine (3D) -->
+		<div class="flex-[1.2] relative flex flex-col items-center justify-center rounded-2xl bg-black/10 shadow-inner overflow-hidden border border-[var(--border)]">
+			<!-- 3D Canvas Container -->
+			<div id="machine-canvas-container" class="absolute inset-0 w-full h-full"></div>
+			<!-- Absolute floating controls over machine -->
+			<div class="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
+				<button id="btn-wash" class="btn-wash px-10 py-4 rounded-full text-lg tracking-wider transition-all flex items-center gap-3">
+					<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+						<path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+						<circle cx="12" cy="13" r="4"></circle>
+						<line x1="12" y1="9" x2="12" y2="9.01"></line>
+						<polyline points="22 3 22 9 16 9"></polyline>
+						<line x1="10" y1="3" x2="22" y2="9"></line>
+					</svg>
+					WASH HTML
+				</button>
+			</div>
+			<div id="machine-status" class="absolute top-8 left-1/2 -translate-x-1/2 z-20 glass px-6 py-2 rounded-full text-sm font-mono tracking-widest text-[var(--accent)] opacity-80 backdrop-blur-md">
+				WAITING
+			</div>
+		</div>
+		<!-- Right: Output -->
+		<div class="flex-1 flex flex-col glass rounded-2xl relative group transform transition-transform duration-500">
+			<div class="px-4 py-3 border-b border-[var(--border)] flex justify-between items-center">
+				<span class="text-sm font-semibold tracking-wide flex items-center gap-2">
+					<span class="w-2 h-2 rounded-full bg-[var(--accent)]"></span>
+					Cleaned HTML
+				</span>
+				<div class="flex gap-3">
+					<button id="btn-copy" class="text-xs text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors flex items-center gap-1">
+						<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+						Copy
+					</button>
+					<button id="btn-download" class="text-xs text-[var(--text-muted)] hover:text-[var(--accent)] transition-colors flex items-center gap-1">
+						<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+						Download
+					</button>
+				</div>
+			</div>
+			<div class="flex-1 p-2 relative">
+				<div id="editor-out" class="editor-container opacity-0 transition-opacity duration-1000"></div>
+				<!-- Initial placeholder -->
+				<div id="editor-out-placeholder" class="absolute inset-0 flex items-center justify-center text-[var(--text-muted)] flex-col gap-4 pointer-events-none">
+					<svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" class="opacity-30">
+						<polyline points="16 18 22 12 16 6"></polyline>
+						<polyline points="8 6 2 12 8 18"></polyline>
+					</svg>
+					<span class="text-sm tracking-widest uppercase">Waiting for input...</span>
+				</div>
+			</div>
+		</div>
+	</main>
+	<!-- Footer / Statistics -->
+	<footer class="relative z-10 w-full p-4 glass rounded-t-2xl max-w-[1920px] mx-auto border-t border-[var(--border)]">
+		<div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3">
+			<div class="stat-card"><span class="stat-value" id="stat-lines-orig">0</span><span class="stat-label">Lines (In)</span></div>
+			<div class="stat-card"><span class="stat-value" id="stat-lines-clean">0</span><span class="stat-label">Lines (Out)</span></div>
+			<div class="stat-card"><span class="stat-value" id="stat-empty-rem">0</span><span class="stat-label">Empty Removed</span></div>
+			<div class="stat-card"><span class="stat-value" id="stat-indents">0</span><span class="stat-label">Indents Fixed</span></div>
+			<div class="stat-card"><span class="stat-value" id="stat-chars">0</span><span class="stat-label">Characters</span></div>
+			<div class="stat-card"><span class="stat-value" id="stat-bytes-in">0</span><span class="stat-label">Bytes (In)</span></div>
+			<div class="stat-card"><span class="stat-value" id="stat-bytes-out">0</span><span class="stat-label">Bytes (Out)</span></div>
+			<div class="stat-card"><span class="stat-value" id="stat-time">0ms</span><span class="stat-label">Wash Time</span></div>
+		</div>
+	</footer>
+	<!-- Scripts -->
+    <script>
+        // ==========================================
+        // 1. Audio Engine (Synthesized, no assets)
+        // ==========================================
+        class AudioEngine {
+            constructor() {
+                this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                this.muted = false;
+                this.humNode = null;
+                this.washNode = null;
+            }
+            toggle() {
+                this.muted = !this.muted;
+                if(this.ctx.state === 'suspended') this.ctx.resume();
+                return this.muted;
+            }
+            playClick() {
+                if (this.muted) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(300, this.ctx.currentTime + 0.1);
+                gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.1);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 0.1);
+            }
+            startHum() {
+                if (this.muted || this.humNode) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                const filter = this.ctx.createBiquadFilter();
+                osc.type = 'sawtooth';
+                osc.frequency.value = 60; // low frequency hum
+                filter.type = 'lowpass';
+                filter.frequency.value = 150;
+                gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.1, this.ctx.currentTime + 1);
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                this.humNode = { osc, gain };
+            }
+            stopHum() {
+                if (this.humNode) {
+                    this.humNode.gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 1);
+                    setTimeout(() => {
+                        this.humNode.osc.stop();
+                        this.humNode = null;
+                    }, 1000);
+                }
+            }
+            playWashEffect() {
+                if (this.muted) return;
+                // White noise for water splash
+                const bufferSize = this.ctx.sampleRate * 4;
+                const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) {
+                    data[i] = Math.random() * 2 - 1;
+                }
+                const noise = this.ctx.createBufferSource();
+                noise.buffer = buffer;
+                const filter = this.ctx.createBiquadFilter();
+                filter.type = 'bandpass';
+                filter.frequency.setValueAtTime(400, this.ctx.currentTime);
+                filter.frequency.linearRampToValueAtTime(1000, this.ctx.currentTime + 1);
+                filter.frequency.linearRampToValueAtTime(400, this.ctx.currentTime + 2);
+                const gain = this.ctx.createGain();
+                gain.gain.setValueAtTime(0, this.ctx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.15, this.ctx.currentTime + 0.2);
+                gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 2);
+                noise.connect(filter);
+                filter.connect(gain);
+                gain.connect(this.ctx.destination);
+                noise.start();
+            }
+            playDing() {
+                if (this.muted) return;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1200, this.ctx.currentTime);
+                gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 1.5);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start();
+                osc.stop(this.ctx.currentTime + 1.5);
+            }
+        }
+        const audio = new AudioEngine();
+        // ==========================================
+        // 2. HTML Formatter Engine
+        // ==========================================
+        const Formatter = {
+            format: function(rawHtml) {
+                stats = {
+                    originalLines: rawHtml.split('\n').length,
+                    cleanedLines: 0,
+                    emptyRemoved: 0,
+                    indentCorrections: 0,
+                    chars: rawHtml.length,
+                    bytesIn: new Blob([rawHtml]).size,
+                    bytesOut: 0,
+                    time: 0
+                };
+                const startTime = performance.now();
+                // 1. Remove trailing whitespace from every line
+                let processed = rawHtml.replace(/[ \t]+$/gm, '');
+                // 2. Remove purely empty lines
+                let lines = processed.split('\n');
+                let validLines = [];
+                for(let line of lines) {
+                    if (line.trim().length === 0) {
+                        stats.emptyRemoved++;
+                    } else {
+                        validLines.push(line);
+                    }
+                }
+                // 3. Smart Indentation & Reassembly
+                let indentLevel = 0;
+                let inScript = false;
+                let inStyle = false;
+                let inComment = false;
+                let finalLines = [];
+                const voidElements = new Set(['area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input', 'link', 'meta', 'param', 'source', 'track', 'wbr', '!doctype', '?xml']);
+                for (let line of validLines) {
+                    let trimmedLine = line.trim();
+                    let originalIndentStr = line.match(/^\s*/)[0];
+                    let lineIndentLvl = indentLevel;
+                    // State trackers for protected blocks
+                    if (trimmedLine.includes('<!--') && !trimmedLine.includes('-->')) inComment = true;
+                    if (trimmedLine.includes('-->')) inComment = false;
+                    let lowerLine = trimmedLine.toLowerCase();
+                    if (lowerLine.includes('<script') && !lowerLine.includes('<\/script>')) inScript = true;
+                    if (lowerLine.includes('<\/script>')) inScript = false;
+                    if (lowerLine.includes('<style') && !lowerLine.includes('</style>')) inStyle = true;
+                    if (lowerLine.includes('</style>')) inStyle = false;
+                    // Decrease indent for current line if it starts with a closing tag
+                    if (trimmedLine.match(/^<\//)) {
+                        lineIndentLvl = Math.max(0, lineIndentLvl - 1);
+                    }
+                    let newLineStr = line;
+                    let targetIndentStr = '\t'.repeat(lineIndentLvl);
+                    // Apply indentation safely
+                    if (!inScript && !inStyle && !inComment) {
+                        if (originalIndentStr !== targetIndentStr) {
+                            stats.indentCorrections++;
+                            newLineStr = targetIndentStr + trimmedLine;
+                        }
+                    } else {
+                        // We are inside a protected block. Only format if it's the exact closing line.
+                        if (trimmedLine.match(/^<\/script>/i) || trimmedLine.match(/^<\/style>/i) || trimmedLine.match(/^-->/)) {
+                            if (originalIndentStr !== targetIndentStr) {
+                                stats.indentCorrections++;
+                                newLineStr = targetIndentStr + trimmedLine;
+                            }
+                        }
+                        // Otherwise, leave text exactly as is (preserves original spacing)
+                    }
+                    finalLines.push(newLineStr);
+                    // Calculate indent for NEXT line
+                    if (!inScript && !inStyle && !inComment) {
+                        // Count structural tags
+                        let openings = (trimmedLine.match(/<(?!\/)(?![?!])[^>\s]+[^>]*>/g) || []).filter(tag => {
+                            let match = tag.match(/<([^\s>]+)/);
+                            if(!match) return false;
+                            let tagName = match[1].toLowerCase();
+                            return !voidElements.has(tagName) && !tag.endsWith('/>');
+                        }).length;
+                        let closings = (trimmedLine.match(/<\/[^>]+>/g) || []).length;
+                        indentLevel += (openings - closings);
+                        indentLevel = Math.max(0, indentLevel);
+                    }
+                }
+                let output = finalLines.join('\n');
+                stats.cleanedLines = finalLines.length;
+                stats.bytesOut = new Blob([output]).size;
+                stats.time = performance.now() - startTime;
+                return { output, stats };
+            }
+        };
+        // ==========================================
+        // 3. Three.js Cinematic Environment
+        // ==========================================
+        class WashingMachineScene {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.scene = new THREE.Scene();
+                // Camera
+                this.camera = new THREE.PerspectiveCamera(45, this.container.clientWidth / this.container.clientHeight, 0.1, 100);
+                this.camera.position.set(0, 0, 12);
+                // Renderer
+                this.renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+                this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                this.container.appendChild(this.renderer.domElement);
+                this.objects = {};
+                this.isWashing = false;
+                this.drumSpeed = 0.002;
+                this.targetDrumSpeed = 0.002;
+                this.mouse = { x: 0, y: 0, targetX: 0, targetY: 0 };
+                this.initLighting();
+                this.initMachine();
+                this.initParticles();
+                // Resize listener
+                window.addEventListener('resize', () => {
+                    this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
+                    this.camera.updateProjectionMatrix();
+                    this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+                });
+                // Parallax listener
+                document.addEventListener('mousemove', (e) => {
+                    this.mouse.targetX = (e.clientX / window.innerWidth) * 2 - 1;
+                    this.mouse.targetY = -(e.clientY / window.innerHeight) * 2 + 1;
+                });
+                this.animate = this.animate.bind(this);
+                requestAnimationFrame(this.animate);
+            }
+            initLighting() {
+                const ambient = new THREE.AmbientLight(0xffffff, 0.4);
+                this.scene.add(ambient);
+                const spotLight = new THREE.SpotLight(0xffffff, 1.5);
+                spotLight.position.set(10, 15, 10);
+                spotLight.angle = Math.PI / 4;
+                spotLight.penumbra = 0.5;
+                spotLight.castShadow = true;
+                spotLight.shadow.bias = -0.0001;
+                this.scene.add(spotLight);
+                this.objects.drumLight = new THREE.PointLight(0x00e5ff, 0.8, 10);
+                this.objects.drumLight.position.set(0, 0, 0);
+                this.scene.add(this.objects.drumLight);
+                const fillLight = new THREE.DirectionalLight(0xaaccff, 0.5);
+                fillLight.position.set(-10, 0, 10);
+                this.scene.add(fillLight);
+            }
+            initMachine() {
+                this.machineGroup = new THREE.Group();
+                this.scene.add(this.machineGroup);
+                // Premium Materials
+                const metalMaterial = new THREE.MeshPhysicalMaterial({
+                    color: 0xe0e0e5,
+                    metalness: 0.9,
+                    roughness: 0.2,
+                    clearcoat: 1.0,
+                    clearcoatRoughness: 0.1
+                });
+                const darkMetalMaterial = new THREE.MeshStandardMaterial({
+                    color: 0x111111,
+                    metalness: 0.8,
+                    roughness: 0.4
+                });
+                const glassMaterial = new THREE.MeshPhysicalMaterial({
+                    color: 0xffffff,
+                    metalness: 0.1,
+                    roughness: 0.05,
+                    transmission: 0.95,
+                    thickness: 0.5,
+                    transparent: true
+                });
+                // Chassis (Main Box)
+                // Constructing using primitive shapes for high performance without loading external geometry
+                const boxGeo = new THREE.BoxGeometry(6, 7, 5);
+                const chassis = new THREE.Mesh(boxGeo, metalMaterial);
+                chassis.castShadow = true;
+                chassis.receiveShadow = true;
+                this.machineGroup.add(chassis);
+                // Cutout representation (Black cylinder covering the hole area)
+                const holeGeo = new THREE.CylinderGeometry(2.1, 2.1, 5.01, 32);
+                holeGeo.rotateX(Math.PI / 2);
+                const hole = new THREE.Mesh(holeGeo, darkMetalMaterial);
+                this.machineGroup.add(hole);
+                // Drum (Inside)
+                const drumGeo = new THREE.CylinderGeometry(2, 2, 4, 32, 1, true);
+                drumGeo.rotateX(Math.PI / 2);
+                this.objects.drum = new THREE.Mesh(drumGeo, new THREE.MeshStandardMaterial({
+                    color: 0x333333, metalness: 0.9, roughness: 0.5, side: THREE.BackSide
+                }));
+                this.machineGroup.add(this.objects.drum);
+                // Door Group (for opening animation)
+                this.doorGroup = new THREE.Group();
+                this.doorGroup.position.set(-2.2, 0, 2.5); // Hinge position
+                this.machineGroup.add(this.doorGroup);
+                // Chrome Rim
+                const rimGeo = new THREE.TorusGeometry(2.2, 0.2, 16, 64);
+                const rim = new THREE.Mesh(rimGeo, new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 1, roughness: 0 }));
+                rim.position.set(2.2, 0, 0); // Offset from hinge
+                this.doorGroup.add(rim);
+                // Glass
+                const glassGeo = new THREE.CylinderGeometry(2.1, 1.8, 0.6, 32);
+                glassGeo.rotateX(Math.PI / 2);
+                const glass = new THREE.Mesh(glassGeo, glassMaterial);
+                glass.position.set(2.2, 0, 0.1);
+                this.doorGroup.add(glass);
+                // Top UI Panel
+                const panelGeo = new THREE.BoxGeometry(5.6, 0.8, 0.2);
+                const panel = new THREE.Mesh(panelGeo, new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.8 }));
+                panel.position.set(0, 2.8, 2.5);
+                this.machineGroup.add(panel);
+                // Water plane
+                const waterGeo = new THREE.CircleGeometry(1.95, 32);
+                this.objects.waterMat = new THREE.MeshPhysicalMaterial({
+                    color: 0x0088ff,
+                    transmission: 0.8,
+                    transparent: true,
+                    opacity: 0.6,
+                    roughness: 0.1
+                });
+                this.objects.water = new THREE.Mesh(waterGeo, this.objects.waterMat);
+                this.objects.water.position.set(0, -0.5, 1.5);
+                this.objects.water.rotation.x = -Math.PI / 8; // Slanted water
+                this.machineGroup.add(this.objects.water);
+            }
+            initParticles() {
+                const count = 300;
+                const geometry = new THREE.BufferGeometry();
+                const positions = new Float32Array(count * 3);
+                for(let i=0; i<count*3; i+=3) {
+                    positions[i] = (Math.random() - 0.5) * 3;
+                    positions[i+1] = (Math.random() - 0.5) * 3;
+                    positions[i+2] = (Math.random() - 0.5) * 2;
+                }
+                geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+                const material = new THREE.PointsMaterial({
+                    color: 0xffffff,
+                    size: 0.05,
+                    transparent: true,
+                    opacity: 0.5,
+                    blending: THREE.AdditiveBlending
+                });
+                this.objects.particles = new THREE.Points(geometry, material);
+                this.machineGroup.add(this.objects.particles);
+            }
+            setTheme(isDark) {
+                if(isDark) {
+                    this.scene.background = null;
+                    this.renderer.setClearColor(0x000000, 0);
+                    this.objects.drumLight.color.setHex(0x00e5ff);
+                } else {
+                    this.renderer.setClearColor(0x000000, 0);
+                    this.objects.drumLight.color.setHex(0x0055ff);
+                }
+            }
+            startWashCycle() {
+                this.isWashing = true;
+                // Animate drum speed
+                gsap.to(this, { targetDrumSpeed: 0.3, duration: 2, ease: "power2.in" });
+                // Water level rises
+                gsap.to(this.objects.water.position, { y: 0.5, duration: 1.5 });
+                // Light flashes
+                gsap.to(this.objects.drumLight, { intensity: 3, duration: 0.5, yoyo: true, repeat: -1 });
+                // Machine shake
+                gsap.to(this.machineGroup.position, {
+                    x: 0.05, y: 0.05,
+                    duration: 0.05, yoyo: true, repeat: 40, ease: "none"
+                });
+            }
+            stopWashCycle() {
+                this.isWashing = false;
+                gsap.to(this, { targetDrumSpeed: 0.002, duration: 2, ease: "power2.out" });
+                gsap.to(this.objects.water.position, { y: -0.5, duration: 2 });
+                gsap.killTweensOf(this.objects.drumLight);
+                gsap.to(this.objects.drumLight, { intensity: 0.8, duration: 1 });
+                gsap.to(this.machineGroup.position, { x: 0, y: 0, duration: 0.5 });
+            }
+            openDoor() {
+                gsap.to(this.doorGroup.rotation, { y: -Math.PI / 2.2, duration: 1.5, ease: "bounce.out" });
+            }
+            closeDoor() {
+                gsap.to(this.doorGroup.rotation, { y: 0, duration: 1, ease: "power2.inOut" });
+            }
+            animate() {
+                requestAnimationFrame(this.animate);
+                // Parallax smoothing
+                this.mouse.x += (this.mouse.targetX - this.mouse.x) * 0.05;
+                this.mouse.y += (this.mouse.targetY - this.mouse.y) * 0.05;
+                this.machineGroup.rotation.y = this.mouse.x * 0.2;
+                this.machineGroup.rotation.x = -this.mouse.y * 0.1;
+                // Drum rotation
+                this.drumSpeed += (this.targetDrumSpeed - this.drumSpeed) * 0.05;
+                if(this.objects.drum) this.objects.drum.rotation.z -= this.drumSpeed;
+                // Particle animation
+                if(this.objects.particles) {
+                    this.objects.particles.rotation.z += this.drumSpeed * 0.5;
+                    const positions = this.objects.particles.geometry.attributes.position.array;
+                    for(let i=1; i<positions.length; i+=3) {
+                        positions[i] += (this.isWashing ? 0.05 : 0.01);
+                        if(positions[i] > 1.5) positions[i] = -1.5;
+                    }
+                    this.objects.particles.geometry.attributes.position.needsUpdate = true;
+                }
+                // Water wave
+                if(this.objects.water) {
+                    this.objects.water.rotation.z = Math.sin(Date.now() * 0.002) * (this.isWashing ? 0.2 : 0.05);
+                }
+                this.renderer.render(this.scene, this.camera);
+            }
+        }
+        // ==========================================
+        // 4. Main Application Logic
+        // ==========================================
+        let editorIn, editorOut, scene3D;
+        let isProcessing = false;
+        require.config({ paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs' }});
+        require(['vs/editor/editor.main'], function() {
+            // Theme config
+            monaco.editor.defineTheme('custom-dark', {
+                base: 'vs-dark',
+                inherit: true,
+                rules: [],
+                colors: { 'editor.background': '#00000000' }
+            });
+            monaco.editor.defineTheme('custom-light', {
+                base: 'vs',
+                inherit: true,
+                rules: [],
+                colors: { 'editor.background': '#00000000' }
+            });
+            // Initialize Editors
+            const commonOptions = {
+                language: 'html',
+                minimap: { enabled: false },
+                scrollBeyondLastLine: false,
+                fontSize: 13,
+                fontFamily: "'Fira Code', monospace",
+                roundedSelection: true,
+                theme: 'custom-dark',
+                automaticLayout: true,
+                padding: { top: 16 }
+            };
+            editorIn = monaco.editor.create(document.getElementById('editor-in'), {
+                ...commonOptions,
+                value: `<!-- Messy HTML Example -->
+<div class="container">
+      <h1>Hello World</h1>
+
+    <p>This is messy.</p>
+        <ul>
+  <li>Item 1</li>
+
+    <li>Item 2</li>
+  </ul>
+      <script>
+
+      console.log("Don't touch my indent here");
+
+      <\/script>
+</div>`
+            });
+            editorOut = monaco.editor.create(document.getElementById('editor-out'), {
+                ...commonOptions,
+                value: "",
+                readOnly: true
+            });
+            // Initialize 3D Scene
+            scene3D = new WashingMachineScene('machine-canvas-container');
+            // Setup UI Listeners
+            setupUI();
+        });
+        function setupUI() {
+            const btnWash = document.getElementById('btn-wash');
+            const btnClear = document.getElementById('btn-clear');
+            const btnCopy = document.getElementById('btn-copy');
+            const btnDownload = document.getElementById('btn-download');
+            const btnTheme = document.getElementById('btn-theme');
+            const btnSound = document.getElementById('btn-sound');
+            const statusBadge = document.getElementById('machine-status');
+            btnWash.addEventListener('click', performWash);
+            btnClear.addEventListener('click', () => {
+                editorIn.setValue('');
+                editorOut.setValue('');
+                document.getElementById('editor-out').style.opacity = '0';
+                document.getElementById('editor-out-placeholder').style.opacity = '1';
+                resetStats();
+                audio.playClick();
+            });
+            btnCopy.addEventListener('click', () => {
+                const text = editorOut.getValue();
+                if(text) {
+                    navigator.clipboard.writeText(text);
+                    btnCopy.innerHTML = '<span class="text-green-500 flex items-center gap-1"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>Copied!</span>';
+                    setTimeout(() => {
+                        btnCopy.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg> Copy';
+                    }, 2000);
+                    audio.playClick();
+                }
+            });
+            btnDownload.addEventListener('click', () => {
+                const text = editorOut.getValue();
+                if(text) {
+                    const blob = new Blob([text], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = 'cleaned.html';
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    audio.playClick();
+                }
+            });
+            btnTheme.addEventListener('click', () => {
+                const html = document.documentElement;
+                const isDark = html.classList.contains('dark');
+                if (isDark) {
+                    html.classList.remove('dark');
+                    html.classList.add('light');
+                    monaco.editor.setTheme('custom-light');
+                    scene3D.setTheme(false);
+                } else {
+                    html.classList.remove('light');
+                    html.classList.add('dark');
+                    monaco.editor.setTheme('custom-dark');
+                    scene3D.setTheme(true);
+                }
+                audio.playClick();
+            });
+            btnSound.addEventListener('click', () => {
+                const isMuted = audio.toggle();
+                const icon = document.getElementById('icon-sound');
+                if (isMuted) {
+                    icon.innerHTML = '<line x1="1" y1="1" x2="23" y2="23"></line><path d="M9 9v6a3 3 0 0 0 5.12 2.12M15 9.34V4a3 3 0 0 0-5.94-.6"></path><path d="M17 16.95A7 7 0 0 1 5 12v-2m14 0v2a7 7 0 0 1-.11 1.23"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line>';
+                } else {
+                    icon.innerHTML = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>';
+                    audio.playClick();
+                }
+            });
+        }
+        async function performWash() {
+            if (isProcessing) return;
+            const inputHtml = editorIn.getValue();
+            if (!inputHtml.trim()) return;
+            isProcessing = true;
+            scene3D.openDoor();
+            const btnWash = document.getElementById('btn-wash');
+            const statusBadge = document.getElementById('machine-status');
+            // UI State
+            btnWash.style.opacity = '0.5';
+            btnWash.style.pointerEvents = 'none';
+            statusBadge.innerText = "WAITING...";
+            statusBadge.style.color = "var(--accent)";
+            audio.playClick();
+            // 1. Ingest Animation
+            await playCinematicIngest();
+            scene3D.closeDoor();
+            // 2. Wash Cycle
+            statusBadge.innerText = "WASHING...";
+            scene3D.startWashCycle();
+            audio.startHum();
+            audio.playWashEffect();
+            // Process the logic in background slightly delayed
+            let result;
+            setTimeout(() => {
+                result = Formatter.format(inputHtml);
+            }, 100);
+            // Wait for cinematic effect
+            await new Promise(r => setTimeout(r, 5000));
+            // 3. Output Phase
+            statusBadge.innerText = "COMPLETE";
+            statusBadge.style.color = "#00ff88";
+            scene3D.stopWashCycle();
+            audio.stopHum();
+            audio.playDing();
+            scene3D.openDoor();
+            await new Promise(r => setTimeout(r, 800));
+            // Set result and animate out
+            editorOut.setValue(result.output);
+            updateStats(result.stats);
+            document.getElementById('editor-out-placeholder').style.opacity = '0';
+            document.getElementById('editor-out').style.opacity = '1';
+            await playCinematicOutput();
+            triggerConfetti();
+            // Reset UI
+            setTimeout(() => {
+                scene3D.closeDoor();
+                btnWash.style.opacity = '1';
+                btnWash.style.pointerEvents = 'auto';
+                statusBadge.innerText = "WAITING";
+                statusBadge.style.color = "var(--accent)";
+                isProcessing = false;
+            }, 1500);
+        }
+        function createFloatingCodeLine(text, startEl, endTarget) {
+            const el = document.createElement('div');
+            el.className = 'flying-code';
+            el.innerText = text.length > 80 ? text.slice(0,80)+"..." : text;
+            document.body.appendChild(el);
+            const rect = startEl.getBoundingClientRect();
+            el.style.left = (rect.left + rect.width/2) + 'px';
+            el.style.top = (rect.top + rect.height/2 + (Math.random()*200-100)) + 'px';
+            return el;
+        }
+        async function playCinematicIngest() {
+            const inputContainer = document.getElementById('editor-in');
+            const centerTarget = { x: window.innerWidth/2, y: window.innerHeight/2 };
+            const lines = editorIn.getValue().split('\n').filter(l => l.trim().length > 0).slice(0, 50); // max 20 lines for anim
+            const timeline = gsap.timeline();
+            lines.forEach((line, i) => {
+                const el = createFloatingCodeLine(line, inputContainer, centerTarget);
+                timeline.to(el, {
+                    opacity: 1,
+                    scale: 1.2,
+                    duration: 0.2
+                }, i * 0.05)
+                .to(el, {
+                    x: centerTarget.x - el.offsetLeft,
+                    y: centerTarget.y - el.offsetTop,
+                    scale: 0,
+                    rotation: (Math.random() - 0.5) * 360,
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: "power2.in",
+                    onComplete: () => el.remove()
+                }, i * 0.05 + 0.2);
+            });
+            return timeline.then();
+        }
+        async function playCinematicOutput() {
+            const outputContainer = document.getElementById('editor-out');
+            const centerStart = { x: window.innerWidth/2, y: window.innerHeight/2 };
+            const outRect = outputContainer.getBoundingClientRect();
+            const lines = editorOut
+            .getValue()
+            .split("\n")
+            .filter(l => l.trim())
+            .slice(0, 60);
+            const timeline = gsap.timeline();
+            lines.forEach((line, i) => {
+                const el = document.createElement('div');
+                el.className = 'flying-code';
+                el.innerText = line;
+                el.style.left = centerStart.x + 'px';
+                el.style.top = centerStart.y + 'px';
+                el.style.color = '#00ff88';
+                document.body.appendChild(el);
+                timeline.to(el, {
+                    opacity: 1,
+                    scale: 1,
+                    duration: 0.1
+                }, i * 0.1)
+                .to(el, {
+                    x: (outRect.left + outRect.width/2) - centerStart.x + (Math.random()*100-50),
+                    y: (outRect.top + outRect.height/2) - centerStart.y + (Math.random()*200-100),
+                    opacity: 0,
+                    rotation: (Math.random() - 0.5) * 45,
+                    duration: 0.8,
+                    ease: "power2.out",
+                    onComplete: () => el.remove()
+                }, i * 0.1 + 0.1);
+            });
+            return timeline.then();
+        }
+        function updateStats(stats) {
+            animateValue('stat-lines-orig', 0, stats.originalLines, 1000);
+            animateValue('stat-lines-clean', 0, stats.cleanedLines, 1000);
+            animateValue('stat-empty-rem', 0, stats.emptyRemoved, 1000);
+            animateValue('stat-indents', 0, stats.indentCorrections, 1000);
+            animateValue('stat-chars', 0, stats.chars, 1000);
+            document.getElementById('stat-bytes-in').innerText = stats.bytesIn;
+            document.getElementById('stat-bytes-out').innerText = stats.bytesOut;
+            document.getElementById('stat-time').innerText = stats.time.toFixed(1) + 'ms';
+        }
+        function resetStats() {
+            const els = ['stat-lines-orig','stat-lines-clean','stat-empty-rem','stat-indents','stat-bytes-in','stat-bytes-out','stat-chars'];
+            els.forEach(id => document.getElementById(id).innerText = '0');
+            document.getElementById('stat-size').innerText = '0 KB';
+            document.getElementById('stat-time').innerText = '0ms';
+        }
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                obj.innerHTML = Math.floor(progress * (end - start) + start);
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                } else {
+                    obj.innerHTML = end;
+                }
+            };
+            window.requestAnimationFrame(step);
+        }
+        function triggerConfetti() {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            const dirtyCode = editorIn.getValue();
+            const particles = [];
+            for (let i = 0; i < 30; i++) {
+                const start = Math.floor(Math.random() * Math.max(1, dirtyCode.length - 12));
+                const snippet = dirtyCode
+                    .substring(start, start + (4 + Math.floor(Math.random() * 10)))
+                    .replace(/\n/g, " ");
+                particles.push({
+                    x: window.innerWidth / 2,
+                    y: window.innerHeight / 2,
+                    vx: (Math.random() - 0.5) * 20,
+                    vy: (Math.random() - 0.5) * 20 - 5,
+                    life: 1,
+                    text: snippet,
+                    color: "#ff8c66",
+                    rotation: Math.random() * Math.PI * 2,
+                    vr: (Math.random() - 0.5) * 0.2
+                });
+            }
+            function render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                let active = false;
+                particles.forEach(p => {
+                    if (p.life <= 0) return;
+                    active = true;
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.5; // gravity
+                    p.rotation += p.vr;
+                    p.life -= 0.01;
+                    ctx.save();
+                    ctx.translate(p.x, p.y);
+                    ctx.rotate(p.rotation);
+                    ctx.globalAlpha = Math.max(0, p.life);
+                    ctx.font = '14px "Fira Code"';
+                    ctx.fillStyle = p.color;
+                    ctx.fillText(p.text, 0, 0);
+                    ctx.restore();
+                });
+                if(active) requestAnimationFrame(render);
+                else ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+            render();
+        }
+        // Handle Background Animation
+        (function initAmbientBg() {
+            const bg = document.getElementById('ambient-bg');
+            document.addEventListener('mousemove', (e) => {
+                const x = (e.clientX / window.innerWidth) * 100;
+                const y = (e.clientY / window.innerHeight) * 100;
+                bg.style.background = `radial-gradient(circle at ${x}% ${y}%, var(--accent-glow) 0%, transparent 50%)`;
+            });
+        })();
+</script>
+</body>
+</html>
