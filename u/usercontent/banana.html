@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<title>Banana Empire - AAA 3D Idle Tycoon</title>
+		<!-- Tailwind CSS for modern Glassmorphism UI -->
+		<script src="https://cdn.tailwindcss.com"></script>
+		<!-- Google Fonts -->
+		<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+		<!-- FontAwesome Icons -->
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+		<!-- Three.js (WebGL 3D Rendering) -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+		<!-- GSAP (GreenSock Animation Platform) for high-performance UI tweening -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+            background-color: #0b0f19;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .header-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        /* Glassmorphism custom styles */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.45);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        .glass-panel-heavy {
+            background: rgba(10, 15, 30, 0.85);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .glow-gold {
+            text-shadow: 0 0 10px rgba(250, 204, 21, 0.6);
+        }
+        .glow-button {
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .glow-button:hover {
+            box-shadow: 0 0 15px rgba(234, 179, 8, 0.4);
+            transform: translateY(-2px);
+        }
+        /* Canvas Overlay styles */
+        #game-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+        /* Smooth scrollbar for scrollable panels */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: rgba(250, 204, 21, 0.4);
+            border-radius: 3px;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb:hover {
+            background: rgba(250, 204, 21, 0.7);
+        }
+        /* Loading Screen animations */
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+        .loading-pulse {
+            animation: pulse-slow 2s infinite ease-in-out;
+        }
+        /* Float effects for dynamic text floating */
+        .floating-text {
+            position: absolute;
+            pointer-events: none;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 800;
+            z-index: 50;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            animation: floatUp 1.2s forwards cubic-bezier(0.1, 0.8, 0.3, 1);
+        }
+        @keyframes floatUp {
+            0% {
+                transform: translate(-50%, -50%) scale(0.6);
+                opacity: 0;
+            }
+            15% {
+                transform: translate(-50%, -100%) scale(1.1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -300%) scale(0.85);
+                opacity: 0;
+            }
+        }
+	</style>
+</head>
+<body class="overflow-hidden">
+	<!-- CANVAS WRAPPER (WebGL Scene) -->
+	<canvas id="game-canvas"></canvas>
+	<!-- FLOATING NUMBERS & EFFECTS LAYER -->
+	<div id="effects-overlay" class="absolute inset-0 pointer-events-none z-50 overflow-hidden"></div>
+	<!-- MAIN LOADING SCREEN -->
+	<div id="loading-screen" class="absolute inset-0 bg-slate-950 z-[100] flex flex-col items-center justify-center text-white">
+		<div class="relative flex flex-col items-center">
+			<!-- Animated Ambient Background Rings -->
+			<div class="absolute w-80 h-80 rounded-full border border-yellow-500/10 animate-ping duration-[3000ms]"></div>
+			<div class="absolute w-60 h-60 rounded-full border border-yellow-400/20 animate-pulse"></div>
+			<!-- Large stylized banana icon -->
+			<div class="text-7xl mb-6 loading-pulse relative z-10">
+				<i class="fa-solid fa-banana text-yellow-400 filter drop-shadow-[0_0_15px_rgba(234,179,8,0.5)]">🍌</i>
+			</div>
+			<h1 class="text-4xl md:text-6xl font-extrabold tracking-wider header-font bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 via-yellow-400 to-amber-500">
+				BANANA EMPIRE
+			</h1>
+			<p class="text-yellow-500/70 text-sm md:text-base mt-2 tracking-widest font-semibold">ULTIMATE AAA IDLE SIMULATOR</p>
+			<!-- Custom Progress Bar -->
+			<div class="w-64 h-2 bg-slate-900 border border-white/5 rounded-full mt-12 overflow-hidden relative">
+				<div id="loading-bar" class="h-full bg-gradient-to-r from-yellow-400 to-amber-500 w-0 transition-all duration-300"></div>
+			</div>
+			<!-- Status updates -->
+			<p id="loading-status" class="text-slate-400 text-xs mt-3 tracking-wider font-light">Loading...</p>
+		</div>
+		<div class="absolute bottom-8 text-center text-slate-600 text-xs font-light">
+			Designed by xerrortm &bull; Powered by Three.js &amp; WebGL
+		</div>
+	</div>
+	<!-- HUD (HEADS UP DISPLAY) - Z-INDEX 20 -->
+	<div id="hud-layer" class="absolute inset-0 pointer-events-none z-20 flex flex-col justify-between p-4 md:p-6 opacity-0 transition-opacity duration-1000">
+		<!-- TOP HUD: Stats, Currencies, Biome info, and Boost/Weather Info -->
+		<div class="w-full flex flex-col md:flex-row justify-between items-start gap-4 pointer-events-auto">
+			<!-- Left Header: Brand, Biome Name, Weather Status -->
+			<div class="flex items-center gap-3">
+				<div class="glass-panel p-3 rounded-2xl flex items-center gap-3">
+					<div class="w-12 h-12 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-600 flex items-center justify-center text-2xl shadow-lg">
+						🍌
+					</div>
+					<div>
+						<div class="text-xs uppercase tracking-widest font-bold text-yellow-400">Biome Dashboard</div>
+						<h2 id="current-biome-display" class="header-font text-lg md:text-xl font-bold text-white flex items-center gap-2">
+							Starter Plains <i class="fa-solid fa-seedling text-green-400 text-xs"></i>
+						</h2>
+					</div>
+				</div>
+				<!-- Dynamic Weather Display -->
+				<div id="weather-indicator" class="glass-panel px-4 py-3 rounded-2xl flex items-center gap-3 border-l-4 border-l-blue-400">
+					<span id="weather-icon" class="text-2xl text-blue-400"><i class="fa-solid fa-sun-cloud">🌤️</i></span>
+					<div>
+						<div class="text-[10px] uppercase tracking-widest font-bold text-slate-400">Current Weather</div>
+						<div id="weather-name" class="text-xs font-semibold text-white">Sunny Meadows</div>
+					</div>
+				</div>
+			</div>
+			<!-- Center/Right Stats: Bananas & Hard Cash -->
+			<div class="flex flex-wrap items-center gap-3 md:gap-4 self-stretch md:self-auto justify-end">
+				<!-- Banana Inventory Counter -->
+				<div class="glass-panel px-4 py-2.5 rounded-2xl flex items-center gap-3 border border-yellow-500/20">
+					<div class="text-2xl">🍌</div>
+					<div>
+						<div class="text-[10px] uppercase tracking-widest font-bold text-yellow-400">Bananas</div>
+						<div id="banana-counter" class="header-font text-lg md:text-xl font-black text-white">0</div>
+					</div>
+				</div>
+				<!-- Cash Balance Counter -->
+				<div class="glass-panel px-4 py-2.5 rounded-2xl flex items-center gap-3 border border-green-500/20">
+					<div class="text-2xl text-green-400"><i class="fa-solid fa-circle-dollar-to-slot"></i></div>
+					<div>
+						<div class="text-[10px] uppercase tracking-widest font-bold text-green-400">Money</div>
+						<div id="cash-counter" class="header-font text-lg md:text-xl font-black text-green-300">$0.00</div>
+					</div>
+				</div>
+				<!-- Rebirth / Multiplier Display -->
+				<div id="rebirth-badge" class="glass-panel px-4 py-2.5 rounded-2xl flex items-center gap-3 border border-purple-500/20">
+					<div class="text-xl text-purple-400"><i class="fa-solid fa-crown"></i></div>
+					<div>
+						<div class="text-[10px] uppercase tracking-widest font-bold text-purple-400">Prestige Rank</div>
+						<div id="rebirth-counter" class="header-font text-lg md:text-xl font-black text-purple-300">Prestige 0 (1.0x)</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<!-- RIGHT HUD: Active Boosts Panel -->
+		<div class="absolute right-6 top-28 flex flex-col gap-2 items-end pointer-events-auto">
+			<div id="active-boosts-container" class="flex flex-col gap-2">
+				<!-- Dynamic active boost pills spawn here -->
+			</div>
+		</div>
+		<!-- BOTTOM HUD: Ability Quick-Bar & Control Center Nav -->
+		<div class="w-full flex flex-col md:flex-row justify-between items-end gap-4 mt-auto">
+			<!-- Left Side: Interactive Farming / Planting Action Info & Multi-Tool Button -->
+			<div class="pointer-events-auto flex items-center gap-3">
+				<button id="btn-manual-click" class="glass-panel-heavy p-4 rounded-2xl flex items-center gap-3 hover:scale-105 active:scale-95 transition-all text-white border border-yellow-400/30 group">
+					<div class="w-12 h-12 rounded-xl bg-yellow-400 text-slate-900 text-2xl flex items-center justify-center shadow-lg group-hover:rotate-12 transition-transform">
+						👆
+					</div>
+					<div class="text-left">
+						<div class="text-xs font-extrabold uppercase tracking-wider text-yellow-400">Manual Harvest</div>
+						<div class="text-xs text-slate-300 font-light">Click farm plants to harvest</div>
+					</div>
+				</button>
+			</div>
+			<!-- Center: Core Abilities Quick Bar with cooldowns -->
+			<div class="pointer-events-auto glass-panel p-2.5 rounded-2xl flex gap-2 md:gap-4 justify-center items-center shadow-2xl max-w-full overflow-x-auto">
+				<button onclick="triggerAbility('growth_boost')" class="ability-btn relative w-12 h-12 md:w-14 md:h-14 rounded-xl bg-slate-900 hover:bg-slate-800 flex flex-col items-center justify-center text-xl text-green-400 border border-green-500/20 overflow-hidden group">
+					<i class="fa-solid fa-seedling"></i>
+					<span class="text-[9px] text-slate-400 font-bold scale-90 mt-0.5">Grow</span>
+					<div class="cooldown-overlay absolute bottom-0 left-0 right-0 bg-black/60 h-0 transition-all"></div>
+				</button>
+				<button onclick="triggerAbility('truck_frenzy')" class="ability-btn relative w-12 h-12 md:w-14 md:h-14 rounded-xl bg-slate-900 hover:bg-slate-800 flex flex-col items-center justify-center text-xl text-amber-500 border border-amber-500/20 overflow-hidden group">
+					<i class="fa-solid fa-truck-fast"></i>
+					<span class="text-[9px] text-slate-400 font-bold scale-90 mt-0.5">Speed</span>
+					<div class="cooldown-overlay absolute bottom-0 left-0 right-0 bg-black/60 h-0 transition-all"></div>
+				</button>
+				<button onclick="triggerAbility('golden_storm')" class="ability-btn relative w-12 h-12 md:w-14 md:h-14 rounded-xl bg-slate-900 hover:bg-slate-800 flex flex-col items-center justify-center text-xl text-yellow-400 border border-yellow-500/20 overflow-hidden group">
+					<i class="fa-solid fa-cloud-bolt"></i>
+					<span class="text-[9px] text-slate-400 font-bold scale-90 mt-0.5">Storm</span>
+					<div class="cooldown-overlay absolute bottom-0 left-0 right-0 bg-black/60 h-0 transition-all"></div>
+				</button>
+				<button onclick="triggerAbility('worker_rage')" class="ability-btn relative w-12 h-12 md:w-14 md:h-14 rounded-xl bg-slate-900 hover:bg-slate-800 flex flex-col items-center justify-center text-xl text-red-500 border border-red-500/20 overflow-hidden group">
+					<i class="fa-solid fa-person-digging"></i>
+					<span class="text-[9px] text-slate-400 font-bold scale-90 mt-0.5">Frenzy</span>
+					<div class="cooldown-overlay absolute bottom-0 left-0 right-0 bg-black/60 h-0 transition-all"></div>
+				</button>
+			</div>
+			<!-- Right: Tab Navigation Buttons for Systems Panel -->
+			<div class="pointer-events-auto flex items-center gap-2 md:gap-3 bg-slate-950/40 p-2 rounded-2xl border border-white/5 backdrop-blur-md">
+				<button onclick="openPanel('upgrades')" class="nav-tab w-12 h-12 rounded-xl flex items-center justify-center text-white text-lg bg-slate-900 hover:bg-yellow-500 hover:text-slate-950 hover:scale-105 active:scale-95 transition-all" title="Upgrades Hub">
+					<i class="fa-solid fa-circle-arrow-up"></i>
+				</button>
+				<button onclick="openPanel('pets')" class="nav-tab w-12 h-12 rounded-xl flex items-center justify-center text-white text-lg bg-slate-900 hover:bg-yellow-500 hover:text-slate-950 hover:scale-105 active:scale-95 transition-all" title="Pet Nursery">
+					<i class="fa-solid fa-egg"></i>
+				</button>
+				<button onclick="openPanel('quests')" class="nav-tab w-12 h-12 rounded-xl flex items-center justify-center text-white text-lg bg-slate-900 hover:bg-yellow-500 hover:text-slate-950 hover:scale-105 active:scale-95 transition-all" title="Contracts & Quests">
+					<i class="fa-solid fa-scroll"></i>
+				</button>
+				<button onclick="openPanel('biomes')" class="nav-tab w-12 h-12 rounded-xl flex items-center justify-center text-white text-lg bg-slate-900 hover:bg-yellow-500 hover:text-slate-950 hover:scale-105 active:scale-95 transition-all" title="World Biomes Map">
+					<i class="fa-solid fa-earth-americas"></i>
+				</button>
+				<button onclick="openPanel('prestige')" class="nav-tab w-12 h-12 rounded-xl flex items-center justify-center text-white text-lg bg-slate-900 hover:bg-yellow-500 hover:text-slate-950 hover:scale-105 active:scale-95 transition-all" title="Divine Rebirth Portal">
+					<i class="fa-solid fa-crown"></i>
+				</button>
+			</div>
+		</div>
+	</div>
+	<!-- MAIN INTERACTIVE SYSTEM PANELS (SLIDEOUTS / MODALS) -->
+	<div id="systems-panel" class="absolute inset-0 bg-slate-950/70 z-30 flex items-center justify-center pointer-events-none opacity-0 transition-opacity duration-300">
+		<div class="glass-panel-heavy w-full max-w-4xl h-[85vh] rounded-3xl pointer-events-auto flex flex-col overflow-hidden shadow-2xl scale-95 transition-transform duration-300 m-4">
+			<!-- Panel Header -->
+			<div class="px-6 py-5 border-b border-white/5 flex justify-between items-center bg-gradient-to-r from-slate-900 to-slate-950">
+				<div class="flex items-center gap-3">
+					<span id="panel-icon" class="text-3xl text-yellow-400">🔧</span>
+					<div>
+						<h3 id="panel-title" class="header-font text-2xl font-black text-white tracking-wide uppercase">Upgrades Hub</h3>
+						<p id="panel-subtitle" class="text-xs text-slate-400 font-light">Supercharge your logistics and harvesting operations</p>
+					</div>
+				</div>
+				<!-- Close Button -->
+				<button onclick="closePanel()" class="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white hover:text-red-400 transition-colors">
+					<i class="fa-solid fa-xmark text-lg"></i>
+				</button>
+			</div>
+			<!-- Panel Content Container -->
+			<div id="panel-content" class="flex-1 overflow-y-auto p-6 custom-scroll bg-slate-950/20">
+				<!-- Dynamic Content injected here -->
+			</div>
+			<!-- Panel Footer Stats (Quick reference stats) -->
+			<div class="px-6 py-4 border-t border-white/5 bg-slate-950/50 flex flex-wrap justify-between items-center gap-3">
+				<div class="flex items-center gap-4">
+					<div class="text-xs text-slate-400">Total Capital Balance: <span id="panel-cash-ref" class="text-green-400 font-bold">$0.00</span></div>
+					<div class="text-xs text-slate-400">Active Multiplier: <span id="panel-mult-ref" class="text-purple-400 font-bold">1.0x</span></div>
+				</div>
+				<div class="text-xs text-slate-500 font-light">Click panels to purchase/activate</div>
+			</div>
+		</div>
+	</div>
+	<!-- BANANA FACTORY HUD CONTROLS - CAMERA ADJUSTMENTS -->
+	<div class="absolute left-6 top-28 z-20 pointer-events-none flex flex-col gap-2">
+		<div class="pointer-events-auto glass-panel p-2 rounded-2xl flex flex-col gap-2">
+			<button id="cam-zoom-in" class="w-10 h-10 rounded-xl bg-slate-900 hover:bg-yellow-500 hover:text-slate-950 text-white flex items-center justify-center transition-all shadow-md" title="Zoom In">
+				<i class="fa-solid fa-plus"></i>
+			</button>
+			<button id="cam-zoom-out" class="w-10 h-10 rounded-xl bg-slate-900 hover:bg-yellow-500 hover:text-slate-950 text-white flex items-center justify-center transition-all shadow-md" title="Zoom Out">
+				<i class="fa-solid fa-minus"></i>
+			</button>
+			<button id="cam-rotate-left" class="w-10 h-10 rounded-xl bg-slate-900 hover:bg-yellow-500 hover:text-slate-950 text-white flex items-center justify-center transition-all shadow-md" title="Orbit Left">
+				<i class="fa-solid fa-rotate-left"></i>
+			</button>
+			<button id="cam-rotate-right" class="w-10 h-10 rounded-xl bg-slate-900 hover:bg-yellow-500 hover:text-slate-950 text-white flex items-center justify-center transition-all shadow-md" title="Orbit Right">
+				<i class="fa-solid fa-rotate-right"></i>
+			</button>
+		</div>
+	</div>
+	<!-- AUDIO TOGGLE CONTROLLER -->
+	<div class="absolute right-6 bottom-28 z-20 pointer-events-auto">
+		<button id="btn-audio" class="w-12 h-12 rounded-2xl glass-panel text-slate-300 hover:text-yellow-400 flex items-center justify-center transition-all hover:scale-105 active:scale-95" title="Mute/Unmute Audio">
+			<i id="audio-icon" class="fa-solid fa-volume-high"></i>
+		</button>
+	</div>
+	<!-- SOUND SYSTEM DEFINITION & LOGIC -->
+    <script>
+        // Web Audio Context Synthesized Effects for zero-load interactive audio
+        class SoundFX {
+            constructor() {
+                this.ctx = null;
+                this.muted = true;
+            }
+            init() {
+                if (!this.ctx) {
+                    this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            toggle() {
+                this.muted = !this.muted;
+                const icon = document.getElementById('audio-icon');
+                if (this.muted) {
+                    icon.className = "fa-solid fa-volume-xmark text-slate-500";
+                } else {
+                    this.init();
+                    icon.className = "fa-solid fa-volume-high text-yellow-400";
+                }
+            }
+            playCoin() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.exponentialRampToValueAtTime(1174.66, now + 0.15); // D6
+                gain.gain.setValueAtTime(0.08, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            }
+            playBubble() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(450, now + 0.1);
+                gain.gain.setValueAtTime(0.12, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.12);
+            }
+            playUpgrade() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const osc2 = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(220, now);
+                osc.frequency.exponentialRampToValueAtTime(440, now + 0.3);
+                osc2.type = 'sine';
+                osc2.frequency.setValueAtTime(440, now);
+                osc2.frequency.exponentialRampToValueAtTime(880, now + 0.3);
+                gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                osc.connect(gain);
+                osc2.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc2.start(now);
+                osc.stop(now + 0.35);
+                osc2.stop(now + 0.35);
+            }
+            playHatch() {
+                if (this.muted) return;
+                this.init();
+                const now = this.ctx.currentTime;
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(600, now);
+                osc.frequency.linearRampToValueAtTime(300, now + 0.15);
+                osc.frequency.exponentialRampToValueAtTime(1200, now + 0.4);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+                osc.connect(gain);
+                gain.connect(this.ctx.destination);
+                osc.start(now);
+                osc.stop(now + 0.4);
+            }
+        }
+        const sfx = new SoundFX();
+        document.getElementById('btn-audio').addEventListener('click', () => sfx.toggle());
+</script>
+<!-- CORE GAME GAMEPLAY SYSTEM STATE -->
+    <script>
+        // Full tycoon gameplay state
+        const GameState = {
+            // Currencies
+            bananas: 0,
+            cash: 50.00,
+            rebirthRank: 0,
+            rebirthMultiplier: 1.0,
+            // Biomes definition
+            currentBiome: 'Starter Plains',
+            unlockedBiomes: ['Starter Plains'],
+            biomesConfig: {
+                'Starter Plains': { cost: 0, mult: 1.0, desc: 'Lush starter farm, peaceful hills', bgHex: 0x22c55e, icon: '🌱' },
+                'Tropical Jungle': { cost: 1200, mult: 2.5, desc: 'Rainforest deeps, swift growth', bgHex: 0x15803d, icon: '🌴' },
+                'Volcano Island': { cost: 15000, mult: 7.2, desc: 'Volcanic ashes spawn rich mutations', bgHex: 0xb91c1c, icon: '🌋' },
+                'Crystal Valley': { cost: 95000, mult: 20.0, desc: 'Sparkling diamond-infused soil', bgHex: 0x06b6d4, icon: '💎' },
+                'Space Colony': { cost: 750000, mult: 100.0, desc: 'Zero-g vacuum farming with high gravity income', bgHex: 0x4f46e5, icon: '🚀' }
+            },
+            // Farming and plants logic variables
+            growthRateModifier: 0.1,
+            truckSpeedModifier: 1.0,
+            workerFrenzyActive: false,
+            activeWeather: 'Sunny',
+            currentMutationMultiplier: 1.0,
+            // Upgrades levels & base configs
+            upgrades: {
+                soil_quality: { level: 1, maxLevel: 25, cost: 20, costMult: 1.4, name: 'Rich Organic Soil', desc: 'Increases plant growth rate by +20%', inc: 0.2 },
+                worker_count: { level: 1, maxLevel: 8, cost: 80, costMult: 2.1, name: 'Contract Workers', desc: 'Increases count of active robotic field harvesters', inc: 1 },
+                worker_speed: { level: 1, maxLevel: 15, cost: 60, costMult: 1.5, name: 'Robotic Hydro-Boosters', desc: 'Increases collection and walking speed of harvesters by +15%', inc: 0.15 },
+                truck_cargo: { level: 1, maxLevel: 10, cost: 120, costMult: 1.6, name: 'Logistics Trucks Payload', desc: 'Increases truck crate capacity by +2 crates', inc: 2 },
+                mutation_fertilizer: { level: 0, maxLevel: 20, cost: 200, costMult: 1.8, name: 'Bio-Glow Liquid Fertilizer', desc: 'Improves banana mutation chance by +2.5%', inc: 0.025 }
+            },
+            // Active Eggs and Hatchable Pets inventory
+            eggsHatchedCount: 0,
+            activePets: [],
+            petsAvailable: [
+                { id: 'monkey', name: 'Jungle Macaque', mult: 1.25, chance: 0.5, icon: '🐒', color: 'text-amber-500', tier: 'Common' },
+                { id: 'robot_banana', name: 'Nano Banana-Bot', mult: 1.8, chance: 0.3, icon: '🤖', color: 'text-blue-400', tier: 'Rare' },
+                { id: 'gorilla', name: 'King Silverback', mult: 2.8, chance: 0.15, icon: '🦍', color: 'text-purple-400', tier: 'Epic' },
+                { id: 'phoenix', name: 'Cosmic Phoenix', mult: 5.0, chance: 0.04, icon: '🦅', color: 'text-rose-500', tier: 'Mythic' },
+                { id: 'whale', name: 'Galaxy Banana Whale', mult: 15.0, chance: 0.01, icon: '🐋', color: 'text-cyan-300', tier: 'Titan' }
+            ],
+            // Daily Quests definition
+            quests: [
+                { id: 'harvest_all', name: 'Golden Harvester', target: 50, current: 0, type: 'harvest', reward: 350, claimed: false, desc: 'Harvest 50 total bananas in current biome' },
+                { id: 'unlock_pet', name: 'Pet Collector', target: 1, current: 0, type: 'hatch', reward: 500, claimed: false, desc: 'Successfully hatch 1 Pet Egg' },
+                { id: 'spend_cash', name: 'Capital Invest', target: 500, current: 0, type: 'spend', reward: 1000, claimed: false, desc: 'Spend $500 total capital on upgrades' }
+            ],
+            // Active Game Abilities state
+            abilities: {
+                growth_boost: { name: 'Growth Overdrive', cooldown: 0, duration: 15, active: false, maxCooldown: 40 },
+                truck_frenzy: { name: 'Turbo Logistics', cooldown: 0, duration: 12, active: false, maxCooldown: 60 },
+                golden_storm: { name: 'Auric Downpour', cooldown: 0, duration: 10, active: false, maxCooldown: 90 },
+                worker_rage: { name: 'Field Automaton Overdrive', cooldown: 0, duration: 15, active: false, maxCooldown: 50 }
+            },
+            // Stats Tracking
+            totalCashEarned: 50.00,
+            totalBananasHarvested: 0
+        };
+        // Utility: Save state or fetch saved offline stats
+        const SAVE_KEY = "bananaEmpireSave";
+        function saveGame() {
+            try {
+                localStorage.setItem(SAVE_KEY, JSON.stringify(GameState));
+            } catch (e) {
+                console.error("Failed to save:", e);
+            }
+        }
+        function loadGame() {
+    const save = localStorage.getItem(SAVE_KEY);
+    if (!save) return;
+
+    try {
+        const data = JSON.parse(save);
+
+        // Merge into the existing GameState instead of replacing it
+        Object.assign(GameState, data);
+
+        // Merge nested objects too
+        if (data.upgrades)
+            Object.assign(GameState.upgrades, data.upgrades);
+
+        if (data.abilities)
+            Object.assign(GameState.abilities, data.abilities);
+
+        if (data.biomesConfig)
+            Object.assign(GameState.biomesConfig, data.biomesConfig);
+
+        updateInventoryDisplays();
+    } catch (e) {
+        console.error("Failed to load save:", e);
+    }
+}
+        function formatNumber(num) {
+            if (num >= 1000000000) return (num / 1000000000).toFixed(2) + 'B';
+            if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return num.toFixed(2);
+        }
+        function formatInt(num) {
+            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+            if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+            return Math.floor(num).toString();
+        }
+        // Active pet multiplier getter
+        function getPetBonus() {
+            let mult = 1.0;
+            GameState.activePets.forEach(p => {
+                mult += (p.mult - 1.0);
+            });
+            return mult;
+        }
+        // Aggregate Multipliers
+        function getGlobalMultiplier() {
+            return GameState.rebirthMultiplier * getPetBonus() * GameState.currentMutationMultiplier;
+        }
+</script>
+<!-- WEBGL ENGINE / THREE.JS SCENE CREATION & LOGISTICS SYSTEM -->
+    <script>
+        // Global engine constants & instances
+        let scene, camera, renderer, clock;
+        let animatedPlants = [];
+        let workersList = [];
+        let dynamicTruck = null;
+        let ambientWind = 0;
+        let particlePool = [];
+        let particlesSystem;
+        let environmentBaseColor = 0x22c55e;
+        let targetCameraOffset = { x: 0, y: 15, z: 18 };
+        let cameraRotateAngle = Math.PI / 4;
+        let cameraZoomLevel = 1.0;
+        // Custom Wind sway vertex shader simulation logic for PBR meshes
+        const WindSwayModifier = {
+            onBeforeCompile: (shader) => {
+                shader.uniforms.uTime = { value: 0 };
+                shader.vertexShader = `
+                    uniform float uTime;
+                ` + shader.vertexShader;
+                shader.vertexShader = shader.vertexShader.replace(
+                    '#include <begin_vertex>',
+                    `
+                    #include <begin_vertex>
+                    // Simple procedural vertex bend to simulate realistic field wind
+                    float bend = sin(position.y * 0.5 + uTime * 2.0) * 0.12 * (position.y / 2.0);
+                    transformed.x += bend;
+                    transformed.z += bend * 0.5;
+                    `
+                );
+                // Keep reference to tick uTime in rendering loop
+                WindSwayModifier.activeShaders = WindSwayModifier.activeShaders || [];
+                WindSwayModifier.activeShaders.push(shader);
+            }
+        };
+        // Initialize 3D Engine on load
+        function init3DEngine() {
+            const container = document.getElementById('game-canvas');
+            clock = new THREE.Clock();
+            // Set up Scene with subtle sky depth
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x87CEFA);
+            // Set up Camera (Isometric-esque perspective)
+            camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+            updateCameraPosition();
+            // Set up Renderer
+            renderer = new THREE.WebGLRenderer({ canvas: container, antialias: true, alpha: false, powerPreference: "high-performance" });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.0;
+            // Set up Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.45);
+            scene.add(ambientLight);
+            const hemiLight = new THREE.HemisphereLight(0xffffff, 0x87CEFA, 0.4);
+            hemiLight.position.set(0, 200, 0);
+            scene.add(hemiLight);
+            const sunLight = new THREE.DirectionalLight(0xfef08a, 1.2);
+            sunLight.position.set(30, 40, 20);
+            sunLight.castShadow = true;
+            sunLight.shadow.camera.top = 25;
+            sunLight.shadow.camera.bottom = -25;
+            sunLight.shadow.camera.left = -25;
+            sunLight.shadow.camera.right = 25;
+            sunLight.shadow.camera.near = 0.1;
+            sunLight.shadow.camera.far = 150;
+            sunLight.shadow.mapSize.width = 1024;
+            sunLight.shadow.mapSize.height = 1024;
+            scene.add(sunLight);
+            // Create Terrain base mesh, pathways, and river layout
+            createGroundTerrain();
+            // Populate the interactive Farming Zone
+            spawnFarmingGrid();
+            // Populate static props for multiplayer/alive feeling (clouds, ambient trees)
+            spawnEnvironmentDressing();
+            // Initialize Workers & Logistic Truck
+            spawnFieldWorkers();
+            spawnLogisticsTruck();
+            // Setup dynamic particle systems (Harvest sparkles / Rain weather)
+            createParticleSystem();
+            // Handle browser resize
+            window.addEventListener('resize', onWindowResize, false);
+        }
+        function updateCameraPosition() {
+            const rotX = Math.cos(cameraRotateAngle) * targetCameraOffset.z * cameraZoomLevel;
+            const rotZ = Math.sin(cameraRotateAngle) * targetCameraOffset.z * cameraZoomLevel;
+            gsap.to(camera.position, {
+                x: rotX,
+                y: targetCameraOffset.y * cameraZoomLevel,
+                z: rotZ,
+                duration: 1.0,
+                ease: 'power2.out',
+                onUpdate: () => {
+                    camera.lookAt(0, 0, 0);
+                }
+            });
+        }
+        function createGroundTerrain() {
+            // Main field Island
+            const islandGeo = new THREE.BoxGeometry(50, 1.5, 50);
+            const islandMat = new THREE.MeshStandardMaterial({
+                color: environmentBaseColor,
+                roughness: 0.75,
+                metalness: 0.1
+            });
+            const mainField = new THREE.Mesh(islandGeo, islandMat);
+            mainField.receiveShadow = true;
+            mainField.position.y = -0.75;
+            scene.add(mainField);
+            // Water surrounding island
+            const waterGeo = new THREE.PlaneGeometry(300, 300);
+            const waterMat = new THREE.MeshStandardMaterial({
+                color: 0x0ea5e9,
+                roughness: 0.15,
+                metalness: 0.8,
+                transparent: true,
+                opacity: 0.8
+            });
+            const water = new THREE.Mesh(waterGeo, waterMat);
+            water.rotation.x = -Math.PI / 2;
+            water.position.y = -1.5;
+            scene.add(water);
+            // Simple Roadway to Shop (Z-axis movement road)
+            const roadGeo = new THREE.PlaneGeometry(4, 45);
+            const roadMat = new THREE.MeshStandardMaterial({ color: 0x334155, roughness: 0.9 });
+            const road = new THREE.Mesh(roadGeo, roadMat);
+            road.rotation.x = -Math.PI / 2;
+            road.position.set(10, 0.01, 0); // Road offsets slightly on X
+            road.receiveShadow = true;
+            scene.add(road);
+            // Simple Building - Barn / Shop Hub in the far back
+            const buildingGeo = new THREE.BoxGeometry(6, 4, 8);
+            const buildingMat = new THREE.MeshStandardMaterial({ color: 0x78350f, roughness: 0.8 });
+            const shopBuilding = new THREE.Mesh(buildingGeo, buildingMat);
+            shopBuilding.position.set(10, 2, -18);
+            shopBuilding.castShadow = true;
+            shopBuilding.receiveShadow = true;
+            scene.add(shopBuilding);
+            // Decorate building with Banana signage
+            const signGeo = new THREE.BoxGeometry(0.2, 1.5, 4);
+            const signMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.4 });
+            const sign = new THREE.Mesh(signGeo, signMat);
+            sign.position.set(6.9, 3, -18);
+            scene.add(sign);
+        }
+        // Spawns farm plants grid
+        const farmGrid = [];
+        const maxGridSize = 12;
+        function spawnFarmingGrid() {
+            // Generate structured locations for bananas in central farming plot
+            const startX = -15;
+            const startZ = -15;
+            const spacing = 4.2;
+            for (let i = 0; i < maxGridSize; i++) {
+                const row = Math.floor(i / 4);
+                const col = i % 4;
+                const plotX = startX + col * spacing;
+                const plotZ = startZ + row * spacing;
+                // Visual plot boundaries (soil patch)
+                const patchGeo = new THREE.CylinderGeometry(1.6, 1.8, 0.08, 8);
+                const patchMat = new THREE.MeshStandardMaterial({ color: 0x451a03, roughness: 0.9 });
+                const patch = new THREE.Mesh(patchGeo, patchMat);
+                patch.position.set(plotX, 0.04, plotZ);
+                patch.receiveShadow = true;
+                scene.add(patch);
+                // Add physical Plant container to animate growth
+                const plant = createCustomPlantMesh();
+                plant.position.set(plotX, 0, plotZ);
+                scene.add(plant);
+                // Grid cell runtime state
+                const cellData = {
+                    index: i,
+                    x: plotX,
+                    z: plotZ,
+                    growth: Math.random() * 0.2, // randomize start stages
+                    mutation: 'normal',
+                    mesh: plant,
+                    ripe: false
+                };
+                farmGrid.push(cellData);
+                animatedPlants.push(plant);
+            }
+        }
+        // Programmatic procedural 3D High-Fidelity Banana Tree Generation
+        function createCustomPlantMesh() {
+            const plantGroup = new THREE.Group();
+            // Trunk/Stem
+            const stemGeo = new THREE.CylinderGeometry(0.08, 0.2, 2.2, 5);
+            stemGeo.translate(0, 1.1, 0); // Align bottom to origin
+            const stemMat = new THREE.MeshStandardMaterial({ color: 0x854d0e, roughness: 0.85 });
+            const stem = new THREE.Mesh(stemGeo, stemMat);
+            stem.castShadow = true;
+            plantGroup.add(stem);
+            // Large Palm-like Leaves (Wind sway applied via shader callback or dynamic rotation)
+            const leafGeometry = new THREE.ConeGeometry(0.8, 2.2, 4);
+            leafGeometry.rotateX(Math.PI / 2.5);
+            leafGeometry.translate(0, 2.2, 0.8);
+            const leafMaterial = new THREE.MeshStandardMaterial({
+                color: 0x16a34a,
+                roughness: 0.6,
+                flatShading: true
+            });
+            leafMaterial.onBeforeCompile = WindSwayModifier.onBeforeCompile;
+            const leafCount = 5;
+            for (let idx = 0; idx < leafCount; idx++) {
+                const leafRef = new THREE.Mesh(leafGeometry, leafMaterial);
+                leafRef.rotation.y = (idx * (Math.PI * 2)) / leafCount;
+                leafRef.scale.set(0.9, 0.9, 1.1);
+                leafRef.castShadow = true;
+                plantGroup.add(leafRef);
+            }
+            // Glowing Banana bunch container
+            const bananaGroup = new THREE.Group();
+            bananaGroup.name = "bananas";
+            bananaGroup.position.set(0, 1.5, 0.4);
+            bananaGroup.scale.set(0.01, 0.01, 0.01); // start ultra tiny (unripe)
+            // Build 3 stylized curved bananas
+            const singleBananaGeo = new THREE.BoxGeometry(0.12, 0.4, 0.12);
+            const bananaMat = new THREE.MeshStandardMaterial({
+                color: 0xeab308,
+                roughness: 0.4,
+                emissive: 0xeab308,
+                emissiveIntensity: 0.02
+            });
+            for (let b = 0; b < 3; b++) {
+                const bMesh = new THREE.Mesh(singleBananaGeo, bananaMat);
+                bMesh.position.set(b * 0.15 - 0.15, -b * 0.05, 0);
+                bMesh.rotation.z = 0.2 - b * 0.1;
+                bMesh.castShadow = true;
+                bananaGroup.add(bMesh);
+            }
+            plantGroup.add(bananaGroup);
+            // Scale initialization
+            plantGroup.scale.set(0.1, 0.1, 0.1);
+            return plantGroup;
+        }
+        // Populate scenery dressing
+        function spawnEnvironmentDressing() {
+            // Scattered ambient non-harvestable tall palms on sides
+            for (let a = 0; a < 15; a++) {
+                const side = Math.random() > 0.5 ? 1 : -1;
+                const pX = (18 + Math.random() * 10) * side;
+                const pZ = (Math.random() * 38) - 19;
+                const ambientPalm = createCustomPlantMesh();
+                ambientPalm.position.set(pX, 0, pZ);
+                const randomScale = 0.8 + Math.random() * 0.8;
+                ambientPalm.scale.set(randomScale, randomScale, randomScale);
+                scene.add(ambientPalm);
+                animatedPlants.push(ambientPalm);
+            }
+            // Scattered boulders and stones
+            const rockGeo = new THREE.DodecahedronGeometry(1.2, 0);
+            const rockMat = new THREE.MeshStandardMaterial({ color: 0x64748b, roughness: 0.9 });
+            for (let r = 0; r < 8; r++) {
+                const rx = (10 + Math.random() * 8) * (Math.random() > 0.5 ? 1 : -1);
+                const rz = (Math.random() * 30) - 15;
+                const rock = new THREE.Mesh(rockGeo, rockMat);
+                rock.position.set(rx, 0.5, rz);
+                rock.rotation.set(Math.random() * 2, Math.random() * 2, 0);
+                const scale = 0.4 + Math.random() * 0.8;
+                rock.scale.set(scale, scale, scale);
+                scene.add(rock);
+            }
+        }
+        // Robotics Harvester workers
+        function spawnFieldWorkers() {
+            // Clean up existing workers if count changes
+            workersList.forEach(w => scene.remove(w.mesh));
+            workersList = [];
+            const numWorkers = GameState.upgrades.worker_count.level;
+            const workerGeo = new THREE.BoxGeometry(0.6, 1.2, 0.6);
+            const workerMat = new THREE.MeshStandardMaterial({ color: 0xef4444, roughness: 0.5 });
+            for (let w = 0; w < numWorkers; w++) {
+                const wMesh = new THREE.Mesh(workerGeo, workerMat);
+                wMesh.position.set(-10 + w * 3, 0.6, -10);
+                wMesh.castShadow = true;
+                scene.add(wMesh);
+                // Add shiny metal futuristic eyes
+                const eyeGeo = new THREE.BoxGeometry(0.4, 0.15, 0.1);
+                const eyeMat = new THREE.MeshStandardMaterial({ color: 0x38bdf8, emissive: 0x38bdf8, emissiveIntensity: 0.8 });
+                const eyes = new THREE.Mesh(eyeGeo, eyeMat);
+                eyes.position.set(0, 0.3, 0.3);
+                wMesh.add(eyes);
+                // Stack a physical mini-crate on worker head that lights up when harvesting
+                const packGeo = new THREE.BoxGeometry(0.5, 0.4, 0.5);
+                const packMat = new THREE.MeshStandardMaterial({ color: 0xb45309 });
+                const pack = new THREE.Mesh(packGeo, packMat);
+                pack.position.set(0, 0.8, 0);
+                pack.name = "cargo";
+                pack.visible = false;
+                wMesh.add(pack);
+                workersList.push({
+                    mesh: wMesh,
+                    state: 'idle', // idle, walking_to_ripe, harvesting, walking_to_truck
+                    targetPlot: null,
+                    speed: 3.5 * GameState.upgrades.worker_speed.level,
+                    workTimer: 0,
+                    harvestHoldCount: 0
+                });
+            }
+        }
+        // Heavy Logistics Cargo Truck
+        function spawnLogisticsTruck() {
+            if (dynamicTruck) {
+                scene.remove(dynamicTruck.mesh);
+            }
+            const truckGroup = new THREE.Group();
+            // Main chassis (heavy base cabin)
+            const cabinGeo = new THREE.BoxGeometry(1.8, 1.4, 2.8);
+            const cabinMat = new THREE.MeshStandardMaterial({ color: 0xeab308, roughness: 0.3 });
+            const cabin = new THREE.Mesh(cabinGeo, cabinMat);
+            cabin.position.set(0, 0.8, 1);
+            cabin.castShadow = true;
+            truckGroup.add(cabin);
+            // Large transport container trailer
+            const trailerGeo = new THREE.BoxGeometry(2.0, 2.0, 4.4);
+            const trailerMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.6 });
+            const trailer = new THREE.Mesh(trailerGeo, trailerMat);
+            trailer.position.set(0, 1.1, -2.4);
+            trailer.castShadow = true;
+            truckGroup.add(trailer);
+            // Heavy tread black rubber wheels
+            const wheelGeo = new THREE.CylinderGeometry(0.45, 0.45, 0.4, 12);
+            wheelGeo.rotateZ(Math.PI / 2);
+            const wheelMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.95 });
+            const wheelOffsets = [
+                [-1, 0.4, 1.8], [1, 0.4, 1.8],
+                [-1.1, 0.4, -1.2], [1.1, 0.4, -1.2],
+                [-1.1, 0.4, -3.2], [1.1, 0.4, -3.2]
+            ];
+            wheelOffsets.forEach(([wx, wy, wz]) => {
+                const wh = new THREE.Mesh(wheelGeo, wheelMat);
+                wh.position.set(wx, wy, wz);
+                wh.castShadow = true;
+                truckGroup.add(wh);
+            });
+            // Headlight beams
+            const lightGeo = new THREE.BoxGeometry(0.3, 0.15, 0.15);
+            const lightMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xffffff });
+            const l1 = new THREE.Mesh(lightGeo, lightMat); l1.position.set(-0.6, 0.7, 2.41);
+            const l2 = new THREE.Mesh(lightGeo, lightMat); l2.position.set(0.6, 0.7, 2.41);
+            truckGroup.add(l1, l2);
+            truckGroup.position.set(10, 0, 12); // Parked near harvest bays along road
+            scene.add(truckGroup);
+            dynamicTruck = {
+                mesh: truckGroup,
+                state: 'loading', // loading, driving_to_shop, unloading_shop, driving_to_farm
+                cargoVolume: 0,
+                maxCapacity: GameState.upgrades.truck_cargo.level * 2,
+                progress: 0,
+                speedMultiplier: 1.0
+            };
+        }
+        // Particle Engines (Rain/Weather & Starburst Click effects)
+        function createParticleSystem() {
+            const count = 300;
+            const pGeo = new THREE.BufferGeometry();
+            const positions = new Float32Array(count * 3);
+            const velocities = [];
+            for (let p = 0; p < count; p++) {
+                positions[p*3] = (Math.random() - 0.5) * 60;
+                positions[p*3+1] = Math.random() * 35;
+                positions[p*3+2] = (Math.random() - 0.5) * 60;
+                velocities.push(0.2 + Math.random() * 0.4);
+            }
+            pGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            // Neon rain dynamic material
+            const pMat = new THREE.PointsMaterial({
+                color: 0x38bdf8,
+                size: 0.12,
+                transparent: true,
+                opacity: 0.7
+            });
+            particlesSystem = new THREE.Points(pGeo, pMat);
+            scene.add(particlesSystem);
+            particlesSystem.visible = false; // default to clean sunny sun
+        }
+        function updateParticles(delta) {
+            if (!particlesSystem || !particlesSystem.visible) return;
+            const posAttr = particlesSystem.geometry.attributes.position;
+            const count = posAttr.count;
+            for (let i = 0; i < count; i++) {
+                let py = posAttr.getY(i);
+                py -= delta * 15; // Rain fall speed
+                if (py < 0) {
+                    py = 35; // loop back to cloud height
+                }
+                posAttr.setY(i, py);
+            }
+            posAttr.needsUpdate = true;
+        }
+        // Resize callback
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+</script>
+<!-- CORE GAME LOGIC CONTROLLER LOOP -->
+    <script>
+        // Main updates ticking 60hz
+        function gameTick() {
+            requestAnimationFrame(gameTick);
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+            // 1. Wind Sway simulation increment
+            if (WindSwayModifier.activeShaders) {
+                WindSwayModifier.activeShaders.forEach(shader => {
+                    shader.uniforms.uTime.value = time;
+                });
+            }
+            // 2. Growth ticks for the Farming Grid
+            updatePlantsGrowth(delta);
+            // 3. Worker logic tasks
+            updateFieldWorkers(delta);
+            // 4. Logistics truck cargo line
+            updateLogisticsTruck(delta);
+            // 5. Environmental Ambient Weather effects
+            updateParticles(delta);
+            // 6. Camera Slow Floating Cinematic rotation
+            applySubtleCameraWobble(time);
+            // 7. Render frames
+            renderer.render(scene, camera);
+        }
+        function applySubtleCameraWobble(time) {
+            // Apply slight rotation & height shift so world is never statically flat
+            const wobbleY = Math.sin(time * 0.25) * 0.4;
+            const wobbleX = Math.cos(time * 0.15) * 0.3;
+            camera.position.y += wobbleY * 0.02;
+            camera.position.x += wobbleX * 0.02;
+        }
+        // Ticks growth metrics
+        function updatePlantsGrowth(delta) {
+            const growthSpeed = 0.05 * GameState.upgrades.soil_quality.level * GameState.growthRateModifier;
+            farmGrid.forEach(plot => {
+                if (!plot.ripe) {
+                    plot.growth += delta * growthSpeed;
+                    // Cap and ripe state transition
+                    if (plot.growth >= 1.0) {
+                        plot.growth = 1.0;
+                        plot.ripe = true;
+                        // Check mutation chance
+                        const mutChance = 0.02 + (GameState.upgrades.mutation_fertilizer.level * GameState.upgrades.mutation_fertilizer.inc);
+                        if (Math.random() < mutChance) {
+                            plot.mutation = getWeightedMutation();
+                        } else {
+                            plot.mutation = 'normal';
+                        }
+                    }
+                    // Scaled visual tree based on progression
+                    const treeScale = 0.1 + plot.growth * 0.9;
+                    plot.mesh.scale.set(treeScale, treeScale, treeScale);
+                    // Grow banana bunch inside leaf layers
+                    const bananaBunch = plot.mesh.getObjectByName("bananas");
+                    if (bananaBunch) {
+                        const bScale = plot.growth * 1.5;
+                        bananaBunch.scale.set(bScale, bScale, bScale);
+                        // Change emissive color if mutated to show beautiful glows
+                        if (plot.mutation !== 'normal') {
+                            setMutationVisualsGlow(bananaBunch, plot.mutation);
+                        } else {
+                            // Standard green to beautiful yellow
+                            const matColor = new THREE.Color().lerpColors(new THREE.Color(0x22c55e), new THREE.Color(0xeab308), plot.growth);
+                            bananaBunch.children.forEach(b => b.material.color.copy(matColor));
+                        }
+                    }
+                }
+            });
+        }
+        // Weighted mutations generator
+        function getWeightedMutation() {
+            const r = Math.random();
+            if (r < 0.01) return 'Divine';
+            if (r < 0.05) return 'Rainbow';
+            if (r < 0.15) return 'Crystal';
+            if (r < 0.40) return 'Diamond';
+            return 'Golden';
+        }
+        function setMutationVisualsGlow(bunchGroup, mutation) {
+            let colorHex = 0xeab308;
+            if (mutation === 'Golden') colorHex = 0xfacc15;
+            if (mutation === 'Diamond') colorHex = 0x22d3ee;
+            if (mutation === 'Crystal') colorHex = 0xa855f7;
+            if (mutation === 'Rainbow') colorHex = 0xf43f5e;
+            if (mutation === 'Divine') colorHex = 0xffffff;
+            bunchGroup.children.forEach(b => {
+                b.material.color.setHex(colorHex);
+                b.material.emissive.setHex(colorHex);
+                b.material.emissiveIntensity = 0.5;
+            });
+        }
+        // Ticks robotic field harvesting routines
+        function updateFieldWorkers(delta) {
+            workersList.forEach(worker => {
+                const cargoPack = worker.mesh.getObjectByName("cargo");
+                switch (worker.state) {
+                    case 'idle':
+                        // Search for any ripe plot in grid
+                        const target = farmGrid.find(p => p.ripe && !p.lockedByWorker);
+                        if (target) {
+                            worker.state = 'walking_to_ripe';
+                            worker.targetPlot = target;
+                            target.lockedByWorker = true; // Lock so other workers don't target
+                        } else {
+                            // Walk back to base/idle zone if nothing to do
+                            moveMeshTowards(worker.mesh, -5, -5, delta * worker.speed);
+                        }
+                        break;
+                    case 'walking_to_ripe':
+                        if (!worker.targetPlot) {
+                            worker.state = 'idle';
+                            break;
+                        }
+                        const distToPlot = moveMeshTowards(worker.mesh, worker.targetPlot.x, worker.targetPlot.z, delta * worker.speed);
+                        if (distToPlot < 0.2) {
+                            worker.state = 'harvesting';
+                            worker.workTimer = 1.0; // Seconds to harvest
+                        }
+                        break;
+                    case 'harvesting':
+                        worker.workTimer -= delta;
+                        if (worker.workTimer <= 0) {
+                            // Harvest complete!
+                            const plot = worker.targetPlot;
+                            if (plot) {
+                                // Add to bananas
+                                let count = 5 + GameState.rebirthRank * 3;
+                                GameState.bananas += count;
+                                GameState.totalBananasHarvested += count;
+                                updateInventoryDisplays();
+                                // Reset farm plot
+                                plot.ripe = false;
+                                plot.growth = 0.05;
+                                plot.lockedByWorker = false;
+                                plot.mesh.scale.set(0.1, 0.1, 0.1);
+                                const bananaBunch = plot.mesh.getObjectByName("bananas");
+                                if (bananaBunch) {
+                                    bananaBunch.scale.set(0.01, 0.01, 0.01);
+                                    bananaBunch.children.forEach(b => {
+                                        b.material.color.setHex(0x22c55e);
+                                        b.material.emissiveIntensity = 0.02;
+                                    });
+                                }
+                                // Update Quest progress
+                                updateQuestProgress('harvest', count);
+                                // Audio
+                                sfx.playBubble();
+                                // Spawn dynamic 3D screen position popup
+                                spawnFloatingWorldText(worker.mesh.position, `+${count} 🍌`, 'text-yellow-400 font-bold');
+                            }
+                            // Prepare transport cargo on worker back
+                            if (cargoPack) cargoPack.visible = true;
+                            worker.state = 'walking_to_truck';
+                            worker.targetPlot = null;
+                        }
+                        break;
+                    case 'walking_to_truck':
+                        // Walk directly to Logistics truck loading platform
+                        const truckPos = dynamicTruck.mesh.position;
+                        const distToTruck = moveMeshTowards(worker.mesh, truckPos.x - 1.5, truckPos.z, delta * worker.speed);
+                        if (distToTruck < 0.3) {
+                            // Unload into logistics cargo hold
+                            if (dynamicTruck.cargoVolume < dynamicTruck.maxCapacity) {
+                                dynamicTruck.cargoVolume++;
+                                if (cargoPack) cargoPack.visible = false;
+                                worker.state = 'idle';
+                            }
+                        }
+                        break;
+                }
+            });
+        }
+        // Handles Logistics cargo operations
+        function updateLogisticsTruck(delta) {
+            const speed = 7.0 * GameState.truckSpeedModifier;
+            switch (dynamicTruck.state) {
+                case 'loading':
+                    // Wait until trailer cargo hold is fully stacked
+                    if (dynamicTruck.cargoVolume >= dynamicTruck.maxCapacity) {
+                        dynamicTruck.state = 'driving_to_shop';
+                    }
+                    break;
+                case 'driving_to_shop':
+                    // Run truck forward down roads towards Shop (Z = -18)
+                    const distToShop = moveMeshTowards(dynamicTruck.mesh, 10, -18, delta * speed);
+                    if (distToShop < 0.2) {
+                        dynamicTruck.state = 'unloading_shop';
+                        dynamicTruck.progress = 1.5; // wait time at shop
+                    }
+                    break;
+                case 'unloading_shop':
+                    dynamicTruck.progress -= delta;
+                    if (dynamicTruck.progress <= 0) {
+                        // Cargo sold to incoming shop customers!
+                        const cratesUnloaded = dynamicTruck.cargoVolume;
+                        const pricePerCrate = 18 * getGlobalMultiplier();
+                        const grossSales = cratesUnloaded * pricePerCrate;
+                        GameState.cash += grossSales;
+                        GameState.totalCashEarned += grossSales;
+                        dynamicTruck.cargoVolume = 0;
+                        updateInventoryDisplays();
+                        // Sound & visual money splash
+                        sfx.playCoin();
+                        spawnFloatingWorldText(dynamicTruck.mesh.position, `+$${formatNumber(grossSales)}`, 'text-green-400 text-2xl font-black');
+                        dynamicTruck.state = 'driving_to_farm';
+                    }
+                    break;
+                case 'driving_to_farm':
+                    // Move truck back to initial loading bay (Z = 12)
+                    const distToFarm = moveMeshTowards(dynamicTruck.mesh, 10, 12, delta * speed);
+                    if (distToFarm < 0.2) {
+                        dynamicTruck.state = 'loading';
+                    }
+                    break;
+            }
+        }
+        // 3D positioning movement math helper
+        function moveMeshTowards(mesh, targetX, targetZ, speed) {
+            const dx = targetX - mesh.position.x;
+            const dz = targetZ - mesh.position.z;
+            const dist = Math.sqrt(dx * dx + dz * dz);
+            if (dist > 0.05) {
+                mesh.position.x += (dx / dist) * speed;
+                mesh.position.z += (dz / dist) * speed;
+                // Rotate mesh head smoothly to movement path direction
+                const angle = Math.atan2(dx, dz);
+                mesh.rotation.y = angle;
+            }
+            return dist;
+        }
+        // Handles projection of 3D floating labels in HTML Screen overlays
+        function spawnFloatingWorldText(vec3Pos, text, cssClasses) {
+            const container = document.getElementById('effects-overlay');
+            const element = document.createElement('div');
+            element.className = `floating-text ${cssClasses}`;
+            element.innerHTML = text;
+            // Project 3D coordinate to normalized 2D viewport coordinates
+            const tempV3 = new THREE.Vector3(vec3Pos.x, vec3Pos.y + 1.2, vec3Pos.z);
+            tempV3.project(camera);
+            const screenX = (tempV3.x * .5 + .5) * window.innerWidth;
+            const screenY = (-(tempV3.y * .5) + .5) * window.innerHeight;
+            element.style.left = `${screenX}px`;
+            element.style.top = `${screenY}px`;
+            container.appendChild(element);
+            // Cleanup
+            setTimeout(() => {
+                element.remove();
+            }, 1200);
+        }
+</script>
+<!-- CORE USER INTERFACE & BUTTON HANDLERS -->
+    <script>
+        // Update Inventory counters in real time
+        function updateInventoryDisplays() {
+            document.getElementById('banana-counter').innerText = formatInt(GameState.bananas);
+            document.getElementById('cash-counter').innerText = '$' + formatNumber(GameState.cash);
+            // Rebirth indicator
+            const bonusMult = GameState.rebirthRank * 1.5 + 1.0;
+            document.getElementById('rebirth-counter').innerText = `${GameState.rebirthRank} (${bonusMult}x)`;
+            // Update panels if they are open
+            const cashRef = document.getElementById('panel-cash-ref');
+            const multRef = document.getElementById('panel-mult-ref');
+            if (cashRef) cashRef.innerText = '$' + formatNumber(GameState.cash);
+            if (multRef) multRef.innerText = formatNumber(getGlobalMultiplier()) + 'x';
+        }
+        // Close/Open Slideout System Panels
+        function openPanel(type) {
+            const panel = document.getElementById('systems-panel');
+            const content = document.getElementById('panel-content');
+            const title = document.getElementById('panel-title');
+            const subtitle = document.getElementById('panel-subtitle');
+            const icon = document.getElementById('panel-icon');
+            panel.classList.remove('pointer-events-none', 'opacity-0');
+            panel.querySelector('.glass-panel-heavy').classList.remove('scale-95');
+            // Render Dynamic systems layouts
+            if (type === 'upgrades') {
+                title.innerText = "Logistics Upgrades";
+                subtitle.innerText = "Invest profits to boost operational speeds and automated harvest counts";
+                icon.innerText = "⚙️";
+                renderUpgradesTab(content);
+            } else if (type === 'pets') {
+                title.innerText = "Incubator Nursery";
+                subtitle.innerText = "Hatch eggs to unlock premium multipliers and legendary dynamic pets";
+                icon.innerText = "🥚";
+                renderPetsTab(content);
+            } else if (type === 'quests') {
+                title.innerText = "Guild Contracts";
+                subtitle.innerText = "Complete daily field objectives to secure high cash injections";
+                icon.innerText = "📋";
+                renderQuestsTab(content);
+            } else if (type === 'biomes') {
+                title.innerText = "World Explorer";
+                subtitle.innerText = "Migrate properties to alien biomes with custom multipliers and soil conditions";
+                icon.innerText = "🗺️";
+                renderBiomesTab(content);
+            } else if (type === 'prestige') {
+                title.innerText = "Rebirth Portal";
+                subtitle.innerText = "Ascend your capital value back to zero for absolute permanent prestige power";
+                icon.innerText = "👑";
+                renderPrestigeTab(content);
+            }
+            updateInventoryDisplays();
+        }
+        function closePanel() {
+            const panel = document.getElementById('systems-panel');
+            panel.classList.add('pointer-events-none', 'opacity-0');
+            panel.querySelector('.glass-panel-heavy').classList.add('scale-95');
+        }
+        // UPGRADES RENDER LOGIC
+        function renderUpgradesTab(el) {
+            let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+            for (const [key, val] of Object.entries(GameState.upgrades)) {
+                const currentLevel = val.level;
+                const cost = val.cost * Math.pow(val.costMult, currentLevel - 1);
+                const isMax = currentLevel >= val.maxLevel;
+                html += `
+                    <div class="glass-panel p-4 rounded-2xl border border-white/5 flex flex-col justify-between gap-3">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-bold text-white tracking-wide">${val.name}</h4>
+                                <span class="px-2 py-0.5 bg-slate-900 rounded text-[10px] text-yellow-400 font-extrabold uppercase">Lv. ${currentLevel}/${val.maxLevel}</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1 font-light">${val.desc}</p>
+                        </div>
+                        <div class="flex justify-between items-center mt-2">
+                            <span class="text-xs text-slate-500">Current bonus: <b class="text-slate-300">+${(currentLevel * val.inc * 100).toFixed(0)}%</b></span>
+                            ${isMax ? `
+                                <button class="px-4 py-2 bg-slate-800 text-slate-600 font-bold rounded-xl text-xs cursor-not-allowed" disabled>MAX LEVEL</button>
+                            ` : `
+                                <button onclick="buyUpgrade('${key}', ${cost})" class="px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 hover:from-yellow-300 hover:to-amber-400 active:scale-95 text-slate-950 font-bold rounded-xl text-xs transition-all shadow-md">
+                                    Upgrade • $${formatNumber(cost)}
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }
+            html += `</div>`;
+            el.innerHTML = html;
+        }
+        function buyUpgrade(key, cost) {
+            if (GameState.cash >= cost) {
+                GameState.cash -= cost;
+                GameState.upgrades[key].level++;
+                sfx.playUpgrade();
+                openPanel('upgrades'); // refresh layout
+                // Track spends
+                updateQuestProgress('spend', cost);
+                // Instantly re-evaluate upgrades impact on system objects
+                if (key === 'worker_count') {
+                    spawnFieldWorkers();
+                } else if (key === 'worker_speed') {
+                    workersList.forEach(w => w.speed = 3.5 * GameState.upgrades.worker_speed.level);
+                } else if (key === 'truck_cargo') {
+                    dynamicTruck.maxCapacity = GameState.upgrades.truck_cargo.level * 2;
+                }
+            } else {
+                // Show floating lack-of-funds indicator
+                spawnFloatingWorldText(new THREE.Vector3(0,3,0), "Insufficient Funds!", "text-red-500 text-2xl font-black");
+            }
+        }
+        // PETS NURSERY RENDER LOGIC
+        function renderPetsTab(el) {
+            let eggCost = 150 + GameState.eggsHatchedCount * 250;
+            let html = `
+                <div class="flex flex-col gap-6">
+                    <!-- Egg Hatching Station -->
+                    <div class="glass-panel p-6 rounded-3xl border border-yellow-500/20 bg-gradient-to-br from-yellow-500/5 to-slate-950 flex flex-col md:flex-row items-center justify-between gap-6">
+                        <div class="flex items-center gap-4">
+                            <span class="text-6xl animate-bounce">🥚</span>
+                            <div>
+                                <h4 class="header-font text-xl font-bold text-white">Mystical Banana Hatchery</h4>
+                                <p class="text-xs text-slate-400 mt-1 max-w-sm font-light">Incubate wild monkey companions that increase biome-wide multipliers permanently.</p>
+                            </div>
+                        </div>
+                        <button onclick="hatchEgg(${eggCost})" class="px-6 py-4 bg-gradient-to-r from-yellow-400 to-amber-500 hover:scale-105 active:scale-95 text-slate-950 font-black rounded-2xl tracking-wider transition-all shadow-xl text-sm">
+                            HATCH EGG • $${formatNumber(eggCost)}
+                        </button>
+                    </div>
+                    <!-- Owned Pets Collection list -->
+                    <div>
+                        <h4 class="font-bold text-white mb-3 flex items-center gap-2">Your Menagerie (${GameState.activePets.length} active)</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            `;
+            if (GameState.activePets.length === 0) {
+                html += `
+                    <div class="col-span-full py-8 text-center text-slate-500 text-sm font-light">
+                        <i class="fa-solid fa-ghost text-4xl mb-2 text-slate-700"></i>
+                        <p>No pet companions hatched yet. Secure capital to hatch eggs!</p>
+                    </div>
+                `;
+            } else {
+                GameState.activePets.forEach((pet, index) => {
+                    html += `
+                        <div class="glass-panel p-4 rounded-2xl border border-white/5 flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <span class="text-4xl">${pet.icon}</span>
+                                <div>
+                                    <h5 class="font-bold text-white text-sm">${pet.name}</h5>
+                                    <span class="text-[10px] uppercase font-bold tracking-wider ${pet.color}">${pet.tier}</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div class="text-xs text-green-400 font-bold">+${((pet.mult - 1)*100).toFixed(0)}% Mult</div>
+                                <button onclick="releasePet(${index})" class="text-[10px] text-red-500 hover:underline mt-1 font-semibold">Release</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+            html += `
+                        </div>
+                    </div>
+                </div>
+            `;
+            el.innerHTML = html;
+        }
+        function hatchEgg(cost) {
+            if (GameState.cash >= cost) {
+                GameState.cash -= cost;
+                GameState.eggsHatchedCount++;
+                // Weighted pet selection
+                let roll = Math.random();
+                let accumulated = 0;
+                let hatchedPet = GameState.petsAvailable[0]; // fallback
+                for (const p of GameState.petsAvailable) {
+                    accumulated += p.chance;
+                    if (roll <= accumulated) {
+                        hatchedPet = p;
+                        break;
+                    }
+                }
+                GameState.activePets.push(hatchedPet);
+                sfx.playHatch();
+                // Increment Quest
+                updateQuestProgress('hatch', 1);
+                // Re-draw panel
+                openPanel('pets');
+                // Visual Hatch alert modal style floating popup
+                spawnFloatingWorldText(new THREE.Vector3(0,4,0), `HATCHED: ${hatchedPet.name}!`, `${hatchedPet.color} text-2xl font-black`);
+            } else {
+                spawnFloatingWorldText(new THREE.Vector3(0,3,0), "Need more cash to hatch eggs!", "text-red-500 text-xl font-black");
+            }
+        }
+        function releasePet(index) {
+            GameState.activePets.splice(index, 1);
+            sfx.playBubble();
+            openPanel('pets');
+        }
+        // DAILY CONTRACT QUESTS RENDERING
+        function renderQuestsTab(el) {
+            let html = `<div class="flex flex-col gap-4">`;
+            GameState.quests.forEach(q => {
+                const progressPct = Math.min(100, (q.current / q.target) * 100);
+                const isReady = q.current >= q.target && !q.claimed;
+                html += `
+                    <div class="glass-panel p-5 rounded-2xl border border-white/5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-white">${q.name}</h4>
+                                <span class="px-2 py-0.5 bg-slate-900 rounded text-[9px] text-slate-400 font-mono">${q.current}/${q.target}</span>
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1 font-light">${q.desc}</p>
+                            <!-- Progress Bar -->
+                            <div class="w-full h-1.5 bg-slate-900 rounded-full mt-3 overflow-hidden">
+                                <div class="h-full bg-gradient-to-r from-yellow-400 to-amber-500" style="width: ${progressPct}%"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <span class="text-xs text-yellow-400 font-bold">Reward: $${q.reward}</span>
+                            ${q.claimed ? `
+                                <span class="px-4 py-2 bg-slate-900 text-slate-500 text-xs font-bold rounded-xl uppercase">Claimed</span>
+                            ` : isReady ? `
+                                <button onclick="claimQuest('${q.id}', ${q.reward})" class="px-4 py-2 bg-green-500 hover:bg-green-400 active:scale-95 text-slate-950 font-black rounded-xl text-xs transition-all shadow-md">CLAIM</button>
+                            ` : `
+                                <button class="px-4 py-2 bg-slate-900 text-slate-600 text-xs font-bold rounded-xl cursor-not-allowed" disabled>IN PROGRESS</button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            });
+            html += `</div>`;
+            el.innerHTML = html;
+        }
+        function updateQuestProgress(type, count) {
+            GameState.quests.forEach(q => {
+                if (q.type === type && !q.claimed) {
+                    q.current += count;
+                    if (q.current > q.target) q.current = q.target;
+                }
+            });
+        }
+        function claimQuest(id, prize) {
+            const quest = GameState.quests.find(q => q.id === id);
+            if (quest) {
+                quest.claimed = true;
+                GameState.cash += prize;
+                sfx.playUpgrade();
+                openPanel('quests');
+                updateInventoryDisplays();
+            }
+        }
+        // WORLD EXPLORER / BIOMES LOGIC
+        function renderBiomesTab(el) {
+            let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+            for (const [key, val] of Object.entries(GameState.biomesConfig)) {
+                const isUnlocked = GameState.unlockedBiomes.includes(key);
+                const isCurrent = GameState.currentBiome === key;
+                html += `
+                    <div class="glass-panel p-5 rounded-2xl border ${isCurrent ? 'border-yellow-400/40' : 'border-white/5'} flex flex-col justify-between gap-3">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-bold text-white flex items-center gap-2">
+                                    <span>${val.icon}</span> ${key}
+                                </h4>
+                                ${isCurrent ? `
+                                    <span class="px-2 py-0.5 bg-yellow-400/20 text-yellow-400 rounded text-[9px] font-bold uppercase tracking-wide">ACTIVE SITE</span>
+                                ` : ''}
+                            </div>
+                            <p class="text-xs text-slate-400 mt-1 font-light">${val.desc}</p>
+                            <div class="text-[10px] font-bold text-purple-400 mt-2 uppercase tracking-wide">Multiplier: +${((val.mult - 1)*100).toFixed(0)}%</div>
+                        </div>
+                        <div class="flex justify-end mt-3">
+                            ${isCurrent ? `
+                                <button class="px-4 py-2 bg-slate-900 text-slate-500 font-bold rounded-xl text-xs cursor-not-allowed" disabled>CURRENT</button>
+                            ` : isUnlocked ? `
+                                <button onclick="travelToBiome('${key}')" class="px-4 py-2 bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-bold rounded-xl text-xs hover:scale-105 active:scale-95 transition-all">TRAVEL</button>
+                            ` : `
+                                <button onclick="unlockBiome('${key}', ${val.cost})" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-xl text-xs active:scale-95 transition-all">
+                                    Unlock • $${formatNumber(val.cost)}
+                                </button>
+                            `}
+                        </div>
+                    </div>
+                `;
+            }
+            html += `</div>`;
+            el.innerHTML = html;
+        }
+        function travelToBiome(key) {
+            GameState.currentBiome = key;
+            const config = GameState.biomesConfig[key];
+            // Adjust scene landscape tone
+            environmentBaseColor = config.bgHex;
+            createGroundTerrain(); // regenerate island with proper color
+            // Update UI Displays
+            document.getElementById('current-biome-display').innerHTML = `${key} <span class="text-xs">${config.icon}</span>`;
+            sfx.playUpgrade();
+            openPanel('biomes');
+        }
+        function unlockBiome(key, cost) {
+            if (GameState.cash >= cost) {
+                GameState.cash -= cost;
+                GameState.unlockedBiomes.push(key);
+                sfx.playUpgrade();
+                travelToBiome(key);
+            } else {
+                spawnFloatingWorldText(new THREE.Vector3(0,3,0), "Inadequate investments for relocation!", "text-red-500 text-xl font-black");
+            }
+        }
+        // PRESTIGE ASCENSION LOGIC
+        function renderPrestigeTab(el) {
+            const nextPrestigeBonus = (GameState.rebirthRank + 1) * 1.5;
+            let html = `
+                <div class="flex flex-col items-center text-center p-6 gap-6 max-w-xl mx-auto">
+                    <span class="text-7xl animate-pulse">👑</span>
+                    <div>
+                        <h4 class="header-font text-2xl font-bold text-white uppercase tracking-wider">Divine Rebirth Portal</h4>
+                        <p class="text-xs text-slate-400 mt-2 font-light">
+                            Ascend beyond mortal agricultural limits. Sacrificing your entire current capital balance and structural levels yields eternal spiritual multiplier growth.
+                        </p>
+                    </div>
+                    <div class="w-full grid grid-cols-2 gap-4 bg-slate-900/50 p-4 rounded-2xl border border-white/5 my-2 text-left">
+                        <div>
+                            <div class="text-[10px] text-slate-500 uppercase tracking-wider">Current Rank</div>
+                            <div class="text-lg font-bold text-slate-300">Prestige ${GameState.rebirthRank}</div>
+                        </div>
+                        <div>
+                            <div class="text-[10px] text-yellow-400 uppercase tracking-wider">Ascended Rank Bonus</div>
+                            <div class="text-lg font-bold text-yellow-400">+${(nextPrestigeBonus * 100).toFixed(0)}% Permanent Profit</div>
+                        </div>
+                    </div>
+                    <button onclick="triggerRebirth()" class="w-full py-4 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white font-black rounded-2xl tracking-widest hover:scale-105 active:scale-95 transition-all shadow-xl shadow-indigo-500/20 text-sm">
+                        ASCEND POWER NOW
+                    </button>
+                </div>
+            `;
+            el.innerHTML = html;
+        }
+        function triggerRebirth() {
+            // Require at least $1000 to prestige first time
+            if (GameState.totalCashEarned < 1000) {
+                spawnFloatingWorldText(new THREE.Vector3(0,3,0), "Requires $1,000 total lifetime capital to ascend!", "text-red-500 text-lg font-black");
+                return;
+            }
+            GameState.rebirthRank++;
+            GameState.rebirthMultiplier = GameState.rebirthRank * 1.5 + 1.0;
+            // Hard reset stats and level investments
+            GameState.cash = 50.00;
+            GameState.bananas = 0;
+            for (const key of Object.keys(GameState.upgrades)) {
+                GameState.upgrades[key].level = key === 'mutation_fertilizer' ? 0 : 1;
+            }
+            // Reset field entities
+            spawnFieldWorkers();
+            spawnLogisticsTruck();
+            sfx.playHatch();
+            closePanel();
+            updateInventoryDisplays();
+            spawnFloatingWorldText(new THREE.Vector3(0,4,0), "DIVINE ASCENSION COMPLETE!", "text-purple-400 text-3xl font-black tracking-widest");
+        }
+</script>
+<!-- SYSTEM-WIDE AUTOMATED SIMULATIONS & WEATHER CONTROLLER -->
+    <script>
+        // Set up Weather simulation interval loop
+        const weatherTypes = [
+            { name: 'Sunny Meadows', icon: '☀️', color: 'text-yellow-400', speed: 1.0, growth: 1.0, rain: false },
+            { name: 'Nourishing Rain', icon: '🌧️', color: 'text-blue-400', speed: 0.8, growth: 2.2, rain: true },
+            { name: 'Electrical Storm', icon: '⚡', color: 'text-purple-400', speed: 1.5, growth: 0.8, rain: true },
+            { name: 'Auric Goldfall', icon: '✨', color: 'text-yellow-200', speed: 1.0, growth: 1.5, rain: false }
+        ];
+        function startWeatherEngine() {
+            setInterval(() => {
+                // Pick random weather
+                const w = weatherTypes[Math.floor(Math.random() * weatherTypes.length)];
+                setWeatherState(w);
+            }, 30000); // Change weather every 30 seconds
+            // Initial load
+            setWeatherState(weatherTypes[0]);
+        }
+        function setWeatherState(w) {
+            GameState.activeWeather = w.name;
+            GameState.growthRateModifier = w.growth;
+            GameState.truckSpeedModifier = w.speed;
+            // UI feedback Updates
+            document.getElementById('weather-icon').innerHTML = w.icon;
+            document.getElementById('weather-icon').className = `text-2xl ${w.color}`;
+            document.getElementById('weather-name').innerText = w.name;
+            // Update particle rain simulation visibility
+            if (particlesSystem) {
+                particlesSystem.visible = w.rain;
+                // Tint rain particles if electric storm
+                particlesSystem.material.color.setHex(w.name === 'Electrical Storm' ? 0xc084fc : 0x38bdf8);
+            }
+            spawnFloatingWorldText(new THREE.Vector3(0,4,0), `WEATHER: ${w.name}!`, `${w.color} text-xl font-black`);
+        }
+        // Active Ability activation logic
+        function triggerAbility(type) {
+            const ab = GameState.abilities[type];
+            if (ab.cooldown > 0) return;
+            // Lock on cooldown
+            ab.cooldown = ab.maxCooldown;
+            ab.active = true;
+            // Process state shifts
+            let pillText = '';
+            if (type === 'growth_boost') {
+                GameState.growthRateModifier *= 3.0;
+                pillText = "🔥 Grow Boost (3.0x)";
+            } else if (type === 'truck_frenzy') {
+                GameState.truckSpeedModifier *= 2.5;
+                pillText = "⚡ Truck Frenzy (2.5x)";
+            } else if (type === 'golden_storm') {
+                GameState.currentMutationMultiplier = 5.0;
+                pillText = "👑 Golden Rain (5.0x)";
+            } else if (type === 'worker_rage') {
+                workersList.forEach(w => w.speed *= 2.0);
+                pillText = "👷 Worker Overdrive";
+            }
+            // Create active HUD indicator
+            const activeContainer = document.getElementById('active-boosts-container');
+            const pill = document.createElement('div');
+            pill.id = `pill-${type}`;
+            pill.className = "px-3 py-1.5 bg-yellow-400 text-slate-950 font-black rounded-full text-xs flex items-center gap-2 animate-bounce shadow-md";
+            pill.innerHTML = `<span>${pillText}</span>`;
+            activeContainer.appendChild(pill);
+            // Re-evaluate display metrics
+            updateInventoryDisplays();
+            // Setup cooldown timer visual loops
+            const btn = document.querySelector(`button[onclick="triggerAbility('${type}')"]`);
+            const overlay = btn.querySelector('.cooldown-overlay');
+            overlay.style.height = '100%';
+            // End duration timer
+            setTimeout(() => {
+                ab.active = false;
+                pill.remove();
+                // Reset multipliers
+                if (type === 'growth_boost') GameState.growthRateModifier /= 3.0;
+                else if (type === 'truck_frenzy') GameState.truckSpeedModifier /= 2.5;
+                else if (type === 'golden_storm') GameState.currentMutationMultiplier = 1.0;
+                else if (type === 'worker_rage') workersList.forEach(w => w.speed /= 2.0);
+                updateInventoryDisplays();
+            }, ab.duration * 1000);
+            // Ticking Cooldown counter progress
+            let cdVal = ab.maxCooldown;
+            const cdInterval = setInterval(() => {
+                cdVal--;
+                ab.cooldown = cdVal;
+                overlay.style.height = `${(cdVal / ab.maxCooldown) * 100}%`;
+                if (cdVal <= 0) {
+                    clearInterval(cdInterval);
+                    overlay.style.height = '0%';
+                }
+            }, 1000);
+        }
+</script>
+<!-- INITIALIZATION BOOTSTRAPPER -->
+    <script>
+        // Start load workflow sequences on completion
+        window.addEventListener('load', () => {
+loadGame();
+            const bar = document.getElementById('loading-bar');
+            const status = document.getElementById('loading-status');
+            // Run mock loader sequence indicating beautiful modules bootups
+            const steps = [
+                { pct: 30, text: "Compiling procedural foliage shaders..." },
+                { pct: 60, text: "Generating 3D logistics grid network..." },
+                { pct: 85, text: "Spawning field automations & shop displays..." },
+                { pct: 100, text: "Rending viewport context..." }
+            ];
+            let curStep = 0;
+            const loadInterval = setInterval(() => {
+                if (curStep < steps.length) {
+                    bar.style.width = `${steps[curStep].pct}%`;
+                    status.innerText = steps[curStep].text;
+                    curStep++;
+                } else {
+                    clearInterval(loadInterval);
+                    // Launch game
+                    init3DEngine();
+                    startWeatherEngine();
+                    gameTick();
+                    setInterval(saveGame, 5000);
+                    // Animate Loading Panel out using GSAP
+                    gsap.to("#loading-screen", {
+                        y: '-100%',
+                        duration: 1.0,
+                        ease: 'power4.inOut',
+                        onComplete: () => {
+                            document.getElementById('loading-screen').remove();
+                            document.getElementById('hud-layer').style.opacity = '1';
+                        }
+                    });
+                }
+            }, 800);
+        });
+        // Setup HUD Cam adjustments
+        document.getElementById('cam-zoom-in').addEventListener('click', () => {
+            cameraZoomLevel = Math.max(0.4, cameraZoomLevel - 0.15);
+            updateCameraPosition();
+        });
+        document.getElementById('cam-zoom-out').addEventListener('click', () => {
+            cameraZoomLevel = Math.min(1.8, cameraZoomLevel + 0.15);
+            updateCameraPosition();
+        });
+        document.getElementById('cam-rotate-left').addEventListener('click', () => {
+            cameraRotateAngle -= Math.PI / 8;
+            updateCameraPosition();
+        });
+        document.getElementById('cam-rotate-right').addEventListener('click', () => {
+            cameraRotateAngle += Math.PI / 8;
+            updateCameraPosition();
+        });
+        // Touch Interaction / Manual harvesting click controller on plants
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        document.getElementById('btn-manual-click').addEventListener('click', (event) => {
+            // Pick a random ripe plant to manually harvest quickly!
+            const ripePlot = farmGrid.find(p => p.ripe);
+            if (ripePlot) {
+                // Simulate fast manual harvest
+                let count = 8 + GameState.rebirthRank * 5;
+                GameState.bananas += count;
+                GameState.totalBananasHarvested += count;
+                ripePlot.ripe = false;
+                ripePlot.growth = 0.05;
+                ripePlot.mesh.scale.set(0.1, 0.1, 0.1);
+                sfx.playBubble();
+                updateInventoryDisplays();
+                spawnFloatingWorldText(ripePlot.mesh.position, `COLLECTED +${count} 🍌`, "text-yellow-400 font-extrabold");
+            } else {
+                // Create ripple touch floating text on a random plot
+                const randPlot = farmGrid[Math.floor(Math.random() * farmGrid.length)];
+                spawnFloatingWorldText(randPlot.mesh.position, `Sprout Growing... 🌱`, "text-slate-400 font-bold");
+            }
+        });
+</script>
+</body>
+</html>
