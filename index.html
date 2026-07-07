@@ -1,11 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ERROR Inc. | Creator Sandbox</title>
+    <link rel="icon" type="image/x-icon" href="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/f5f75464-f289-404e-a14d-68b4c3465c10/favicon.ico?format=100w">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -14,297 +17,225 @@
                     fontFamily: {
                         sans: ['"Plus Jakarta Sans"', 'sans-serif'],
                         display: ['"Space Grotesk"', 'sans-serif'],
+                    },
+                    colors: {
+                        base: '#FCFCF9',
+                        dark: '#0B0A0A',
+                        brand: {
+                            orange: '#FF5A1F',
+                            purple: '#7C3AED',
+                            cyan: '#06B6D4',
+                            pink: '#EC4899',
+                            yellow: '#EAB308'
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 30px rgba(0, 0, 0, 0.03)',
+                        'glow-orange': '0 8px 30px rgba(255, 90, 31, 0.2)',
+                        'glow-purple': '0 8px 30px rgba(124, 58, 237, 0.2)',
+                        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.04)',
                     }
                 }
             }
         }
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <link rel="icon" type="image/x-icon" href="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/f5f75464-f289-404e-a14d-68b4c3465c10/favicon.ico?format=100w">
-    <title>ERROR Inc.</title>
+
     <style>
         body {
-            background-color: #FBF9F4;
+            background-color: #FAFAF7;
+            /* Subtle modern grid background */
             background-image: 
-                radial-gradient(at 0% 0%, rgba(255, 112, 67, 0.08) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
-                radial-gradient(at 50% 50%, rgba(253, 224, 71, 0.06) 0px, transparent 60%);
-            background-attachment: fixed;
+                linear-gradient(to right, rgba(0, 0, 0, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+            background-size: 40px 40px;
         }
 
-        .hub-card {
-            background-color: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(12px);
-            border: 2px solid #2D2A26;
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        /* Glassmorphism Card Style */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.04);
         }
 
-        .hype-btn-primary {
-            background-color: #FF7043;
-            color: #ffffff;
-            border: 2px solid #2D2A26;
-            transition: all 0.2s ease;
+        /* Modern interactive button animations */
+        .btn-hype-primary {
+            background: linear-gradient(135deg, #FF5A1F 0%, #FF8A00 100%);
+            color: white;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .hype-btn-primary:hover {
-            background-color: #FF8A65;
-            transform: translate(-1px, -1px);
+        .btn-hype-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(255, 90, 31, 0.3);
+            filter: brightness(1.05);
         }
-        .hype-btn-primary:disabled {
-            background-color: #FF8A65;
-        }
-        .hype-btn-primary:active {
-            transform: translate(2px, 2px);
+        .btn-hype-primary:active {
+            transform: translateY(0);
         }
 
-        .hype-btn-secondary {
-            background-color: #FFFFFF;
-            color: #2D2A26;
-            border: 2px solid #2D2A26;
-            transition: all 0.2s ease;
+        .btn-hype-secondary {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            color: #0B0A0A;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .hype-btn-secondary:hover {
-            background-color: #F5EFEB;
-            transform: translate(-1px, -1px);
-        }
-        .hype-btn-secondary:active {
-            transform: translate(2px, 2px);
-        }
-
-        .pulse-light {
-            animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        .btn-hype-secondary:hover {
+            transform: translateY(-2px);
+            background: rgba(255, 255, 255, 0.95);
+            border-color: rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.03);
         }
 
-        @keyframes pulse-ring {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: .5; transform: scale(1.1); }
+        /* Ambient Glow Spheres in Background */
+        .glow-sphere {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0.5;
         }
-        .custom-scroll::-webkit-scrollbar {
-            width: 8px;
+
+        /* Interactive Sidebar Button States */
+        .sidebar-btn {
+            border: 1px solid rgba(0, 0, 0, 0.03);
+            background: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .custom-scroll::-webkit-scrollbar-track {
-            background: rgba(45, 42, 38, 0.05);
-            border-radius: 999px;
+        .sidebar-btn:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
         }
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: #2D2A26;
-            border-radius: 999px;
-            border: 2px solid #FBF9F4;
+        .sidebar-btn.active {
+            background: #ffffff;
+            border-color: rgba(0, 0, 0, 0.08);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
         }
+
+        /* Custom scrollbar matching clean light mode styling */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: transparent; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.1); border-radius: 10px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.2); }
     </style>
 </head>
-<body class="text-[#2D2A26] font-sans selection:bg-[#FFD4DC] selection:text-[#FF4066] antialiased min-h-screen relative overflow-x-hidden">
-    <!-- Nav -->
-    <div class="px-4 py-4 sticky top-0 z-40">
-        <nav class="max-w-6xl mx-auto bg-white/95 border-2 border-[#2D2A26] px-6 py-4 flex justify-between items-center rounded-2xl">
-            
-            <div class="flex items-center gap-3">
-                <a href="#" class="flex items-center gap-3 hover:opacity-90 transition">
-                    <div class="h-10 rounded-xl flex items-center justify-center p-1.5">
-                        <img src="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/5c585ad8-9e96-472a-bc88-5d2ea8f05993/ERRORL1-removebg-preview.png" 
-                             class="h-10" alt="ERROR Logo">
+<body class="text-dark font-sans antialiased min-h-screen relative overflow-x-hidden selection:bg-brand-orange/20 selection:text-brand-orange">
+
+    <!-- Ambient Glowing Orbs Background Layer -->
+    <div class="glow-sphere w-[500px] h-[500px] bg-[#FF5A1F]/15 top-[-100px] left-[-100px]"></div>
+    <div class="glow-sphere w-[600px] h-[600px] bg-[#7C3AED]/10 top-[20%] right-[-100px]"></div>
+    <div class="glow-sphere w-[400px] h-[400px] bg-[#06B6D4]/10 bottom-[10%] left-[5%]"></div>
+
+    <header class="px-6 py-6 sticky top-0 z-50">
+        <nav class="max-w-7xl mx-auto glass-card px-6 py-4 flex justify-between items-center rounded-2xl">
+            <div class="flex items-center gap-4">
+                <a href="#" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
+                    <!-- Creative Gradient Icon Brand -->
+                    <div class="w-10 h-10 bg-gradient-to-tr from-brand-orange to-brand-purple rounded-xl flex items-center justify-center shadow-lg shadow-brand-orange/10">
+                        <img src="media/favicon.png"></img>
                     </div>
                     <div>
-                        <span class="font-display font-bold text-lg tracking-tight block text-neutral-800">ERROR Inc.</span>
-                        <span class="text-[9px] uppercase font-bold text-[#FF7043] tracking-wider block -mt-1">Creator Sandbox</span>
+                        <span class="font-display font-extrabold text-xl tracking-tight block leading-none text-dark">ERROR Inc.</span>
+                        <span class="text-[9px] uppercase font-bold text-brand-orange tracking-widest block mt-1">Creator Sandbox</span>
                     </div>
                 </a>
             </div>
             
-            <div class="flex items-center gap-6">
-                <div class="hidden md:flex gap-6 text-xs font-bold uppercase tracking-wider text-neutral-600">
-                    <a href="/projects" class="hover:text-[#FF7043] transition-colors"><i class="fa-solid fa-folder-open mr-1"></i> Projects</a>
-                    <a href="/community" class="hover:text-[#FF7043] transition-colors"><i class="fa-solid fa-comments mr-1"></i> Community</a>
+            <div class="flex items-center gap-8">
+                <div class="hidden md:flex gap-8 text-xs font-bold uppercase tracking-widest text-neutral-500">
+                    <a href="#showcase" class="hover:text-brand-orange transition-colors duration-200">Sandbox</a>
+                    <a href="/projects" class="hover:text-brand-orange transition-colors duration-200">Explore</a>
+                    <a href="/community" class="hover:text-brand-orange transition-colors duration-200">Community</a>
                 </div>
                 
-                <button id="userBtn" class="px-4 py-2 rounded-xl bg-[#F5EFEB] border-2 border-[#2D2A26] text-xs font-bold text-[#2D2A26] hover:bg-[#FF7043] hover:text-white transition-all duration-150 flex items-center gap-2">
-                    <i class="fa-solid fa-user-plus"></i>
-                    <span id="navUserLabel">Sign Up</span>
+                <button onclick="window.location.href='/login'" class="btn-hype-primary px-5 py-2.5 rounded-xl text-xs font-extrabold tracking-wider uppercase flex items-center gap-2">
+                    <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                    <span>Get Started</span>
                 </button>
             </div>
         </nav>
-    </div>
-<!-- CANVASFLOW FEATURED BANNER -->
-<section class="px-6 md:px-12 pt-4 pb-10">
-    <div class="max-w-6xl mx-auto">
-        <div class="hub-card rounded-[2rem] md:rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden bg-gradient-to-br from-[#FFF7F1] via-white to-[#F3F0FF]">
+    </header>
 
-            <!-- Decorative Background Elements -->
-            <div class="absolute -top-16 -right-16 w-56 h-56 bg-[#FF7043]/15 rounded-full blur-3xl"></div>
-            <div class="absolute -bottom-20 -left-20 w-64 h-64 bg-[#8B5CF6]/15 rounded-full blur-3xl"></div>
-            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-[#06B6D4]/5 rounded-full blur-3xl"></div>
-
-            <!-- Floating Stickers -->
-            <div class="absolute top-6 right-6 hidden md:flex items-center gap-2 px-3 py-1.5 bg-yellow-100 border-2 border-[#2D2A26] rounded-full text-[10px] font-bold uppercase tracking-wider rotate-3">
-                ✨ Just Released
-            </div>
-
-            <div class="absolute bottom-8 right-10 hidden lg:flex items-center gap-2 px-3 py-1.5 bg-emerald-100 border-2 border-[#2D2A26] rounded-full text-[10px] font-bold uppercase tracking-wider -rotate-3">
-                🚀 Creator Favorite
-            </div>
-
-            <div class="relative z-10 max-w-4xl">
-
-                <!-- Labels -->
-                <div class="flex flex-wrap gap-3 mb-6">
-                    <span class="px-4 py-1.5 bg-rose-100 border-2 border-[#2D2A26] text-[#FF4066] text-[10px] font-bold rounded-full uppercase tracking-wider animate-pulse">
-                        🚀 New Release
-                    </span>
-                    <span class="px-4 py-1.5 bg-yellow-100 border-2 border-[#2D2A26] text-[#2D2A26] text-[10px] font-bold rounded-full uppercase tracking-wider">
-                        ⭐ Featured Project
-                    </span>
-                    <span class="px-4 py-1.5 bg-indigo-100 border-2 border-[#2D2A26] text-[#2D2A26] text-[10px] font-bold rounded-full uppercase tracking-wider">
-                        🎨 Website Builder
-                    </span>
-                </div>
-
-                <!-- Main Heading -->
-                <h2 class="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight tracking-tight text-neutral-800">
-                    Build websites visually with
-                    <span class="bg-gradient-to-r from-[#FF7043] via-[#8B5CF6] to-[#06B6D4] bg-clip-text text-transparent">
-                        CANVASFLOW
-                    </span>
-                </h2>
-
-                <!-- Description -->
-                <p class="mt-6 text-base md:text-lg text-neutral-600 font-semibold leading-relaxed max-w-3xl">
-                    Design stunning websites with a powerful drag-and-drop editor.
-                    Customize every element, add advanced interactions,
-                    and publish instantly through ERROR Inc.
-                </p>
-
-                <!-- Feature Pills -->
-                <div class="flex flex-wrap gap-3 mt-6">
-                    <span class="px-4 py-2 bg-white border-2 border-[#2D2A26] rounded-2xl text-xs font-bold">
-                        🎨 Visual Drag & Drop
-                    </span>
-                    <span class="px-4 py-2 bg-white border-2 border-[#2D2A26] rounded-2xl text-xs font-bold">
-                        ⚡ One-Click Publishing
-                    </span>
-                    <span class="px-4 py-2 bg-white border-2 border-[#2D2A26] rounded-2xl text-xs font-bold">
-                        🧩 Unlimited Customization
-                    </span>
-                    <span class="px-4 py-2 bg-white border-2 border-[#2D2A26] rounded-2xl text-xs font-bold">
-                        🌍 Hosted by ERROR Inc.
-                    </span>
-                </div>
-
-                <!-- CTA Buttons -->
-                <div class="flex flex-wrap gap-4 mt-8">
-                    <a href="/canvasflow"
-                       class="hype-btn-primary px-8 py-4 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                        <span>Launch CanvasFlow</span>
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                    </a>
-
-                    <a onclick="document.getElementById('active-grid').scrollIntoView({behavior: 'smooth'})"
-                       class="hype-btn-secondary px-8 py-4 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                        <span>Explore Projects</span>
-                        <i class="fa-solid fa-folder-open"></i>
-                    </a>
-                </div>
-
-                <!-- Bottom Stats -->
-                <div class="flex flex-wrap gap-4 mt-8 pt-6 border-t border-dashed border-neutral-300">
-                    <div class="px-4 py-3 bg-white border-2 border-[#2D2A26] rounded-2xl">
-                        <div class="text-xl font-display font-black text-neutral-800">∞</div>
-                        <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                            Creative Freedom
-                        </div>
-                    </div>
-
-                    <div class="px-4 py-3 bg-white border-2 border-[#2D2A26] rounded-2xl">
-                        <div class="text-xl font-display font-black text-neutral-800">1-Click</div>
-                        <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                            Publish
-                        </div>
-                    </div>
-
-                    <div class="px-4 py-3 bg-white border-2 border-[#2D2A26] rounded-2xl">
-                        <div class="text-xl font-display font-black text-neutral-800">100%</div>
-                        <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                            Browser Based
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-    <!-- Hero -->
-    <section class="hidden relative py-12 md:py-20 px-6 md:px-12">
-        <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+    <section class="relative pt-10 pb-20 px-6 z-10">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-16 items-center">
+            
+            <!-- Hero Left: Elegant, Creative Headings & Pitch -->
             <div class="lg:col-span-7 flex flex-col gap-6 text-center lg:text-left">
-                <div class="flex justify-center lg:justify-start">
-                    <span class="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-100 border-2 border-[#2D2A26] text-[#2D2A26] text-xs font-bold rounded-full">
-                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 pulse-light"></span>
-                        <span id="activeCounter">102 Creators Online</span>
+                <div class="inline-flex justify-center lg:justify-start">
+                    <span class="inline-flex items-center gap-2 px-3.5 py-1.5 bg-neutral-900/5 border border-neutral-900/10 text-neutral-800 text-xs font-bold rounded-full">
+                        <span class="relative flex h-2 w-2">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        <span>102 Creators Live Online</span>
                     </span>
                 </div>
                 
-                <h1 class="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight tracking-tight text-neutral-800">
-                    We build active tools <br class="hidden md:inline">
-                    <span class="bg-gradient-to-r from-[#FF7043] via-[#8B5CF6] to-[#06B6D4] text-transparent bg-clip-text">with the community</span>
+                <h1 class="text-5xl md:text-6xl lg:text-7xl font-display font-black leading-[1.15] tracking-tight text-neutral-900">
+                    We build active tools <br />
+                    <span class="relative inline-block mt-2">
+                        <span class="relative z-10 bg-gradient-to-r from-brand-orange via-brand-purple to-brand-pink bg-clip-text text-transparent">with the community.</span>
+                    </span>
                 </h1>
 
-                <p class="text-base md:text-lg text-neutral-600 font-medium leading-relaxed max-w-xl mx-auto lg:mx-0">
-                    Welcome to our collective playroom. This isn't just static code. Play with live builds, review progress, and collaborate in real time with our development ecosystem.
+                <p class="text-lg text-neutral-500 font-medium leading-relaxed max-w-xl mx-auto lg:mx-0">
+                    Step inside our live creative playroom. This isn't just static software. Play with instant sandbox builds, contribute code live, and collaborate with creators globally.
                 </p>
 
                 <div class="flex flex-wrap justify-center lg:justify-start gap-4 mt-2">
-                    <a onclick="document.getElementById('showcase-rack').scrollIntoView({behavior: 'smooth'})" class="hype-btn-primary px-8 py-3.5 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center gap-2">
-                        <span>Test Live Tools</span>
-                        <i class="fa-solid fa-circle-play"></i>
+                    <a href="#showcase" class="btn-hype-primary px-8 py-4 rounded-xl text-sm font-extrabold uppercase tracking-wider flex items-center gap-2">
+                        <span>View projects</span>
+                        <i class="fa-solid fa-rocket"></i>
                     </a>
-                    <a href="/community" class="hype-btn-secondary px-8 py-3.5 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center gap-2">
+                    <a href="/community" class="btn-hype-secondary px-8 py-4 rounded-xl text-sm font-extrabold uppercase tracking-wider flex items-center gap-2">
                         <span>Join Community</span>
-                        <i class="fa-solid fa-message"></i>
+                        <i class="fa-solid fa-comments"></i>
                     </a>
-                </div>
-
-                <div class="flex items-center justify-center lg:justify-start gap-3 mt-4 pt-4 border-t border-dashed border-neutral-300">
-                    <div class="flex -space-x-3">
-                        <div class="w-9 h-9 rounded-full bg-pink-300 border-2 border-[#2D2A26] flex items-center justify-center font-bold text-xs">X</div>
-                        <div class="w-9 h-9 rounded-full bg-cyan-300 border-2 border-[#2D2A26] flex items-center justify-center font-bold text-xs">S</div>
-                        <div class="w-9 h-9 rounded-full bg-yellow-300 border-2 border-[#2D2A26] flex items-center justify-center font-bold text-xs">Q</div>
-                        <div class="w-9 h-9 rounded-full bg-purple-300 border-2 border-[#2D2A26] flex items-center justify-center font-bold text-xs">E</div>
-                    </div>
-                    <p class="text-xs font-bold text-neutral-600">
-                        Join developers, designers, & hobbyists building together.
-                    </p>
                 </div>
             </div>
 
-            <div class="lg:col-span-5">
-                <div class="hub-card p-6 rounded-3xl relative overflow-hidden bg-white">
-                    <div class="absolute -top-12 -right-12 w-24 h-24 bg-gradient-to-tr from-[#FF7043]/20 to-[#8B5CF6]/20 rounded-full blur-xl"></div>
-                    
-                    <div class="flex justify-between items-center border-b-2 border-[#2D2A26] pb-4 mb-5">
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-emerald-500 animate-ping"></span>
-                            <span class="text-xs font-bold text-neutral-700 uppercase font-display">Hub Activity Tracker</span>
+            <!-- Hero Right: Slick, Clean Metric Floating Widgets -->
+            <div class="lg:col-span-5 relative">
+                <div class="glass-card p-8 rounded-3xl relative overflow-hidden">
+                    <!-- Background aesthetic flare inside the card -->
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-brand-orange/10 rounded-full blur-2xl pointer-events-none"></div>
+                    <div class="absolute bottom-0 left-0 w-32 h-32 bg-brand-purple/10 rounded-full blur-2xl pointer-events-none"></div>
+
+                    <div class="flex justify-between items-center border-b border-neutral-100 pb-5 mb-6">
+                        <div class="flex items-center gap-3">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                            <span class="text-xs font-extrabold uppercase tracking-widest text-neutral-400 font-display">System State</span>
                         </div>
-                        <span class="px-2.5 py-0.5 bg-neutral-100 text-neutral-800 border-2 border-[#2D2A26] font-bold text-[10px] rounded-full">ACTIVE</span>
+                        <span class="px-2.5 py-1 bg-brand-orange/10 text-brand-orange text-[9px] font-extrabold rounded-full tracking-wider uppercase">Active Sync</span>
                     </div>
                     
                     <div class="space-y-4">
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="font-bold text-neutral-500">Interactive Tools</span>
-                            <span class="font-bold text-neutral-800 bg-yellow-100 border border-[#2D2A26] px-2.5 py-1 rounded-xl text-xs">10+ Public</span>
+                        <div class="flex justify-between items-center p-3 hover:bg-neutral-900/[0.02] rounded-xl transition-all duration-200">
+                            <span class="font-bold text-neutral-600 flex items-center gap-2.5">
+                                <i class="fa-solid fa-circle-dot text-brand-orange text-xs"></i> Interactive Sandbox
+                            </span>
+                            <span class="font-extrabold text-xs text-neutral-800 bg-neutral-900/5 px-3 py-1 rounded-full">10+ Loaded</span>
                         </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="font-bold text-neutral-500">Weekly Creations</span>
-                            <span class="font-bold text-neutral-800 bg-purple-100 border border-[#2D2A26] px-2.5 py-1 rounded-xl text-xs">100+ commits</span>
+                        <div class="flex justify-between items-center p-3 hover:bg-neutral-900/[0.02] rounded-xl transition-all duration-200">
+                            <span class="font-bold text-neutral-600 flex items-center gap-2.5">
+                                <i class="fa-solid fa-code-commit text-brand-purple text-xs"></i> Hot Commits
+                            </span>
+                            <span class="font-extrabold text-xs text-neutral-800 bg-neutral-900/5 px-3 py-1 rounded-full">142 Pushed</span>
                         </div>
-                        <div class="flex justify-between items-center text-sm">
-                            <span class="font-bold text-neutral-500">Community State</span>
-                            <span class="font-bold text-neutral-800 bg-cyan-100 border border-[#2D2A26] px-2.5 py-1 rounded-xl text-xs" id="stickyTotal">Active</span>
+                        <div class="flex justify-between items-center p-3 hover:bg-neutral-900/[0.02] rounded-xl transition-all duration-200">
+                            <span class="font-bold text-neutral-600 flex items-center gap-2.5">
+                                <i class="fa-solid fa-microchip text-brand-cyan text-xs"></i> Ecosystem Status
+                            </span>
+                            <span class="font-extrabold text-xs text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">Optimal</span>
                         </div>
                     </div>
 
-                    <div class="mt-5 pt-4 border-t-2 border-[#2D2A26] flex items-center justify-between">
-                        <span class="text-xs font-bold text-neutral-500">Overall Room Vibe</span>
-                        <span class="px-3 py-1 bg-amber-400 border-2 border-[#2D2A26] text-neutral-900 font-bold text-xs rounded-xl">
-                            🔥 Hype & Collaborating
+                    <div class="mt-8 pt-5 border-t border-neutral-100 flex items-center justify-between">
+                        <span class="text-xs font-bold text-neutral-400 uppercase tracking-wider">Sandbox Mode</span>
+                        <span class="px-3.5 py-1.5 bg-gradient-to-r from-brand-orange to-brand-purple text-white font-extrabold text-xs rounded-xl shadow-md shadow-brand-orange/10">
+                            ✨ Hype & Creative
                         </span>
                     </div>
                 </div>
@@ -313,107 +244,162 @@
         </div>
     </section>
 
-    <!-- Preview -->
-    <section id="showcase-rack" class="py-16 px-6 md:px-12 border-t-2 border-b-2 border-[#2D2A26] bg-[#F3EFE9] relative">
-        <div class="max-w-6xl mx-auto">
-            
-            <div class="flex flex-wrap justify-between items-end gap-4 mb-10">
-                <div>
-                    <span class="px-3.5 py-1 bg-purple-100 border-2 border-[#2D2A26] text-[#2D2A26] rounded-full font-bold text-xs tracking-wide inline-block">
-                        Playroom Sandbox
-                    </span>
-                    <h2 class="text-3xl font-display font-black text-neutral-800 mt-2">The Live Tools Rack</h2>
-                    <p class="font-semibold text-neutral-500 mt-1 text-sm max-w-lg">
-                        Test active modules inside our sandbox environment. Switch targets instantly using the selector panel.
+    <section class="px-6 py-12 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            <div class="glass-card p-8 md:p-14 relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-12 rounded-[2.5rem]">
+                
+                <!-- Inner background soft glow -->
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-purple/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative z-10 max-w-2xl">
+                    <div class="flex flex-wrap gap-2.5 mb-6">
+                        <span class="px-3.5 py-1 bg-brand-purple/10 text-brand-purple text-[10px] font-extrabold rounded-full uppercase tracking-wider">
+                            🚀 Featured Builder
+                        </span>
+                        <span class="px-3.5 py-1 bg-neutral-900/5 text-neutral-600 text-[10px] font-extrabold rounded-full uppercase tracking-wider">
+                            CanvasFlow Studio
+                        </span>
+                    </div>
+
+                    <h2 class="text-4xl md:text-5xl lg:text-6xl font-display font-black leading-tight tracking-tight text-neutral-900">
+                        Design visually with <br />
+                        <span class="bg-gradient-to-r from-brand-orange to-brand-purple bg-clip-text text-transparent">CANVASFLOW</span>
+                    </h2>
+
+                    <p class="mt-6 text-lg text-neutral-500 font-medium leading-relaxed">
+                        Say goodbye to static layouts. Build visually responsive pages with an interactive drag-and-drop workspace, adjust layout nodes, and compile instantaneously with the touch of a single button.
                     </p>
+
+                    <div class="flex flex-wrap gap-4 mt-8">
+                        <a href="#showcase" class="btn-hype-primary px-8 py-4 rounded-xl text-xs font-extrabold uppercase tracking-widest flex items-center gap-3">
+                            <span>Open in Sandbox</span>
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </a>
+                    </div>
                 </div>
 
-                <div class="flex items-center gap-3 bg-white p-3 rounded-2xl border-2 border-[#2D2A26]">
-                    <span class="text-xs font-bold text-neutral-600">Rate our tools:</span>
-                    <button onclick="location.href='https://github.com/xerrortm/xerrortm.github.io'" class="px-3 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-600 rounded-xl border-2 border-[#2D2A26] text-xs font-bold flex items-center gap-1.5 transition-all">
-                        <i class="fab fa-github animate-pulse text-rose-500"></i> GitHub
-                    </button>
+                <!-- Stats Graphics Block with Soft Minimal Shadows -->
+                <div class="relative z-10 grid grid-cols-2 gap-4 w-full md:w-auto">
+                    <div class="p-6 bg-white border border-neutral-100 rounded-2xl text-center shadow-soft">
+                        <div class="text-3xl font-display font-black text-brand-orange">∞</div>
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mt-1">Creative Freedom</div>
+                    </div>
+                    <div class="p-6 bg-white border border-neutral-100 rounded-2xl text-center shadow-soft">
+                        <div class="text-2xl font-display font-black text-brand-purple">Instant</div>
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mt-2">Publish Time</div>
+                    </div>
+                    <div class="col-span-2 p-5 bg-gradient-to-r from-neutral-900 to-neutral-850 text-white rounded-2xl flex items-center justify-between shadow-soft">
+                        <div class="text-xs font-bold uppercase tracking-wider">Now in Browser Preview</div>
+                        <i class="fa-brands fa-chrome text-lg text-brand-cyan"></i>
+                    </div>
                 </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="showcase" class="py-24 px-6 relative z-10">
+        <div class="max-w-7xl mx-auto">
+            
+            <div class="flex flex-col md:flex-row justify-between items-end gap-6 mb-12">
+                <div>
+                    <h2 class="text-4xl font-display font-black text-neutral-900 tracking-tight">The Live Sandbox Workspace</h2>
+                    <p class="font-medium text-neutral-500 mt-3 max-w-xl text-base leading-relaxed">
+                        Experience our tools live. Switch between active builds using the dynamic sidebar panel below to interact directly with the compiled modules.
+                    </p>
+                </div>
+                <button class="btn-hype-secondary px-6 py-3 rounded-xl flex items-center gap-2 text-sm font-extrabold uppercase tracking-wide">
+                    <i class="fab fa-github text-base"></i> Explore Modules
+                </button>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
-
-                <div class="lg:col-span-4 flex flex-col gap-4">
-                    <div class="hub-card p-5 bg-white flex-1 flex flex-col justify-between rounded-3xl">
+                
+                <!-- Left Sidebar Navigation for Tool Selector -->
+                <div class="lg:col-span-4 flex flex-col gap-6">
+                    <div class="glass-card p-6 h-full flex flex-col justify-between rounded-2xl">
                         <div>
-                            <span class="text-[10px] uppercase tracking-wider text-neutral-400 font-extrabold block mb-3">Community Repositories</span>
+                            <h3 class="text-xs font-black uppercase tracking-widest text-neutral-400 mb-6 flex items-center gap-2">
+                                <i class="fa-solid fa-shapes text-brand-orange"></i> SELECT ACTIVE MODULE
+                            </h3>
 
                             <div class="flex flex-col gap-3">
-                                <!-- Tool 1 -->
-                                <button onclick="selectIframeApp('mla')" id="tab-mla" class="w-full text-left hub-card bg-[#2D2A26] text-white p-3.5 font-bold flex items-center justify-between rounded-2xl transition-all duration-150">
-                                    <div class="flex items-center gap-3">
-                                        <span class="w-8 h-8 rounded-lg bg-indigo-500 text-white flex items-center justify-center text-xs font-bold">01</span>
-                                        <div>
-                                            <h4 class="text-xs font-bold tracking-wide">GoggleTools (MLA)</h4>
-                                            <span class="text-[9px] text-neutral-300 font-bold uppercase block -mt-0.5">References Generator</span>
-                                        </div>
+                                <!-- Interactive Tool Selector Buttons -->
+                                <button onclick="switchSandbox('mla', this)" class="sidebar-btn active w-full p-4 text-left flex items-center gap-4 rounded-xl cursor-pointer">
+                                    <div class="icon-box w-10 h-10 rounded-lg bg-brand-orange/10 text-brand-orange flex items-center justify-center font-bold font-display text-sm">
+                                        01
                                     </div>
-                                    <span class="px-2 py-0.5 text-[8px] bg-emerald-400 text-[#2D2A26] border border-[#2D2A26] font-bold uppercase rounded-full">LIVE</span>
+                                    <div class="flex-grow">
+                                        <h4 class="font-bold text-sm tracking-wide text-neutral-900">GoggleTools (MLA)</h4>
+                                        <span class="tool-subtitle text-[10px] text-neutral-400 font-bold uppercase tracking-wider block mt-0.5">Bibliography Helper</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right text-xs text-neutral-300"></i>
                                 </button>
 
-                                <!-- Tool 3 -->
-                                <button onclick="selectIframeApp('notifications')" id="tab-notifications" class="w-full text-left hub-card bg-white text-neutral-800 p-3.5 font-bold flex items-center justify-between rounded-2xl transition-all duration-150">
-                                    <div class="flex items-center gap-3">
-                                        <span class="w-8 h-8 rounded-lg bg-cyan-400 text-neutral-900 flex items-center justify-center text-xs font-bold">02</span>
-                                        <div>
-                                            <h4 class="text-xs font-bold tracking-wide">Happy Notifications</h4>
-                                            <span class="text-[9px] text-neutral-500 font-bold uppercase block -mt-0.5">UI Event Trigger</span>
-                                        </div>
+                                <button onclick="switchSandbox('notify', this)" class="sidebar-btn w-full p-4 text-left flex items-center gap-4 rounded-xl cursor-pointer">
+                                    <div class="icon-box w-10 h-10 rounded-lg bg-brand-yellow/10 text-brand-yellow flex items-center justify-center font-bold font-display text-sm">
+                                        02
                                     </div>
-                                    <span class="px-2 py-0.5 text-[8px] bg-cyan-100 text-cyan-700 border border-[#2D2A26] font-bold uppercase rounded-full">BETA</span>
+                                    <div class="flex-grow">
+                                        <h4 class="font-bold text-sm tracking-wide text-neutral-900">Happy Notifications</h4>
+                                        <span class="tool-subtitle text-neutral-400 text-[10px] font-bold uppercase tracking-wider block mt-0.5">Interaction Helper</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right text-xs text-neutral-300"></i>
                                 </button>
 
-                                <!-- Tool 4 -->
-                                <button onclick="selectIframeApp('emap')" id="tab-emap" class="w-full text-left hub-card bg-white text-neutral-800 p-3.5 font-bold flex items-center justify-between rounded-2xl transition-all duration-150">
-                                    <div class="flex items-center gap-3">
-                                        <span class="w-8 h-8 rounded-lg bg-yellow-400 text-neutral-900 flex items-center justify-center text-xs font-bold">03</span>
-                                        <div>
-                                            <h4 class="text-xs font-bold tracking-wide">eMap Navigation</h4>
-                                            <span class="text-[9px] text-neutral-500 font-bold uppercase block -mt-0.5">Live Grid Network</span>
-                                        </div>
+                                <button onclick="switchSandbox('emap', this)" class="sidebar-btn w-full p-4 text-left flex items-center gap-4 rounded-xl cursor-pointer">
+                                    <div class="icon-box w-10 h-10 rounded-lg bg-brand-purple/10 text-brand-purple flex items-center justify-center font-bold font-display text-sm">
+                                        03
                                     </div>
-                                    <span class="px-2 py-0.5 text-[8px] bg-amber-100 text-amber-800 border border-[#2D2A26] font-bold uppercase rounded-full">LIVE</span>
+                                    <div class="flex-grow">
+                                        <h4 class="font-bold text-sm tracking-wide text-neutral-900">eMap Navigation</h4>
+                                        <span class="tool-subtitle text-neutral-400 text-[10px] font-bold uppercase tracking-wider block mt-0.5">Grid System</span>
+                                    </div>
+                                    <i class="fa-solid fa-chevron-right text-xs text-neutral-300"></i>
                                 </button>
                             </div>
                         </div>
 
-                        <div class="bg-amber-50 border-2 border-[#2D2A26] p-4 rounded-2xl mt-5">
-                            <p class="text-xs text-neutral-700 leading-relaxed font-semibold">
-                                <i class="fa-solid fa-code mr-1"></i>
-                                <strong>Notice:</strong> This is only a <code class="bg-[#FFF0F2] text-[#FF7043] px-1 rounded font-bold">PREVIEW</code> Version of our tools. Your changes may not be saved..
+                        <!-- System Notification Note -->
+                        <div class="mt-8 p-4 bg-amber-50/50 border border-amber-200/50 rounded-xl">
+                            <p class="text-xs text-neutral-600 font-medium leading-relaxed">
+                                <i class="fa-solid fa-circle-info text-brand-yellow mr-1.5"></i>
+                                Sandbox elements compile dynamically in-browser. Reload anytime to reset state.
                             </p>
                         </div>
                     </div>
                 </div>
 
-                <div class="lg:col-span-8 flex flex-col">
-                    <div class="bg-white p-2 rounded-3xl flex-1 flex flex-col min-h-[460px] border-2 border-[#2D2A26]">
+                <!-- Right Web View Browser Mockup -->
+                <div class="lg:col-span-8">
+                    <div class="glass-card flex flex-col h-[600px] overflow-hidden rounded-2xl">
                         
-                        <div class="flex flex-wrap justify-between items-center bg-[#FBF9F4] p-4 rounded-t-2xl border-b-2 border-[#2D2A26] gap-3">
+                        <!-- Premium Mock Browser Tab Header -->
+                        <div class="bg-white border-b border-neutral-100 px-6 py-4 flex items-center justify-between">
                             <div class="flex items-center gap-2">
-                                <span class="w-3.5 h-3.5 rounded-full bg-rose-400 border border-neutral-800"></span>
-                                <span class="w-3.5 h-3.5 rounded-full bg-yellow-400 border border-neutral-800"></span>
-                                <span class="w-3.5 h-3.5 rounded-full bg-emerald-400 border border-neutral-800"></span>
-                                <span id="frameTitleDisplay" class="font-display font-bold text-xs text-neutral-700 tracking-wider ml-1 uppercase">Mounting Platform...</span>
+                                <div class="w-3 h-3 rounded-full bg-neutral-200"></div>
+                                <div class="w-3 h-3 rounded-full bg-neutral-200"></div>
+                                <div class="w-3 h-3 rounded-full bg-neutral-200"></div>
                             </div>
-                            <div class="flex gap-2">
-                                <button id="steve" class="px-3.5 py-1.5 bg-white hover:bg-neutral-50 text-[#2D2A26] rounded-xl border-2 border-[#2D2A26] text-xs font-bold transition-all flex items-center gap-1.5">
-                                    <i class="fa-solid fa-rotate-right"></i> Open Tool
-                                </button>
+                            
+                            <div class="flex-grow mx-8">
+                                <div class="w-full max-w-lg mx-auto bg-neutral-50 border border-neutral-100 rounded-xl py-2 px-4 text-center text-xs font-semibold text-neutral-500 flex justify-center items-center gap-2">
+                                    <i class="fa-solid fa-shield text-[10px] text-brand-orange"></i>
+                                    <span id="browser-address">sandbox.error.inc/tools/mla</span>
+                                </div>
                             </div>
+
+                            <button onclick="refreshSandboxIframe()" class="w-8 h-8 flex items-center justify-center bg-neutral-50 hover:bg-neutral-100 text-neutral-600 rounded-lg transition-colors">
+                                <i class="fa-solid fa-rotate-right text-xs"></i>
+                            </button>
                         </div>
 
-                        <!-- True Dynamic Iframe Viewport -->
-                        <div class="flex-grow bg-white relative rounded-b-2xl overflow-hidden min-h-[380px] flex flex-col">
-                            <iframe id="sandboxIframe" 
-                                    class="w-full flex-grow border-0 rounded-b-2xl" 
-                                    style="min-height: 380px;"
-                                    src="about:blank">
+                        <!-- High Quality Dynamic Iframe Frame -->
+                        <div class="flex-grow relative bg-neutral-50">
+                            <iframe 
+                                id="sandbox-iframe"
+                                class="w-full h-full border-0 custom-scroll"
+                                src="about:blank">
                             </iframe>
                         </div>
 
@@ -421,671 +407,272 @@
                 </div>
 
             </div>
-
         </div>
     </section>
 
-    <section id="active-grid" class="py-16 px-6 md:px-12 bg-white">
-        <div class="max-w-6xl mx-auto">
+    <section id="projects" class="py-24 px-6 bg-white relative z-10">
+        <div class="max-w-7xl mx-auto">
             
-            <div class="flex flex-wrap justify-between items-end gap-4 mb-12">
-                <div>
-                    <span class="px-3 py-1 bg-amber-100 border-2 border-[#2D2A26] text-[#2D2A26] text-xs font-bold rounded-full">
-                        Live Projects
-                    </span>
-                    <h2 class="text-3xl font-display font-black text-neutral-800 mt-3">Featured Projects</h2>
-                    <p class="text-neutral-500 text-xs font-bold uppercase tracking-wider mt-1">Some of the best tools made by the community.</p>
-                </div>
-                
-                <div onclick="location.href='/projects'" class="bg-gradient-to-tr from-[#FF7043] to-[#FF8A65] border-2 border-[#2D2A26] text-white py-1.5 px-4 text-xs font-bold tracking-wide rounded-full">
-                    View All
-                </div>
+            <div class="text-center mb-16 max-w-2xl mx-auto">
+                <span class="px-3.5 py-1.5 bg-brand-pink/10 text-brand-pink text-xs font-extrabold rounded-full uppercase tracking-wider">
+                    Creative Highlights
+                </span>
+                <h2 class="text-4xl md:text-5xl font-display font-black text-neutral-900 mt-6 tracking-tight">Featured Projects</h2>
+                <p class="text-neutral-500 mt-3 text-base">
+                    Discover hand-selected tools built by the ERROR Inc. network. Robust, open-source, and free to use.
+                </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 
-                <!-- Project Card 1 -->
-                <div class="hub-card p-6 bg-white rounded-3xl flex flex-col justify-between">
+                <!-- Card 1 -->
+                <div class="bg-[#FAFAF7] border border-neutral-100 p-6 flex flex-col justify-between hover:translate-y-[-4px] hover:shadow-lg transition-all duration-300 rounded-2xl">
                     <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="text-xs font-bold text-neutral-400 font-display uppercase">Project // 01</span>
-                            <span class="px-2.5 py-1 bg-emerald-50 text-emerald-700 border border-[#2D2A26] text-[9px] font-bold uppercase rounded-xl">PUBLIC</span>
+                        <div class="w-full h-44 bg-gradient-to-br from-brand-orange/5 to-brand-orange/10 rounded-xl mb-6 flex items-center justify-center relative overflow-hidden">
+                            <i class="fa-solid fa-book-open text-5xl text-brand-orange/40"></i>
+                            <div class="absolute top-3 right-3 bg-white/80 backdrop-blur border border-neutral-100 px-2.5 py-1 text-[9px] font-extrabold rounded-full uppercase text-neutral-600">v2.1</div>
                         </div>
-                        <h3 class="text-xl font-display font-bold text-neutral-800 mb-2">GoggleTools (MLA)</h3>
-                        <p class="text-neutral-600 text-xs leading-relaxed mb-6">
-                            Modern bibliographic helper supporting high speed citation generation. Features offline local caching for students.
+                        <h3 class="text-xl font-display font-extrabold text-neutral-900 mb-2">GoggleTools (MLA)</h3>
+                        <p class="text-neutral-500 text-sm leading-relaxed mb-6">
+                            Create MLA citations in seconds with modern design, project sharing ad much more.
                         </p>
                     </div>
-                    
-                    <button onclick="selectIframeApp('mla'); document.getElementById('showcase-rack').scrollIntoView({behavior: 'smooth'})" class="w-full hype-btn-primary py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
-                        <span>Open Tool</span>
-                        <i class="fa-solid fa-square-caret-right"></i>
-                    </button>
+                    <button onclick="window.open('/mla', '_blank')" class="btn-hype-secondary w-full py-3 text-xs font-bold rounded-xl">Open Preview</button>
                 </div>
 
-                <!-- Project Card 2 -->
-                <div class="hub-card p-6 bg-white rounded-3xl flex flex-col justify-between">
+                <!-- Card 2 -->
+                <div class="bg-[#FAFAF7] border border-neutral-100 p-6 flex flex-col justify-between hover:translate-y-[-4px] hover:shadow-lg transition-all duration-300 rounded-2xl">
                     <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="text-xs font-bold text-neutral-400 font-display uppercase">Project // 02</span>
-                            <span class="px-2.5 py-1 bg-cyan-50 text-cyan-700 border border-[#2D2A26] text-[9px] font-bold uppercase rounded-xl">BETA</span>
+                        <div class="w-full h-44 bg-gradient-to-br from-brand-purple/5 to-brand-purple/10 rounded-xl mb-6 flex items-center justify-center relative overflow-hidden">
+                            <i class="fa-solid fa-bell text-5xl text-brand-purple/40"></i>
+                            <div class="absolute top-3 right-3 bg-white/80 backdrop-blur border border-neutral-100 px-2.5 py-1 text-[9px] font-extrabold rounded-full uppercase text-neutral-600">Beta</div>
                         </div>
-                        <h3 class="text-xl font-display font-bold text-neutral-800 mb-2">Happy Notifications</h3>
-                        <p class="text-neutral-600 text-xs leading-relaxed mb-6">
-                            Micro-interaction helper designed to build joyful non-blocking overlay popups and feedback toasters.
+                        <h3 class="text-xl font-display font-extrabold text-neutral-900 mb-2">Happy Notifications</h3>
+                        <p class="text-neutral-500 text-sm leading-relaxed mb-6">
+                            Send delightful notifications to give care for everyone with leaderboards, streak and more.
                         </p>
                     </div>
-                    
-                    <button onclick="selectIframeApp('notifications'); document.getElementById('showcase-rack').scrollIntoView({behavior: 'smooth'})" class="w-full hype-btn-primary py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
-                        <span>Open Tool</span>
-                        <i class="fa-solid fa-square-caret-right"></i>
-                    </button>
+                    <button onclick="window.open('/happy', '_blank')" class="btn-hype-secondary w-full py-3 text-xs font-bold rounded-xl">Open Preview</button>
                 </div>
 
-                <!-- Project Card 3 -->
-                <div class="hub-card p-6 bg-white rounded-3xl flex flex-col justify-between">
+                <!-- Card 3 -->
+                <div class="bg-[#FAFAF7] border border-neutral-100 p-6 flex flex-col justify-between hover:translate-y-[-4px] hover:shadow-lg transition-all duration-300 rounded-2xl">
                     <div>
-                        <div class="flex justify-between items-start mb-4">
-                            <span class="text-xs font-bold text-neutral-400 font-display uppercase">Project // 03</span>
-                            <span class="px-2.5 py-1 bg-yellow-50 text-yellow-700 border border-[#2D2A26] text-[9px] font-bold uppercase rounded-xl">BETA</span>
+                        <div class="w-full h-44 bg-gradient-to-br from-brand-cyan/5 to-brand-cyan/10 rounded-xl mb-6 flex items-center justify-center relative overflow-hidden">
+                            <i class="fa-solid fa-location-crosshairs text-5xl text-brand-cyan/40"></i>
+                            <div class="absolute top-3 right-3 bg-white/80 backdrop-blur border border-neutral-100 px-2.5 py-1 text-[9px] font-extrabold rounded-full uppercase text-neutral-600">Beta</div>
                         </div>
-                        <h3 class="text-xl font-display font-bold text-neutral-800 mb-2">CANVASFLOW</h3>
-                        <p class="text-neutral-600 text-xs leading-relaxed mb-6">
-                            Professional visual website builder with all the customisations and the ability to publish your website straight through ERROR Inc.
+                        <h3 class="text-xl font-display font-extrabold text-neutral-900 mb-2">eMap</h3>
+                        <p class="text-neutral-500 text-sm leading-relaxed mb-6">
+                            BETA
                         </p>
                     </div>
-                    
-                    <button onclick="location.href='/canvasflow'" class="w-full hype-btn-primary py-3 rounded-2xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5">
-                        <span>Open Tool</span>
-                    </button>
+                    <button onclick="window.open('/map', '_blank')" class="btn-hype-secondary w-full py-3 text-xs font-bold rounded-xl">Open Preview</button>
                 </div>
 
             </div>
-
         </div>
     </section>
 
-    <section id="community-chat" class="py-16 px-6 md:px-12 border-t-2 border-b-2 border-[#2D2A26] bg-[#FAF6F0]">
-        <div class="max-w-6xl mx-auto">
-        <div class="hub-card rounded-[2rem] bg-white flex flex-col overflow-hidden">
-            
-            <div class="border-b-2 border-dashed border-[#2D2A26] p-6 flex justify-between items-center bg-neutral-50">
-                <div>
-                    <h2 class="text-2xl font-display font-black text-neutral-800 tracking-tight">
-                        Community Chat
-                    </h2>
-                    <p class="text-neutral-500 text-xs font-semibold mt-1">
-                        Have some suggestions or want to recommend a feature? Leave a comment on our community chat. Help us build a hype, friendly space together!
-                    </p>
-                </div>
-
-                <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 border-2 border-[#2D2A26] text-emerald-700 text-xs font-bold rounded-xl">
-                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>ACTIVE</span>
-                </div>
-            </div>
-
-            <div id="chatMessages" class="flex-1 min-h-[500px] max-h-[550px] overflow-y-auto p-6 space-y-4 chat-scroll bg-[#FAF8F5]">
-            </div>
-            <div class="border-t-2 border-dashed border-[#2D2A26] p-5 bg-white">
-                <div class="flex flex-col sm:flex-row gap-3">
-                    
-                    <input
-                        id="messageInput"
-                        type="text"
-                        maxlength="200"
-                        placeholder="Say something to the community..."
-                        class="flex-1 bg-neutral-50 border-2 border-[#2D2A26] rounded-2xl px-5 py-4 text-sm font-semibold outline-none focus:bg-white focus:border-[#FF7043] transition-colors"
-                    >
-
-                    <button id="sendBtn" class="hype-btn-primary px-8 py-4 sm:py-0 rounded-2xl text-xs font-bold uppercase tracking-wider">
-                        Send
-                    </button>
-                </div>
-
-                <div class="flex items-center gap-2 mt-3 text-[10px] font-extrabold text-neutral-400 uppercase tracking-wide">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <span>filtered words blocked • auto deletes after 24h</span>
-                </div>
-            </div>
-
-        </div>
-        </div>
-    </section>
-    
-    <section id="dev-feed" class="py-16 px-6 md:px-12 bg-white">
+    <section id="community" class="py-24 px-6 relative z-10">
         <div class="max-w-4xl mx-auto">
-            <div class="text-center mb-12">
-                <span class="px-3 py-1 bg-[#FBF9F4] border-2 border-[#2D2A26] text-[#2D2A26] text-xs font-bold rounded-full">Live Community Feed</span>
-                <h2 class="text-3xl font-display font-black mt-4 text-neutral-800">Studio Diary & Milestones</h2>
-            </div>
-
-            <div class="space-y-8">
-                <!-- Milestones 1 -->
-                <div class="flex gap-6 items-start border-l-4 border-[#FF7043] pl-6 relative">
-                    <span class="absolute -left-[10px] top-1.5 w-4.5 h-4.5 rounded-full bg-white border-4 border-[#FF7043]"></span>
-                    <div>
-                        <span class="text-xs font-bold text-[#FF7043] uppercase">May 15, 2026</span>
-                        <h4 class="font-bold text-base text-neutral-800">Visual Community Alignment Deployed</h4>
-                        <p class="text-neutral-500 text-xs mt-1">Refined the UI to emphasize warm, highly rounded organic shapes, custom sticker designs, and interactive community reactions over static boxes.</p>
+            <div class="glass-card flex flex-col overflow-hidden rounded-2xl shadow-xl shadow-brand-purple/5">
+                
+                <!-- Chat Workspace Header -->
+                <div class="border-b border-neutral-100 p-6 flex flex-col md:flex-row justify-between items-center bg-white gap-4">
+                    <div class="text-center md:text-left">
+                        <div class="flex items-center justify-center md:justify-start gap-2 mb-1">
+                            <span class="w-2.5 h-2.5 rounded-full bg-brand-purple animate-pulse"></span>
+                            <h2 class="text-2xl font-display font-black text-neutral-900 tracking-tight">
+                                Live Community Terminal
+                            </h2>
+                        </div>
+                        <p class="text-neutral-400 text-xs font-bold uppercase tracking-wider">
+                            Real-time sandbox feedback & playground lounge
+                        </p>
+                    </div>
+                    
+                    <div class="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 text-xs font-bold rounded-full border border-emerald-100">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                        <span>SERVER CONNECTED</span>
                     </div>
                 </div>
 
-                <!-- Milestone 2 -->
-                <div class="flex gap-6 items-start border-l-4 border-indigo-500 pl-6 relative">
-                    <span class="absolute -left-[10px] top-1.5 w-4.5 h-4.5 rounded-full bg-white border-4 border-indigo-500"></span>
-                    <div>
-                        <span class="text-xs font-bold text-neutral-400 uppercase">April 28, 2026</span>
-                        <h4 class="font-bold text-base text-neutral-800">Fluid Sandbox Viewport Integrated</h4>
-                        <p class="text-neutral-500 text-xs mt-1">Configured dynamic iframe reloading, enabling easy switches between live sandbox tools and test-bed previews.</p>
+                <!-- Chat Feed Wrapper -->
+                <div id="chat-feed" class="p-6 h-[380px] overflow-y-auto custom-scroll bg-[#FAFAF7]/50 flex flex-col gap-4">
+                    
+                    <!-- Bubble 1 -->
+                    <div class="flex gap-4">
+                        <div class="w-9 h-9 rounded-full bg-brand-orange/10 flex-shrink-0 flex items-center justify-center font-display font-bold text-brand-orange text-sm border border-brand-orange/20">
+                            A
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-extrabold text-neutral-800">AlexDev</span>
+                                <span class="text-[9px] text-neutral-400 font-bold uppercase">5m ago</span>
+                            </div>
+                            <div class="bg-white border border-neutral-100 rounded-2xl rounded-tl-none px-4 py-2.5 shadow-sm max-w-md">
+                                <p class="text-sm text-neutral-600 leading-relaxed">The new CanvasFlow builder is absolutely smooth. Managed to wire up an entirely responsive interface in minutes! ⚡</p>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Bubble 2 -->
+                    <div class="flex gap-4">
+                        <div class="w-9 h-9 rounded-full bg-brand-purple/10 flex-shrink-0 flex items-center justify-center font-display font-bold text-brand-purple text-sm border border-brand-purple/20">
+                            S
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="text-xs font-extrabold text-neutral-800">Sarah_UI</span>
+                                <span class="text-[9px] text-neutral-400 font-bold uppercase">3m ago</span>
+                            </div>
+                            <div class="bg-white border border-neutral-100 rounded-2xl rounded-tl-none px-4 py-2.5 shadow-sm max-w-md">
+                                <p class="text-sm text-neutral-600 leading-relaxed">Has anyone tested the Happy Notification triggers on mobile yet? They slide in perfectly.</p>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- Milestone 3 -->
-                <div class="flex gap-6 items-start border-l-4 border-emerald-500 pl-6 relative">
-                    <span class="absolute -left-[10px] top-1.5 w-4.5 h-4.5 rounded-full bg-white border-4 border-emerald-500"></span>
-                    <div>
-                        <span class="text-xs font-bold text-neutral-400 uppercase">March 14, 2026</span>
-                        <h4 class="font-bold text-base text-neutral-800">Community Engine Initialized</h4>
-                        <p class="text-neutral-500 text-xs mt-1">Drafted the core platform prototype to help developers and designers showcase their micro-tools with ease.</p>
-                    </div>
+                <!-- Chat Input Action Bar -->
+                <div class="p-4 bg-white border-t border-neutral-100">
+                    <form id="chat-form" onsubmit="handleSendMsg(event)" class="flex gap-3">
+                        <input 
+                            id="chat-input"
+                            type="text" 
+                            required
+                            placeholder="Type a message to post onto the community lounge..." 
+                            class="flex-grow bg-neutral-50 border border-neutral-100 rounded-xl px-4 py-3 text-sm font-semibold text-neutral-700 placeholder-neutral-400 focus:outline-none focus:bg-white focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple/50 transition-all duration-200" 
+                        />
+                        <button type="submit" class="btn-hype-primary px-6 py-3 rounded-xl flex items-center justify-center text-sm font-extrabold">
+                            <i class="fa-solid fa-paper-plane mr-2"></i> Send
+                        </button>
+                    </form>
                 </div>
+
             </div>
         </div>
     </section>
 
-    <!-- FOOTER DESIGN -->
-    <footer class="bg-[#2D2A26] text-white py-16 px-6 text-center border-t-4 border-[#2D2A26]">
-        <div class="max-w-4xl mx-auto flex flex-col items-center gap-6">
-            <div class="h-20 rounded-2xl flex items-center justify-center p-1.5">
-                <img src="https://images.squarespace-cdn.com/content/v1/6800b55ad24bf56cbb160dea/5c585ad8-9e96-472a-bc88-5d2ea8f05993/ERRORL1-removebg-preview.png" 
-                     class="h-20 filter brightness-0 invert" alt="ERROR Logo">
-            </div>
+    <footer class="bg-[#0B0A0A] text-white py-16 relative z-10">
+        <div class="max-w-7xl mx-auto px-6 text-center flex flex-col items-center">
             
-            <p class="font-display font-bold text-sm tracking-wider uppercase text-[#FF7043]">ERROR Inc. Creative Team © 2026</p>
-            <p class="text-xs text-neutral-400 max-w-sm font-semibold leading-relaxed">
-                Handcrafted visual tools and collaborative layouts built directly from scratch with gorgeous aesthetics. 100% Free.
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-8 h-8 bg-gradient-to-tr from-brand-orange to-brand-purple rounded-lg flex items-center justify-center">
+                    <i class="fa-solid fa-compass-drafting text-white text-sm"></i>
+                </div>
+                <span class="font-display font-black text-2xl tracking-widest text-white">ERROR INC.</span>
+            </div>
+
+            <p class="text-neutral-400 text-sm max-w-md mx-auto mb-8 leading-relaxed font-medium">
+                Pioneering the future of active in-browser creative tools. Designed for engineers, students, and hobbyists alike.
             </p>
             
-            <div class="flex gap-6 mt-2 font-bold text-xs uppercase text-neutral-400">
-                <a href="/projects" class="hover:text-[#FF7043] transition-colors">Projects</a>
-                <span>•</span>
-                <a href="/community" class="hover:text-[#FF7043] transition-colors">Community</a>
+            <div class="flex gap-6 mb-8 text-lg">
+                <a href="https://github.com/xerrortm/xerrortm.github.io" class="text-neutral-500 hover:text-white transition-colors duration-200"><i class="fa-brands fa-github"></i></a>
+                <a href="#" class="text-neutral-500 hover:text-white transition-colors duration-200"><i class="fa-brands fa-discord"></i></a>
+                <a href="#" class="text-neutral-500 hover:text-white transition-colors duration-200"><i class="fa-brands fa-x-twitter"></i></a>
             </div>
+            
+            <p class="text-neutral-600 text-xs font-bold uppercase tracking-widest">&copy; 2026 Error Inc. Built visually with love.</p>
         </div>
     </footer>
 
-    <!-- AUTHENTICATION DIALOG (SIGN UP / LOG IN) -->
-    <div id="authPopup" class="hidden fixed inset-0 bg-neutral-900/60 backdrop-blur-md z-50 flex items-center justify-center p-6">
-        <div class="hub-card bg-white w-full max-w-sm p-8 relative rounded-3xl">
-            <button id="closeAuth" class="absolute top-5 right-5 text-neutral-400 hover:text-[#FF7043] font-bold p-1 transition-colors">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <div class="text-center">
-                <div class="w-12 h-12 rounded-2xl bg-amber-100 border-2 border-[#2D2A26] text-[#2D2A26] flex items-center justify-center mx-auto text-xl mb-4">
-                    👋
-                </div>
-                <h2 class="text-xl font-display font-bold text-neutral-800 leading-none mb-2">
-                    Join the Space!
-                </h2>
-                <p class="text-neutral-500 font-bold text-xs mb-6">
-                    Configure your creative handle and customize your profile inside our local environment.
-                </p>
-            </div>
-            <div class="space-y-3">
-                <button onclick="location.href='/signup'" class="block w-full text-center hype-btn-primary py-3.5 rounded-2xl text-xs font-bold tracking-wider uppercase">
-                    Sign Up
-                </button>
-                <button onclick="location.href='/login'" class="block w-full text-center hype-btn-secondary py-3.5 rounded-2xl text-xs font-bold tracking-wider uppercase">
-                    Log In
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- USER PROFILE DIALOG -->
-    <div id="profilePopup" class="hidden fixed inset-0 bg-neutral-900/60 backdrop-blur-md z-50 flex items-center justify-center p-6">
-        <div class="hub-card bg-white w-full max-w-sm p-8 relative rounded-3xl">
-            <button id="closeProfile" class="absolute top-5 right-5 text-neutral-400 hover:text-[#FF7043] font-bold p-1 transition-colors">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-            <div class="flex flex-col items-center">
-                <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-rose-200 to-indigo-100 border-2 border-[#2D2A26] flex items-center justify-center relative">
-                    <span id="profileChar" class="text-3xl">🌸</span>
-                </div>
-                <h2 id="profileName" class="text-xl font-display font-bold text-neutral-800 mt-4">
-                    Guest Creator
-                </h2>
-                <div class="mt-6 w-full space-y-3 border-t-2 border-[#2D2A26] pt-4">
-                    <div class="flex justify-between text-xs font-bold text-neutral-600">
-                        <span>Access Level</span>
-                        <span class="text-[#FF7043] font-bold">User</span>
-                    </div>
-                </div>
-                <div class="grid grid-cols-2 gap-3 w-full mt-6">
-                    <button onclick="location.href='/profile'" class="hype-btn-secondary py-3 rounded-2xl text-xs uppercase font-bold">
-                        Full Profile
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none max-w-sm w-full px-4 md:px-0">
-    </div>
-
-    <script type="module">
-        import { initializeApp }
-from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-
-import {
-getDatabase,
-ref,
-push,
-onValue,
-remove,
-get
-}
-from "https://www.gstatic.com/firebasejs/12.12.1/firebase-database.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
-    authDomain: "error-inc.firebaseapp.com",
-    databaseURL: "https://error-inc-default-rtdb.firebaseio.com",
-    projectId: "error-inc",
-    storageBucket: "error-inc.firebasestorage.app",
-    messagingSenderId: "876188868410",
-    appId: "1:876188868410:web:ca7de451707bd9975c7a03"
-};
-const app =
-initializeApp(firebaseConfig);
-const db =
-getDatabase(app);
-const bannedWords = [
-    "fuck",
-    "shit",
-    "bitch",
-    "niga",
-    "nigga",
-    "nigger",
-    "heck",
-];
-function filterMessage(text){
-    let filtered = text;
-    bannedWords.forEach(word => {
-        filtered =
-        filtered.replace(
-            new RegExp(word, "gi"),
-            "•••"
-        );
-    });
-    return filtered;
-}
-
-async function cleanupOldMessages(){
-    const snapshot = await get(ref(db, "community-chat"));
-    if(!snapshot.exists()) return;
-  
-    const now =
-    Date.now();
-  
-    snapshot.forEach(child => {
-        const msg =
-        child.val();
-        if(now - msg.time > 86400000){
-            remove(
-                ref(
-                    db,
-                    "community-chat/" + child.key
-                )
-            );
-        }
-    });
-}
-
-cleanupOldMessages();
-const chatMessages =
-document.getElementById("chatMessages");
-const messageInput =
-document.getElementById("messageInput");
-const sendBtn =
-document.getElementById("sendBtn");
-const messageCount =
-document.getElementById("messageCount");
-function sendMessage(){
-
-    const user =
-    localStorage.getItem("errorinc_user");
-
-    if(!user){
-        authPopup.classList.remove("hidden");
-        return;
-
-    }
-
-    const text =
-    messageInput.value.trim();
-
-    if(!text) return;
-
-    push(ref(db, "community-chat"), {
-        user,
-        text: filterMessage(text),
-        time: Date.now()
-    });
-
-    messageInput.value = "";
-
-}
-
-sendBtn.onclick =
-sendMessage;
-
-messageInput.addEventListener("keypress", e => {
-
-    if(e.key === "Enter"){
-
-        sendMessage();
-
-    }
-
-});
-
-onValue(ref(db, "community-chat"), snapshot => {
-
-    chatMessages.innerHTML = "";
-
-    let total = 0;
-
-    snapshot.forEach(child => {
-
-        const msg =
-        child.val();
-
-        total++;
-
-        const div =
-        document.createElement("div");
-
-        div.className =
-        "message-enter bg-white border border-slate-200 rounded-3xl p-4 shadow-sm hover:shadow-md transition";
-
-        div.innerHTML = `
-
-        <div class="flex gap-4">
-
-            <div onclick="location.href='/u/?n=${msg.user}'" class="w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 to-indigo-700 flex items-center justify-center font-black text-white shrink-0">
-                ${msg.user.charAt(0).toUpperCase()}
-            </div>
-
-            <div class="flex-1">
-
-                <div class="flex items-center gap-2">
-
-                    <div onclick="location.href='/u?n=${msg.user}'" class="font-bold">
-                        ${msg.user}
-                    </div>
-
-                    <div class="text-xs text-slate-400">
-                        ${msg.time}
-                    </div>
-
-                </div>
-
-                <div class="mt-2 text-slate-700 break-words leading-relaxed">
-                    ${msg.text}
-                </div>
-
-            </div>
-
-        </div>
-
-        `;
-
-        chatMessages.appendChild(div);
-
-    });
-
-    messageCount.innerText =
-    total;
-
-    chatMessages.scrollTop =
-    chatMessages.scrollHeight;
-
-});
-
-        
-        // IFRAME
-        const APPS_URLS = {
-            mla: "https://xerrortm.github.io/mla",
-            obby: "https://xerrortm.github.io/404",
-            notifications: "https://xerrortm.github.io/happy",
-            emap: "https://xerrortm.github.io/map"
+    <script>
+        // Setup initial iframe compiled assets
+        const appSandboxAssets = {
+            mla: {
+                url: "https://xerrortm.github.io/mla",
+                title: "GoggleTools MLA"
+            },
+            notify: {
+                url: "https://xerrortm.github.io/happy",
+                title: "Happy Notifications"
+            },
+            emap: {
+                url: "https://xerrortm.github.io/map",
+                title: "eMap Navigation"
+            }
         };
 
-        let currentActiveApp = 'mla';
+        // Cache state of current active compiled tool
+        let currentActiveToolKey = 'mla';
 
-        // Custom Community Toast notification popups
-        function showNotification(title, message, type = 'success') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
+        // Handles rendering code directly into the browser frame
+        function setSandboxIframeSource(toolKey) {
+            const frame = document.getElementById('sandbox-iframe');
+            frame.src = appSandboxAssets[toolKey].url;
+            document.getElementById('browser-address').innerText = appSandboxAssets[toolKey].url;
+        }
+        // Action when hitting refresh browser icon
+        function refreshSandboxIframe() {
+            setSandboxIframeSource(currentActiveToolKey);
+        }
+
+        // Sidebar click tool toggling mechanism
+        function switchSandbox(toolKey, buttonElement) {
+            currentActiveToolKey = toolKey;
+
+            // Manage CSS active states elegantly
+            document.querySelectorAll('.sidebar-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            buttonElement.classList.add('active');
+
+            // Render updated sandboxed content
+            setSandboxIframeSource(toolKey);
+        }
+
+        // Live Chat message append interaction
+        function handleSendMsg(event) {
+            event.preventDefault();
+            const input = document.getElementById('chat-input');
+            const feed = document.getElementById('chat-feed');
             
-            // Build interactive custom toast box (completely shadow-free)
-            toast.className = `pointer-events-auto flex items-start gap-3 p-4 bg-white border-2 border-[#2D2A26] rounded-2xl transform translate-y-4 opacity-0 transition-all duration-300 border-l-8 ${
-                type === 'success' ? 'border-l-emerald-400' : type === 'info' ? 'border-l-indigo-400' : 'border-l-[#FF7043]'
-            }`;
+            if(!input.value.trim()) return;
 
-            const icon = type === 'success' ? 'fa-check text-emerald-500' : type === 'info' ? 'fa-circle-info text-indigo-500' : 'fa-circle-exclamation text-[#FF7043]';
-
-            toast.innerHTML = `
-                <div class="text-lg"><i class="fa-solid ${icon}"></i></div>
-                <div class="flex-grow">
-                    <h5 class="font-display font-bold text-xs text-neutral-800">${title}</h5>
-                    <p class="text-[11px] font-bold text-neutral-500 mt-0.5 leading-snug">${message}</p>
+            // Append live chat bubble block elements
+            const messageBlock = document.createElement('div');
+            messageBlock.className = "flex gap-4";
+            messageBlock.innerHTML = `
+                <div class="w-9 h-9 rounded-full bg-brand-pink/10 flex-shrink-0 flex items-center justify-center font-display font-bold text-brand-pink text-sm border border-brand-pink/20">
+                    U
                 </div>
-                <button onclick="this.parentElement.remove()" class="text-neutral-400 hover:text-neutral-800 text-xs font-bold">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+                <div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="text-xs font-extrabold text-neutral-800">You (Creative Creator)</span>
+                        <span class="text-[9px] text-neutral-400 font-bold uppercase">Just now</span>
+                    </div>
+                    <div class="bg-white border border-neutral-100 rounded-2xl rounded-tl-none px-4 py-2.5 shadow-sm max-w-md">
+                        <p class="text-sm text-neutral-600 leading-relaxed">${escapeHtml(input.value)}</p>
+                    </div>
+                </div>
             `;
-
-            container.appendChild(toast);
-
-            // Bouncy entrance triggers
-            setTimeout(() => {
-                toast.classList.remove('translate-y-4', 'opacity-0');
-            }, 50);
-
-            // Automatic dismissal
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-2');
-                setTimeout(() => toast.remove(), 300);
-            }, 5000);
-        }
-
-        // Swap target iframe previews dynamically
-        function selectIframeApp(appName) {
-            currentActiveApp = appName;
-            const iframe = document.getElementById('sandboxIframe');
-            const titleDisplay = document.getElementById('frameTitleDisplay');
-            const preview = document.getElementById('steve');
             
-            ['mla', 'obby', 'notifications', 'emap'].forEach(app => {
-                const btn = document.getElementById('tab-' + app);
-                if (btn) {
-                    if (app === appName) {
-                        btn.className = "w-full text-left hub-card bg-[#2D2A26] text-white p-3.5 font-bold flex items-center justify-between rounded-2xl";
-                    } else {
-                        btn.className = "w-full text-left hub-card bg-white text-neutral-800 p-3.5 font-bold flex items-center justify-between rounded-2xl";
-                    }
-                }
-            });
-
-            // Update viewer headers
-            const titleMap = {
-                mla: 'GoggleTools',
-                obby: '2D Obby Builder',
-                notifications: 'Happy Notifications',
-                emap: 'eMap'
-            };
-            titleDisplay.innerText = `Previewing: ${titleMap[appName]}`;
-
-            // Load iframe URL
-            iframe.src = APPS_URLS[appName];
-
-            steve.addEventListener('click', () => {
-                window.location.href=APPS_URLS[appName];
-            });
+            feed.appendChild(messageBlock);
             
-            showNotification("Sandbox Reloaded", `Mounted standard placeholder preview for ${titleMap[appName]}.`, "success");
-        }
-
-        function resetSandboxFrame() {
-            selectIframeApp(currentActiveApp);
-            showNotification("Frame Refreshed", "Iframe refreshed from current local sandbox options.", "info");
-        }
-
-        // Community Shoutbox sticky board data models
-        let localShouts = [
-            { id: 1, name: "NeonRunner", flair: "💻 DEVELOPER", msg: "Much better! This warm community styling makes me feel like I am in a cozy lounge coding together with friends.", color: "bg-amber-100", hypes: 12 },
-            { id: 2, name: "SashaCreative", flair: "🎨 DESIGNER", msg: "The super-rounded corners look so friendly. Love that everything feels interactive and tactile!", color: "bg-indigo-100", hypes: 8 },
-            { id: 3, name: "Lumina", flair: "💖 VISITOR", msg: "A warm web is a happy web. Goodbye rigid boxes!", color: "bg-rose-100", hypes: 19 }
-        ];
-
-        // Soft pastel colors mapped to community roles
-        function getRandomPastelStyle() {
-            const styles = [
-                "bg-rose-100 text-rose-800",
-                "bg-amber-100 text-amber-800",
-                "bg-indigo-100 text-indigo-800",
-                "bg-emerald-100 text-emerald-800",
-                "bg-cyan-100 text-cyan-800"
-            ];
-            return styles[Math.floor(Math.random() * styles.length)];
-        }
-
-        function initShoutboxFeed() {
-            renderShoutFeed();
-        }
-
-        function renderShoutFeed() {
-            const container = document.getElementById('shoutList');
-            container.innerHTML = "";
+            // Reset input values
+            input.value = '';
             
-            document.getElementById('logCount').innerText = localShouts.length + " STICKIES";
-
-            localShouts.forEach((shout, index) => {
-                const item = document.createElement('div');
-                const colorClass = shout.color || 'bg-amber-100';
-                
-                // Rounded sticky note styling (without drop shadows)
-                item.className = `p-4 rounded-2xl border-2 border-[#2D2A26] transition-all duration-150 hover:translate-x-0.5 hover:translate-y-0.5 ${colorClass}`;
-
-                item.innerHTML = `
-                    <div class="flex justify-between items-start mb-2 flex-wrap gap-1">
-                        <span class="font-bold text-xs tracking-tight">${shout.name}</span>
-                        <span class="text-[9px] font-bold px-2 py-0.5 uppercase bg-white border border-[#2D2A26] rounded-xl">${shout.flair}</span>
-                    </div>
-                    <p class="text-xs font-semibold leading-relaxed mb-3 text-neutral-800">${shout.msg}</p>
-                    
-                    <div class="flex justify-between items-center pt-2 border-t border-dashed border-[#2D2A26]">
-                        <button onclick="hypeStickyNote(${index})" class="flex items-center gap-1.5 px-2.5 py-1 bg-white hover:bg-neutral-50 border-2 border-[#2D2A26] rounded-xl text-[10px] font-extrabold text-[#2D2A26] transition-all">
-                            💖 Hype (<span id="shoutHype-${index}">${shout.hypes || 0}</span>)
-                        </button>
-                    </div>
-                `;
-                container.appendChild(item);
-            });
-
-            container.scrollTop = container.scrollHeight;
+            // Auto scroll down chat terminal feed
+            feed.scrollTop = feed.scrollHeight;
         }
 
-        // Hype a particular sticky note from the feed list
-        function hypeStickyNote(index) {
-            if (localShouts[index]) {
-                if (!localShouts[index].hypes) {
-                    localShouts[index].hypes = 0;
-                }
-                localShouts[index].hypes++;
-                document.getElementById(`shoutHype-${index}`).innerText = localShouts[index].hypes;
-                showNotification("Post Hyped! 📌", `You hyped ${localShouts[index].name}'s sticky note!`, "success");
-            }
+        // Helper string escaper for preventing HTML injection in dummy chat
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
         }
 
-        // Add a brand new note onto the public community wall
-        function submitShoutMsg() {
-            const name = document.getElementById('shoutName').value.trim();
-            const flair = document.getElementById('shoutFlair').value;
-            const msg = document.getElementById('shoutMsg').value.trim();
-
-            if(!name || !msg) {
-                showNotification("Incomplete Note", "Please fill in a custom username and enter a nice message.", "error");
-                return;
-            }
-
-            const colorOptions = ['bg-rose-100', 'bg-amber-100', 'bg-indigo-100', 'bg-emerald-100', 'bg-cyan-100'];
-            const color = colorOptions[Math.floor(Math.random() * colorOptions.length)];
-
-            localShouts.push({
-                id: Date.now(),
-                name,
-                flair,
-                msg,
-                color,
-                hypes: 1
-            });
-            
-            document.getElementById('shoutMsg').value = "";
-            renderShoutFeed();
-            showNotification("Posted Successfully! 📌", "Your sticky note has been posted on the live board.", "success");
-        }
-
-        function clearCachedShouts() {
-            localShouts = [];
-            renderShoutFeed();
-            showNotification("Clear Complete", "Removed sticky notes from your local viewport session.", "info");
-        }
-
-        // Popup toggles
-        document.getElementById('closeAuth').addEventListener('click', () => {
-            document.getElementById('authPopup').classList.add('hidden');
-        });
-        document.getElementById('closeProfile').addEventListener('click', () => {
-            document.getElementById('profilePopup').classList.add('hidden');
-        });
-
-        // Trigger account setup or user profiles
-        document.getElementById('userBtn').addEventListener('click', () => {
-            const currentProfile = localStorage.getItem('errorinc_user');
-            if (currentProfile) {
-                document.getElementById('profileName').innerText = currentProfile;
-            		document.getElementById('profileChar').innerText = currentProfile.charAt(0).toUpperCase();
-                document.getElementById('profilePopup').classList.remove('hidden');
-            } else {
-                document.getElementById('authPopup').classList.remove('hidden');
-            }
-        });
-
-
-        // Initialize platform viewport functions on window load
+        // Initialize on system startup
         window.onload = function() {
-            selectIframeApp('mla');
-            initShoutboxFeed();
-            
-            // Sync user profile state on page reload
-            const currentProfile = localStorage.getItem('errorinc_user');
-            if (currentProfile) {
-                document.getElementById('navUserLabel').innerText = "Profile";
-                document.getElementById('shoutName').value = currentProfile;
-            }
-
-            setInterval(() => {
-                const countElem = document.getElementById('activeCounter');
-                let userCount = parseInt(countElem.innerText.replace(/[^0-9]/g, ''));
-                let diff = Math.floor(Math.random() * 5) - 10;
-                countElem.innerText = `${userCount + diff} Creators Online`;
-            }, 7000);
+            setSandboxIframeSource('mla');
         }
     </script>
-    <script src="scripts/c.js"></script>
 </body>
 </html>
