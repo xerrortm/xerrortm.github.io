@@ -80,8 +80,8 @@ if(!projectId){
         .once("value")
         .then(function(snapshot){
             if(!snapshot.exists()){
+                clearTimeout(timeout);
                 document.getElementById("status").innerHTML = `
-                    clearTimeout(timeout);
                     <h1>Project Not Found</h1>
                     <p>No published website exists with ID <b>${projectId}</b>.</p>
                 `;
