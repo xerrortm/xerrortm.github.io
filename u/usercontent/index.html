@@ -63,12 +63,13 @@ function getParam(name){
 var projectId = getParam("p");
 
 if(!projectId){
+    clearTimeout(timeout);
     document.getElementById("status").innerHTML = `
         <h1>Project Not Found</h1>
-        <p>No published website exists with ID <b>${projectId}</b>.</p>
+        <p>No published website exists with ID <b>null</b>.</p>
     `;
 }else{
-    const timeout = setTimeout(() => {
+    window.timeout = setTimeout(() => {
         document.getElementById("status").innerHTML = `
             <h1>408 Request Timeout</h1>
             <p>The server took too long to respond.</p>
@@ -80,6 +81,7 @@ if(!projectId){
         .then(function(snapshot){
             if(!snapshot.exists()){
                 document.getElementById("status").innerHTML = `
+                    clearTimeout(timeout);
                     <h1>Project Not Found</h1>
                     <p>No published website exists with ID <b>${projectId}</b>.</p>
                 `;
@@ -87,6 +89,7 @@ if(!projectId){
             }
             var data = snapshot.val();
             if(!data.content){
+                clearTimeout(timeout);
                 document.getElementById("status").innerHTML = `
                     <h1>Invalid Project</h1>
                     <p>This project contains no HTML.</p>
@@ -99,6 +102,7 @@ if(!projectId){
             document.close();
         })
         .catch(function(error){
+            clearTimeout(timeout);
             document.getElementById("status").innerHTML = `
                 <h1>Error</h1>
                 <p>${error.message}</p>
