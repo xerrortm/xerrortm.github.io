@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ERROR Inc.</title>
+	<head>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>ERROR Inc.</title>
 <style>
 body{
     margin:0;
@@ -34,15 +34,16 @@ body{
         transform:rotate(360deg);
     }
 }
-</style>
+	</style>
 </head>
 <body>
-<div id="status">
-    <div class="spinner"></div>
-</div>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+	<div id="status">
+		<div class="spinner"></div>
+	</div>
+	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+	<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
+var timeout;
 var firebaseConfig = {
     apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
     authDomain: "error-inc.firebaseapp.com",
@@ -52,16 +53,12 @@ var firebaseConfig = {
     messagingSenderId: "876188868410",
     appId: "1:876188868410:web:ca7de451707bd9975c7a03"
 };
-
 firebase.initializeApp(firebaseConfig);
-
 function getParam(name){
     var params = new URLSearchParams(window.location.search);
     return params.get(name);
 }
-
 var projectId = getParam("p");
-
 if(!projectId){
     clearTimeout(timeout);
     document.getElementById("status").innerHTML = `
@@ -69,7 +66,7 @@ if(!projectId){
         <p>No published website exists with ID <b>null</b>.</p>
     `;
 }else{
-    window.timeout = setTimeout(() => {
+    timeout = setTimeout(() => {
         document.getElementById("status").innerHTML = `
             <h1>408 Request Timeout</h1>
             <p>The server took too long to respond.</p>
