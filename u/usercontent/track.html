@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AeroTrack Pro | Live Global Flight Tracking</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        glass: {
+                            100: 'rgba(15, 23, 42, 0.4)',
+                            200: 'rgba(15, 23, 42, 0.6)',
+                            300: 'rgba(15, 23, 42, 0.8)'
+                        },
+                        accent: {
+                            DEFAULT: '#3B82F6',
+                            hover: '#2563EB',
+                            glow: 'rgba(59, 130, 246, 0.5)'
+                        }
+                    },
+                    boxShadow: {
+                        'glass': '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                        'glow': '0 0 15px rgba(59, 130, 246, 0.5)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #020617; /* Slate 950 */
+            color: #f8fafc;
+            overflow: hidden;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+        /* Leaflet Overrides for Dark/Glass Theme */
+        .leaflet-container { background: #020617 !important; font-family: 'Inter', sans-serif; }
+        .leaflet-bar a { background-color: rgba(30, 41, 59, 0.8) !important; color: #f8fafc !important; border-bottom: 1px solid #334155 !important; backdrop-filter: blur(8px); }
+        .leaflet-bar a:hover { background-color: #3B82F6 !important; }
+        .leaflet-control-attribution { background: rgba(15, 23, 42, 0.7) !important; color: #94a3b8 !important; backdrop-filter: blur(4px); }
+        .leaflet-control-attribution a { color: #3B82F6 !important; }
+
+        /* Marker Styles */
+        .aircraft-marker {
+            width: 24px;
+            height: 24px;
+            margin-left: -12px;
+            margin-top: -12px;
+            transition: filter 0.2s;
+            pointer-events: auto !important;
+            cursor: pointer;
+        }
+        .plane-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform-origin: center center;
+            will-change: transform;
+        }
+        .plane-icon {
+            fill: #94a3b8; /* Default Slate 400 */
+            stroke: #0f172a;
+            stroke-width: 1px;
+            filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5));
+            transition: fill 0.3s, transform 0.3s;
+        }
+        
+        /* Selected State */
+        .aircraft-marker.selected .plane-wrapper { z-index: 1000; }
+        .aircraft-marker.selected .plane-icon {
+            fill: #3B82F6; /* Accent Blue */
+            filter: drop-shadow(0px 0px 8px rgba(59, 130, 246, 0.8));
+            transform: scale(1.4);
+        }
+
+        /* Hover State */
+        .aircraft-marker:hover .plane-icon { fill: #60a5fa; transform: scale(1.2); z-index: 900; }
+
+        /* Glass Panels */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(59, 130, 246, 0.2);
+            border-top-color: #3B82F6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Table Transitions */
+        .table-row-anim { transition: background-color 0.2s, transform 0.1s; }
+        .table-row-anim:active { transform: scale(0.99); }
+
+        /* Animations */
+        .fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="flex flex-col h-screen w-screen selection:bg-accent selection:text-white antialiased">
+
+    <!-- Initial Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-slate-950 transition-opacity duration-500">
+        <div class="relative w-24 h-24 mb-6">
+            <div class="absolute inset-0 border-t-4 border-b-4 border-accent rounded-full animate-spin"></div>
+            <div class="absolute inset-2 border-l-4 border-r-4 border-blue-400 rounded-full animate-[spin_1.5s_reverse_infinite]"></div>
+            <svg class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M22,16L22,16v-2.1c0-0.3-0.2-0.5-0.5-0.6L14,9.5V3.3c0-0.7-0.6-1.3-1.3-1.3s-1.3,0.6-1.3,1.3v6.2L3.8,13.3c-0.2,0.1-0.4,0.3-0.4,0.5V16l0,0c0,0.1,0.1,0.2,0.2,0.3c0.1,0,0.2,0,0.3,0l7.3-2.3v5.1l-1.9,1.4c-0.1,0.1-0.2,0.3-0.2,0.5v1.4l0,0c0,0.2,0.2,0.3,0.4,0.2L12,21.6l2.6,1.1c0.2,0.1,0.4,0,0.4-0.2l0,0v-1.4c0-0.2-0.1-0.4-0.2-0.5l-1.9-1.4v-5.1l7.3,2.3c0.1,0,0.2,0,0.3,0C21.9,16.2,22,16.1,22,16z"/>
+            </svg>
+        </div>
+        <h1 class="text-3xl font-bold tracking-wider text-white mb-2 shadow-glow">AeroTrack<span class="text-accent">Pro</span></h1>
+        <p class="text-slate-400 animate-pulse">Establishing connection to global radar...</p>
+    </div>
+
+    <!-- Header Navigation -->
+    <header class="glass-panel z-50 px-6 py-3 flex flex-wrap items-center justify-between shadow-glass sticky top-0">
+        <div class="flex items-center gap-3 mr-4">
+            <svg class="w-8 h-8 text-accent drop-shadow-glow" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M22,16L22,16v-2.1c0-0.3-0.2-0.5-0.5-0.6L14,9.5V3.3c0-0.7-0.6-1.3-1.3-1.3s-1.3,0.6-1.3,1.3v6.2L3.8,13.3c-0.2,0.1-0.4,0.3-0.4,0.5V16l0,0c0,0.1,0.1,0.2,0.2,0.3c0.1,0,0.2,0,0.3,0l7.3-2.3v5.1l-1.9,1.4c-0.1,0.1-0.2,0.3-0.2,0.5v1.4l0,0c0,0.2,0.2,0.3,0.4,0.2L12,21.6l2.6,1.1c0.2,0.1,0.4,0,0.4-0.2l0,0v-1.4c0-0.2-0.1-0.4-0.2-0.5l-1.9-1.4v-5.1l7.3,2.3c0.1,0,0.2,0,0.3,0C21.9,16.2,22,16.1,22,16z"/>
+            </svg>
+            <h1 class="text-xl font-bold tracking-wide hidden sm:block">AeroTrack<span class="text-accent">Pro</span></h1>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="flex-1 max-w-md relative group mr-4">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-slate-400 group-focus-within:text-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <input type="text" id="search-input" class="block w-full pl-10 pr-3 py-2 bg-slate-800/50 border border-slate-600 rounded-xl text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition-all backdrop-blur-sm" placeholder="Search by Callsign, ICAO24 or Country...">
+        </div>
+
+        <!-- System Status -->
+        <div class="flex items-center gap-6 text-sm">
+            <div class="flex flex-col items-end">
+                <div class="flex items-center gap-2">
+                    <span class="relative flex h-3 w-3">
+                        <span id="pulse-dot" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                    </span>
+                    <span id="system-status" class="text-slate-300 font-medium">Live Server</span>
+                </div>
+                <span class="text-xs text-slate-500">Next update in <span id="refresh-timer" class="text-accent font-bold">5</span>s</span>
+            </div>
+            <button id="refresh-btn" class="p-2 bg-slate-800 hover:bg-slate-700 rounded-lg border border-slate-600 transition-colors" title="Force Refresh">
+                <svg class="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Global Stats Bar -->
+    <div class="glass-panel border-t-0 z-40 px-6 py-2 flex gap-6 overflow-x-auto whitespace-nowrap scrollbar-hide text-xs sm:text-sm shadow-md">
+        <div class="flex items-center gap-2"><span class="text-slate-400">Total Aircraft:</span> <span id="stat-total" class="font-bold text-white">0</span></div>
+        <div class="w-px h-4 bg-slate-700"></div>
+        <div class="flex items-center gap-2"><span class="text-slate-400">Airborne:</span> <span id="stat-flying" class="font-bold text-green-400">0</span></div>
+        <div class="w-px h-4 bg-slate-700"></div>
+        <div class="flex items-center gap-2"><span class="text-slate-400">On Ground:</span> <span id="stat-ground" class="font-bold text-orange-400">0</span></div>
+        <div class="w-px h-4 bg-slate-700"></div>
+        <div class="flex items-center gap-2"><span class="text-slate-400">Avg Speed:</span> <span id="stat-speed" class="font-bold text-white">0 km/h</span></div>
+        <div class="w-px h-4 bg-slate-700"></div>
+        <div class="flex items-center gap-2"><span class="text-slate-400">Avg Altitude:</span> <span id="stat-alt" class="font-bold text-white">0 ft</span></div>
+    </div>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col md:flex-row overflow-hidden relative">
+        
+        <!-- Interactive Map Container -->
+        <div id="map" class="flex-1 h-full w-full bg-slate-900 z-10"></div>
+
+        <!-- Right Information Panel -->
+        <aside id="info-panel" class="w-full md:w-[400px] h-full flex flex-col glass-panel border-l border-slate-700 z-30 absolute md:relative right-0 transform translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out">
+            
+            <!-- Panel Header -->
+            <div class="p-4 border-b border-slate-700 flex justify-between items-center bg-slate-800/40">
+                <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                    <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Flight Details
+                </h2>
+                <div class="flex gap-2">
+                    <button id="btn-follow" class="p-1.5 rounded-md bg-slate-700 hover:bg-slate-600 text-slate-300 transition" title="Follow Aircraft">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    </button>
+                    <button id="close-panel-btn" class="md:hidden p-1.5 rounded-md bg-slate-700 hover:bg-red-500 hover:text-white text-slate-300 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                
+                <!-- Empty State -->
+                <div id="info-empty" class="h-full flex flex-col items-center justify-center text-center text-slate-400 space-y-4">
+                    <div class="w-20 h-20 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
+                        <svg class="w-10 h-10 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                        <p class="text-lg font-medium text-slate-300 mb-1">No Aircraft Selected</p>
+                        <p class="text-sm">Click an aircraft on the map or select one from the list below to view its live data.</p>
+                    </div>
+                </div>
+
+                <!-- Data Content (Hidden initially) -->
+                <div id="info-content" class="hidden space-y-6 fade-in">
+                    
+                    <!-- Identification Card -->
+                    <div class="bg-slate-800/60 rounded-xl p-4 border border-slate-700 shadow-sm">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h3 id="panel-callsign" class="text-3xl font-bold text-white tracking-tight">N/A</h3>
+                                <p class="text-sm text-slate-400 mt-1 flex items-center gap-1">
+                                    <span id="panel-country">Unknown</span>
+                                    <img id="panel-flag" src="" class="h-3 rounded-sm hidden" alt="flag">
+                                </p>
+                            </div>
+                            <span id="panel-status-badge" class="px-3 py-1 text-xs font-semibold rounded-full bg-green-500/20 text-green-400 border border-green-500/30">Airborne</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mt-4 text-sm">
+                            <div class="group relative cursor-pointer" onclick="copyToClipboard('panel-icao', 'ICAO')">
+                                <p class="text-slate-500 text-xs mb-1 uppercase tracking-wider">ICAO24</p>
+                                <p id="panel-icao" class="font-mono text-slate-200 bg-slate-900/50 p-1.5 rounded border border-slate-700 group-hover:border-accent transition">N/A</p>
+                            </div>
+                            <div>
+                                <p class="text-slate-500 text-xs mb-1 uppercase tracking-wider">Squawk</p>
+                                <p id="panel-squawk" class="font-mono text-slate-200 bg-slate-900/50 p-1.5 rounded border border-slate-700">N/A</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Telemetry Card -->
+                    <div class="space-y-4">
+                        <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-widest pl-1">Flight Telemetry</h4>
+                        
+                        <div class="grid grid-cols-2 gap-3">
+                            <!-- Altitude -->
+                            <div class="bg-slate-800/40 rounded-xl p-3 border border-slate-700/50">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11l7-7 7 7M5 19l7-7 7 7"></path></svg>
+                                    <span class="text-xs text-slate-400">Altitude</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span id="panel-alt-ft" class="text-lg font-bold text-white">0 ft</span>
+                                    <span id="panel-alt-m" class="text-xs text-slate-500">0 m</span>
+                                </div>
+                            </div>
+
+                            <!-- Speed -->
+                            <div class="bg-slate-800/40 rounded-xl p-3 border border-slate-700/50">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                                    <span class="text-xs text-slate-400">Ground Speed</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span id="panel-spd-kmh" class="text-lg font-bold text-white">0 km/h</span>
+                                    <span class="text-xs text-slate-500"><span id="panel-spd-mph">0</span> mph • <span id="panel-spd-ms">0</span> m/s</span>
+                                </div>
+                            </div>
+
+                            <!-- Heading -->
+                            <div class="bg-slate-800/40 rounded-xl p-3 border border-slate-700/50">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
+                                    <span class="text-xs text-slate-400">Track</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div id="panel-compass-icon" class="transform transition-transform duration-500">
+                                        <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L16 20L12 17L8 20L12 2Z"></path></svg>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span id="panel-trk-deg" class="text-lg font-bold text-white">0°</span>
+                                        <span id="panel-trk-dir" class="text-xs text-slate-500">North</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Vertical Rate -->
+                            <div class="bg-slate-800/40 rounded-xl p-3 border border-slate-700/50">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <svg class="w-4 h-4 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                                    <span class="text-xs text-slate-400">Vertical Rate</span>
+                                </div>
+                                <div class="flex flex-col">
+                                    <span id="panel-vrate" class="text-lg font-bold text-white">0 m/s</span>
+                                    <span id="panel-vrate-indicator" class="text-xs text-slate-500">Level</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Location Card -->
+                    <div class="space-y-4">
+                        <h4 class="text-xs font-semibold text-slate-400 uppercase tracking-widest pl-1">Live Position</h4>
+                        <div class="bg-slate-800/40 rounded-xl p-4 border border-slate-700/50">
+                            <div class="flex justify-between border-b border-slate-700/50 pb-2 mb-2">
+                                <span class="text-sm text-slate-400">Latitude</span>
+                                <span id="panel-lat" class="text-sm font-mono text-white">0.0000</span>
+                            </div>
+                            <div class="flex justify-between border-b border-slate-700/50 pb-2 mb-2">
+                                <span class="text-sm text-slate-400">Longitude</span>
+                                <span id="panel-lng" class="text-sm font-mono text-white">0.0000</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-sm text-slate-400">Last Update</span>
+                                <span id="panel-update-time" class="text-sm text-white">Just now</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Bottom Data Table -->
+    <div id="bottom-panel" class="h-64 glass-panel border-t border-slate-700 flex flex-col z-40 transition-all duration-300">
+        
+        <!-- Table Toolbar -->
+        <div class="p-2 border-b border-slate-700 flex justify-between items-center bg-slate-800/50">
+            <div class="flex items-center gap-3 pl-2">
+                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+                <h3 class="text-sm font-medium text-slate-200">Live Aircraft Feed <span class="text-xs text-slate-500 font-normal ml-2">(Showing visible on map)</span></h3>
+            </div>
+            
+            <!-- Filters -->
+            <div class="flex gap-2">
+                <button id="filter-all" class="px-3 py-1 text-xs font-medium rounded bg-accent text-white transition">All</button>
+                <button id="filter-air" class="px-3 py-1 text-xs font-medium rounded bg-slate-700 text-slate-300 hover:bg-slate-600 transition">Airborne</button>
+                <button id="filter-gnd" class="px-3 py-1 text-xs font-medium rounded bg-slate-700 text-slate-300 hover:bg-slate-600 transition">Ground</button>
+                <button id="toggle-table-btn" class="ml-2 p-1 text-slate-400 hover:text-white">
+                    <svg class="w-5 h-5 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="flex-1 overflow-auto custom-scrollbar relative">
+            <table class="w-full text-left text-sm text-slate-300">
+                <thead class="text-xs text-slate-400 uppercase bg-slate-900/80 sticky top-0 z-10 shadow-sm backdrop-blur">
+                    <tr>
+                        <th scope="col" class="px-4 py-3 cursor-pointer hover:text-white group" data-sort="callsign">Callsign <span class="opacity-0 group-hover:opacity-100">↕</span></th>
+                        <th scope="col" class="px-4 py-3 cursor-pointer hover:text-white group" data-sort="country">Country <span class="opacity-0 group-hover:opacity-100">↕</span></th>
+                        <th scope="col" class="px-4 py-3 cursor-pointer hover:text-white group" data-sort="altitude">Altitude <span class="opacity-0 group-hover:opacity-100">↕</span></th>
+                        <th scope="col" class="px-4 py-3 cursor-pointer hover:text-white group" data-sort="speed">Speed <span class="opacity-0 group-hover:opacity-100">↕</span></th>
+                        <th scope="col" class="px-4 py-3 cursor-pointer hover:text-white group hidden sm:table-cell" data-sort="track">Track <span class="opacity-0 group-hover:opacity-100">↕</span></th>
+                        <th scope="col" class="px-4 py-3 text-center">Status</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body" class="divide-y divide-slate-700/50">
+                    <!-- Rows rendered via JS -->
+                </tbody>
+            </table>
+            <!-- Empty Table State -->
+            <div id="table-empty" class="hidden absolute inset-0 flex flex-col items-center justify-center text-slate-500">
+                <div class="spinner mb-2"></div>
+                <p>Waiting for radar data...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Toast -->
+    <div id="error-toast" class="fixed bottom-4 right-4 max-w-sm bg-red-900/90 border border-red-500/50 text-white p-4 rounded-xl shadow-glass transform translate-y-24 opacity-0 transition-all duration-300 z-[9999] backdrop-blur">
+        <div class="flex items-start gap-3">
+            <svg class="w-6 h-6 text-red-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+            <div>
+                <h4 class="font-bold text-sm">Connection Error</h4>
+                <p id="error-message" class="text-xs mt-1 text-red-200">Unable to fetch live data. Retrying...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script>
+        /**
+         * AeroTrack Pro - Core Application Logic
+         * Modular architecture contained within a single IIFE namespace.
+         */
+        const App = (function() {
+            
+            // --- Configuration & Constants ---
+            const CONFIG = {
+                API_URL: 'https://opensky-network.org/api/states/all',
+                UPDATE_INTERVAL: 5000, // 5 seconds
+                MAX_RENDERED_MARKERS: 1500, // Performance limit for DOM markers
+                TABLE_LIMIT: 100, // Limit table rows to prevent lag
+            };
+
+            // --- State Management ---
+            const State = {
+                aircraft: new Map(), // icao24 -> data object
+                markers: new Map(),  // icao24 -> { marker, targetLat, targetLng, startLat, startLng, startTime, isAnimating }
+                selectedIcao: null,
+                isFollowing: false,
+                filterMode: 'all', // all, air, gnd
+                searchQuery: '',
+                sortCol: 'altitude',
+                sortAsc: false,
+                lastFetchTime: 0,
+                timerCountdown: 5,
+                mapBounds: null,
+                isRateLimited: false
+            };
+
+            // --- DOM Elements ---
+            const DOM = {
+                map: document.getElementById('map'),
+                loading: document.getElementById('loading-overlay'),
+                pulse: document.getElementById('pulse-dot'),
+                timer: document.getElementById('refresh-timer'),
+                status: document.getElementById('system-status'),
+                
+                // Stats
+                statTotal: document.getElementById('stat-total'),
+                statFlying: document.getElementById('stat-flying'),
+                statGround: document.getElementById('stat-ground'),
+                statSpeed: document.getElementById('stat-speed'),
+                statAlt: document.getElementById('stat-alt'),
+                
+                // Panel
+                panel: document.getElementById('info-panel'),
+                panelEmpty: document.getElementById('info-empty'),
+                panelContent: document.getElementById('info-content'),
+                btnFollow: document.getElementById('btn-follow'),
+                
+                // Table
+                tableBody: document.getElementById('table-body'),
+                tableEmpty: document.getElementById('table-empty'),
+                bottomPanel: document.getElementById('bottom-panel'),
+                searchInput: document.getElementById('search-input'),
+                
+                // Error
+                errorToast: document.getElementById('error-toast'),
+                errMsg: document.getElementById('error-message')
+            };
+
+            let mapInstance = null;
+            let updateIntervalId = null;
+            let countdownIntervalId = null;
+            let animationFrameId = null;
+
+            // --- Utility Functions ---
+            const Utils = {
+                metersToFeet: (m) => Math.round(m * 3.28084),
+                msToKmh: (ms) => Math.round(ms * 3.6),
+                msToMph: (ms) => Math.round(ms * 2.23694),
+                getCompassDir: (deg) => {
+                    if (deg === null || deg === undefined) return 'N/A';
+                    const val = Math.floor((deg / 22.5) + 0.5);
+                    const arr = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+                    return arr[(val % 16)];
+                },
+                formatNumber: (num) => new Intl.NumberFormat('en-US').format(num),
+                showError: (msg) => {
+                    DOM.errMsg.textContent = msg;
+                    DOM.errorToast.classList.remove('translate-y-24', 'opacity-0');
+                    setTimeout(() => DOM.errorToast.classList.add('translate-y-24', 'opacity-0'), 4000);
+                },
+                getPlaneSVG: () => `<svg class="plane-icon" viewBox="0 0 24 24"><path d="M21,16V14L13,9V3.5C13,2.67 12.33,2 11.5,2C10.67,2 10,2.67 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z"/></svg>`,
+                copyText: (id, name) => {
+                    const text = document.getElementById(id).innerText;
+                    if(text && text !== 'N/A') {
+                        navigator.clipboard.writeText(text).then(() => {
+                            // Simple inline visual feedback
+                            const el = document.getElementById(id);
+                            const origBg = el.style.backgroundColor;
+                            el.style.backgroundColor = 'rgba(16, 185, 129, 0.3)'; // green
+                            setTimeout(() => el.style.backgroundColor = origBg, 300);
+                        }).catch(err => {
+                            // Fallback
+                            const textArea = document.createElement("textarea");
+                            textArea.value = text;
+                            document.body.appendChild(textArea);
+                            textArea.select();
+                            try { document.execCommand('copy'); } catch (err) {}
+                            document.body.removeChild(textArea);
+                        });
+                    }
+                }
+            };
+            
+            // Expose globally for inline HTML handlers
+            window.copyToClipboard = Utils.copyText;
+
+            // --- Map Management ---
+            const MapController = {
+                init: () => {
+                    // Default to center of US/Europe depending on typical density, let's use a global view centered on Atlantic
+                    mapInstance = L.map('map', {
+                        center: [40, -40],
+                        zoom: 3,
+                        zoomControl: false,
+                        worldCopyJump: true,
+                        preferCanvas: true // Performance boost for vectors
+                    });
+
+                    // Premium dark tiles
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+                        subdomains: 'abcd',
+                        maxZoom: 19
+                    }).addTo(mapInstance);
+
+                    L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
+
+                    // Update bounds on move end to lazy-load markers
+                    mapInstance.on('moveend', () => {
+                        State.mapBounds = mapInstance.getBounds().pad(0.5); // Pad by 50% to load slightly off-screen
+                        MapController.cullMarkers();
+                        UIController.renderTable();
+                        
+                        if (State.isFollowing && State.selectedIcao) {
+                            // If user manually pans, break follow mode
+                            State.isFollowing = false;
+                            DOM.btnFollow.classList.remove('bg-accent', 'text-white');
+                            DOM.btnFollow.classList.add('bg-slate-700', 'text-slate-300');
+                        }
+                    });
+                    
+                    // Initial bounds setup
+                    State.mapBounds = mapInstance.getBounds().pad(0.5);
+                },
+
+                createIcon: (heading) => {
+                    return L.divIcon({
+                        className: 'aircraft-marker',
+                        html: `<div class="plane-wrapper" style="transform: rotate(${heading || 0}deg)">${Utils.getPlaneSVG()}</div>`,
+                        iconSize: [24, 24],
+                        iconAnchor: [12, 12]
+                    });
+                },
+
+                handleMarkerClick: (icao24) => {
+                    State.selectedIcao = icao24;
+                    UIController.updateSidebar();
+                    MapController.highlightSelected();
+                    
+                    // Auto-pan
+                    const plane = State.aircraft.get(icao24);
+                    if (plane && plane.lat && plane.lng) {
+                        mapInstance.panTo([plane.lat, plane.lng]);
+                    }
+                    
+                    // Mobile panel open
+                    if(window.innerWidth < 768) {
+                        DOM.panel.classList.remove('translate-x-full');
+                    }
+                },
+
+                highlightSelected: () => {
+                    State.markers.forEach((data, icao) => {
+                        if (data.marker) {
+                            const el = data.marker.getElement();
+                            if (el) {
+                                if (icao === State.selectedIcao) {
+                                    el.classList.add('selected');
+                                } else {
+                                    el.classList.remove('selected');
+                                }
+                            }
+                        }
+                    });
+                },
+
+                // Only render markers within the padded bounds to maintain 60fps
+                cullMarkers: () => {
+                    if (!State.mapBounds) return;
+                    let renderedCount = 0;
+
+                    State.aircraft.forEach((plane, icao) => {
+                        // Check if passes filters
+                        const passesFilter = FilterController.check(plane);
+                        const hasPos = plane.lat !== null && plane.lng !== null;
+                        
+                        // Check bounds
+                        const inBounds = hasPos && State.mapBounds.contains([plane.lat, plane.lng]);
+                        
+                        let markerData = State.markers.get(icao);
+
+                        if (hasPos && passesFilter && inBounds && renderedCount < CONFIG.MAX_RENDERED_MARKERS) {
+                            // Should be on map
+                            renderedCount++;
+                            if (!markerData) {
+                                // Create new marker
+                                const marker = L.marker([plane.lat, plane.lng], { 
+                                    icon: MapController.createIcon(plane.heading),
+                                    title: plane.callsign
+                                }).addTo(mapInstance);
+                                
+                                marker.on('click', () => MapController.handleMarkerClick(icao));
+                                
+                                markerData = { marker, targetLat: plane.lat, targetLng: plane.lng, isAnimating: false };
+                                State.markers.set(icao, markerData);
+                                
+                                if (icao === State.selectedIcao) marker.getElement()?.classList.add('selected');
+                            } else {
+                                // Exists, update target for animation
+                                if (markerData.targetLat !== plane.lat || markerData.targetLng !== plane.lng) {
+                                    markerData.startLat = markerData.marker.getLatLng().lat;
+                                    markerData.startLng = markerData.marker.getLatLng().lng;
+                                    markerData.targetLat = plane.lat;
+                                    markerData.targetLng = plane.lng;
+                                    markerData.startTime = performance.now();
+                                    markerData.isAnimating = true;
+                                    
+                                    // Update rotation immediately
+                                    const el = markerData.marker.getElement();
+                                    if(el) {
+                                        const wrapper = el.querySelector('.plane-wrapper');
+                                        if (wrapper) wrapper.style.transform = `rotate(${plane.heading || 0}deg)`;
+                                    }
+                                }
+                            }
+                        } else {
+                            // Should not be on map (out of bounds, filtered, or over limit)
+                            if (markerData) {
+                                mapInstance.removeLayer(markerData.marker);
+                                State.markers.delete(icao);
+                            }
+                        }
+                    });
+                },
+
+                // Animation loop using requestAnimationFrame
+                animateLoop: (time) => {
+                    const duration = CONFIG.UPDATE_INTERVAL; // Complete animation over the fetch interval
+                    
+                    State.markers.forEach((data, icao) => {
+                        if (data.isAnimating) {
+                            let progress = (time - data.startTime) / duration;
+                            if (progress >= 1) progress = 1;
+                            
+                            // Linear interpolation
+                            const currentLat = data.startLat + (data.targetLat - data.startLat) * progress;
+                            const currentLng = data.startLng + (data.targetLng - data.startLng) * progress;
+                            
+                            data.marker.setLatLng([currentLat, currentLng]);
+                            
+                            if (progress === 1) data.isAnimating = false;
+                        }
+                    });
+                    
+                    // Handle follow mode
+                    if (State.isFollowing && State.selectedIcao) {
+                        const markerData = State.markers.get(State.selectedIcao);
+                        if (markerData) {
+                            mapInstance.panTo(markerData.marker.getLatLng(), { animate: false });
+                        }
+                    }
+
+                    animationFrameId = requestAnimationFrame(MapController.animateLoop);
+                }
+            };
+
+            // --- Data Management ---
+            const DataController = {
+                fetchOpensky: async () => {
+                    try {
+                        DOM.pulse.classList.replace('bg-green-400', 'bg-yellow-400');
+                        DOM.status.textContent = 'Updating...';
+                        
+                        // Add bounding box if we have a current view to avoid 30MB payload and 429 errors from OpenSky
+                        // Fallback to global if zoomed out
+                        let url = CONFIG.API_URL;
+                        if (State.mapBounds) {
+                            const b = State.mapBounds;
+                            const zoom = mapInstance.getZoom();
+                            // Only restrict by bounds if zoomed in enough to prevent huge area queries
+                            if (zoom > 4) {
+                                url += `?lamin=${b.getSouth()}&lomin=${b.getWest()}&lamax=${b.getNorth()}&lomax=${b.getEast()}`;
+                            }
+                        }
+
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 8000); // 8s timeout
+console.log(url);
+                        const response = await fetch(url, { signal: controller.signal })
+.then(r=>console.log(r.status))
+.catch(console.error)
+                        clearTimeout(timeoutId);
+
+                        if (response.status === 429) {
+                            throw new Error("Rate Limited by OpenSky");
+                        }
+                        if (!response.ok) throw new Error("API returned " + response.status);
+                        
+                        const data = await response.json();
+                        State.isRateLimited = false;
+                        DataController.processData(data.states || []);
+                        
+                        DOM.pulse.classList.replace('bg-yellow-400', 'bg-green-400');
+                        DOM.pulse.classList.replace('bg-red-400', 'bg-green-400');
+                        DOM.status.textContent = 'Live Server';
+                        
+                    } catch (error) {
+    console.log("Error object:", error);
+    console.log("Name:", error.name);
+    console.log("Message:", error.message);
+    console.log("Stack:", error.stack);
+
+    if (error instanceof TypeError) {
+        console.log("Likely a network or CORS issue.");
+    }
+} finally {
+                        State.timerCountdown = CONFIG.UPDATE_INTERVAL / 1000;
+                        DOM.timer.textContent = State.timerCountdown;
+                        
+                        // Hide loading overlay on first successful or failed fetch
+                        if (DOM.loading.style.opacity !== '0') {
+                            DOM.loading.style.opacity = '0';
+                            setTimeout(() => DOM.loading.style.display = 'none', 500);
+                        }
+                    }
+                },
+
+                processData: (states) => {
+                    const now = Date.now();
+                    const newIcaos = new Set();
+                    
+                    let stats = { total: 0, air: 0, gnd: 0, altSum: 0, altCount: 0, spdSum: 0, spdCount: 0 };
+
+                    states.forEach(st => {
+                        const icao = st[0];
+                        newIcaos.add(icao);
+                        
+                        const plane = {
+                            icao24: icao,
+                            callsign: st[1] ? st[1].trim() : 'N/A',
+                            country: st[2] || 'Unknown',
+                            lastContact: st[4],
+                            lng: st[5],
+                            lat: st[6],
+                            alt: st[7] !== null ? st[7] : (st[13] !== null ? st[13] : null), // baro or geo
+                            onGround: st[8],
+                            velocity: st[9], // m/s
+                            heading: st[10], // true track
+                            vRate: st[11],
+                            squawk: st[14] || 'N/A',
+                            lastUpdate: now
+                        };
+
+                        State.aircraft.set(icao, plane);
+
+                        // Calculate Stats
+                        stats.total++;
+                        if (plane.onGround) stats.gnd++; else stats.air++;
+                        if (plane.alt !== null && !plane.onGround) { stats.altSum += plane.alt; stats.altCount++; }
+                        if (plane.velocity !== null && !plane.onGround) { stats.spdSum += plane.velocity; stats.spdCount++; }
+                    });
+
+                    // Remove stale aircraft (not seen in this update) 
+                    // Note: If using bounds API, we don't want to delete aircraft outside bounds.
+                    // To keep it simple and accurate, we clear aircraft older than 60s
+                    State.aircraft.forEach((plane, icao) => {
+                        if (now - plane.lastUpdate > 60000) {
+                            State.aircraft.delete(icao);
+                            const mData = State.markers.get(icao);
+                            if(mData) {
+                                mapInstance.removeLayer(mData.marker);
+                                State.markers.delete(icao);
+                            }
+                            if(State.selectedIcao === icao) {
+                                State.selectedIcao = null;
+                                UIController.updateSidebar();
+                            }
+                        }
+                    });
+
+                    // Update UI components
+                    UIController.updateStats(stats);
+                    MapController.cullMarkers();
+                    UIController.renderTable();
+                    if (State.selectedIcao) UIController.updateSidebar();
+                }
+            };
+
+            const FilterController = {
+                check: (plane) => {
+                    // Status Filter
+                    if (State.filterMode === 'air' && plane.onGround) return false;
+                    if (State.filterMode === 'gnd' && !plane.onGround) return false;
+                    
+                    // Search Filter (Callsign or ICAO)
+                    if (State.searchQuery) {
+                        const q = State.searchQuery.toLowerCase();
+                        const cs = plane.callsign.toLowerCase();
+                        const ic = plane.icao24.toLowerCase();
+                        const ct = plane.country.toLowerCase();
+                        if (!cs.includes(q) && !ic.includes(q) && !ct.includes(q)) return false;
+                    }
+                    return true;
+                }
+            };
+
+            // --- UI Management ---
+            const UIController = {
+                updateStats: (stats) => {
+                    DOM.statTotal.textContent = Utils.formatNumber(State.aircraft.size);
+                    DOM.statFlying.textContent = Utils.formatNumber(stats.air);
+                    DOM.statGround.textContent = Utils.formatNumber(stats.gnd);
+                    
+                    const avgSpd = stats.spdCount > 0 ? Math.round((stats.spdSum / stats.spdCount) * 3.6) : 0;
+                    const avgAlt = stats.altCount > 0 ? Math.round((stats.altSum / stats.altCount) * 3.28084) : 0;
+                    
+                    DOM.statSpeed.textContent = Utils.formatNumber(avgSpd) + ' km/h';
+                    DOM.statAlt.textContent = Utils.formatNumber(avgAlt) + ' ft';
+                },
+
+                updateSidebar: () => {
+                    if (!State.selectedIcao) {
+                        DOM.panelEmpty.classList.remove('hidden');
+                        DOM.panelContent.classList.add('hidden');
+                        return;
+                    }
+
+                    const plane = State.aircraft.get(State.selectedIcao);
+                    if (!plane) return; // Wait for data
+
+                    DOM.panelEmpty.classList.add('hidden');
+                    DOM.panelContent.classList.remove('hidden');
+
+                    // Identification
+                    document.getElementById('panel-callsign').textContent = plane.callsign || 'UNKNOWN';
+                    document.getElementById('panel-country').textContent = plane.country;
+                    document.getElementById('panel-icao').textContent = plane.icao24.toUpperCase();
+                    document.getElementById('panel-squawk').textContent = plane.squawk;
+
+                    // Status Badge
+                    const badge = document.getElementById('panel-status-badge');
+                    if (plane.onGround) {
+                        badge.textContent = 'On Ground';
+                        badge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/30';
+                    } else {
+                        badge.textContent = 'Airborne';
+                        badge.className = 'px-3 py-1 text-xs font-semibold rounded-full bg-green-500/20 text-green-400 border border-green-500/30';
+                    }
+
+                    // Altitude
+                    const altM = plane.alt || 0;
+                    document.getElementById('panel-alt-ft').textContent = Utils.formatNumber(Utils.metersToFeet(altM)) + ' ft';
+                    document.getElementById('panel-alt-m').textContent = Utils.formatNumber(Math.round(altM)) + ' m';
+
+                    // Speed
+                    const spdMs = plane.velocity || 0;
+                    document.getElementById('panel-spd-kmh').textContent = Utils.formatNumber(Utils.msToKmh(spdMs)) + ' km/h';
+                    document.getElementById('panel-spd-mph').textContent = Utils.formatNumber(Utils.msToMph(spdMs));
+                    document.getElementById('panel-spd-ms').textContent = Math.round(spdMs);
+
+                    // Track
+                    const trk = plane.heading || 0;
+                    document.getElementById('panel-trk-deg').textContent = Math.round(trk) + '°';
+                    document.getElementById('panel-trk-dir').textContent = Utils.getCompassDir(trk);
+                    document.getElementById('panel-compass-icon').style.transform = `rotate(${trk}deg)`;
+
+                    // Vertical Rate
+                    const vR = plane.vRate || 0;
+                    document.getElementById('panel-vrate').textContent = vR.toFixed(1) + ' m/s';
+                    const vrInd = document.getElementById('panel-vrate-indicator');
+                    if (vR > 0.5) { vrInd.textContent = 'Climbing ↗'; vrInd.className = 'text-xs text-green-400'; }
+                    else if (vR < -0.5) { vrInd.textContent = 'Descending ↘'; vrInd.className = 'text-xs text-blue-400'; }
+                    else { vrInd.textContent = 'Level →'; vrInd.className = 'text-xs text-slate-500'; }
+
+                    // Location
+                    document.getElementById('panel-lat').textContent = plane.lat ? plane.lat.toFixed(4) : 'N/A';
+                    document.getElementById('panel-lng').textContent = plane.lng ? plane.lng.toFixed(4) : 'N/A';
+                    
+                    const timeDiff = Math.floor((Date.now() - plane.lastUpdate) / 1000);
+                    document.getElementById('panel-update-time').textContent = timeDiff <= 5 ? 'Just now' : `${timeDiff}s ago`;
+                },
+
+                renderTable: () => {
+                    DOM.tableBody.innerHTML = '';
+                    
+                    // Filter and convert Map to Array
+                    let list = [];
+                    State.aircraft.forEach(plane => {
+                        // Only show in table if it passes filter AND is visible on map (for performance and relevance)
+                        if (FilterController.check(plane)) {
+                            const inBounds = State.mapBounds && plane.lat && plane.lng && State.mapBounds.contains([plane.lat, plane.lng]);
+                            if (inBounds) list.push(plane);
+                        }
+                    });
+
+                    if (list.length === 0) {
+                        DOM.tableEmpty.classList.remove('hidden');
+                        DOM.tableEmpty.innerHTML = State.isRateLimited ? '<p>Rate limited. Waiting for next window...</p>' : '<p>No aircraft found in current view.</p>';
+                        return;
+                    } else {
+                        DOM.tableEmpty.classList.add('hidden');
+                    }
+
+                    // Sort
+                    list.sort((a, b) => {
+                        let valA = a[State.sortCol], valB = b[State.sortCol];
+                        // Handle nulls
+                        if (valA === null) valA = -99999; if (valB === null) valB = -99999;
+                        if (typeof valA === 'string') valA = valA.toLowerCase();
+                        if (typeof valB === 'string') valB = valB.toLowerCase();
+                        
+                        if (valA < valB) return State.sortAsc ? -1 : 1;
+                        if (valA > valB) return State.sortAsc ? 1 : -1;
+                        return 0;
+                    });
+
+                    // Render top N to prevent DOM lag
+                    const renderList = list.slice(0, CONFIG.TABLE_LIMIT);
+                    
+                    const fragment = document.createDocumentFragment();
+                    renderList.forEach(plane => {
+                        const tr = document.createElement('tr');
+                        tr.className = `table-row-anim border-b border-slate-700/50 hover:bg-slate-800/80 cursor-pointer ${State.selectedIcao === plane.icao24 ? 'bg-slate-800/80 border-l-2 border-l-accent' : ''}`;
+                        tr.onclick = () => MapController.handleMarkerClick(plane.icao24);
+
+                        // Callsign
+                        const tdCs = document.createElement('td');
+                        tdCs.className = 'px-4 py-3 font-medium text-white';
+                        tdCs.textContent = plane.callsign;
+                        
+                        // Country
+                        const tdCt = document.createElement('td');
+                        tdCt.className = 'px-4 py-3 text-slate-400 truncate max-w-[100px]';
+                        tdCt.textContent = plane.country;
+
+                        // Alt
+                        const tdAlt = document.createElement('td');
+                        tdAlt.className = 'px-4 py-3 font-mono';
+                        tdAlt.textContent = plane.alt ? Utils.formatNumber(Utils.metersToFeet(plane.alt)) + ' ft' : 'GND';
+
+                        // Spd
+                        const tdSpd = document.createElement('td');
+                        tdSpd.className = 'px-4 py-3 font-mono';
+                        tdSpd.textContent = plane.velocity ? Utils.formatNumber(Utils.msToKmh(plane.velocity)) + ' km/h' : '0';
+
+                        // Track
+                        const tdTrk = document.createElement('td');
+                        tdTrk.className = 'px-4 py-3 hidden sm:table-cell';
+                        tdTrk.textContent = plane.heading ? Math.round(plane.heading) + '° ' + Utils.getCompassDir(plane.heading) : '-';
+
+                        // Status
+                        const tdSt = document.createElement('td');
+                        tdSt.className = 'px-4 py-3 text-center';
+                        tdSt.innerHTML = plane.onGround 
+                            ? `<span class="inline-block w-2 h-2 rounded-full bg-orange-500 shadow-[0_0_5px_rgba(249,115,22,0.8)]"></span>`
+                            : `<span class="inline-block w-2 h-2 rounded-full bg-green-500 shadow-[0_0_5px_rgba(34,197,94,0.8)]"></span>`;
+
+                        tr.append(tdCs, tdCt, tdAlt, tdSpd, tdTrk, tdSt);
+                        fragment.appendChild(tr);
+                    });
+
+                    DOM.tableBody.appendChild(fragment);
+                },
+
+                setupEventListeners: () => {
+                    // Search
+                    DOM.searchInput.addEventListener('input', (e) => {
+                        State.searchQuery = e.target.value;
+                        MapController.cullMarkers();
+                        UIController.renderTable();
+                    });
+
+                    // Refresh Button
+                    document.getElementById('refresh-btn').addEventListener('click', () => {
+                        DataController.fetchOpensky();
+                        State.timerCountdown = CONFIG.UPDATE_INTERVAL / 1000;
+                    });
+
+                    // Filters
+                    const setFilter = (mode, el) => {
+                        State.filterMode = mode;
+                        ['filter-all', 'filter-air', 'filter-gnd'].forEach(id => {
+                            const btn = document.getElementById(id);
+                            btn.classList.remove('bg-accent', 'text-white');
+                            btn.classList.add('bg-slate-700', 'text-slate-300');
+                        });
+                        el.classList.remove('bg-slate-700', 'text-slate-300');
+                        el.classList.add('bg-accent', 'text-white');
+                        MapController.cullMarkers();
+                        UIController.renderTable();
+                    };
+
+                    document.getElementById('filter-all').addEventListener('click', (e) => setFilter('all', e.target));
+                    document.getElementById('filter-air').addEventListener('click', (e) => setFilter('air', e.target));
+                    document.getElementById('filter-gnd').addEventListener('click', (e) => setFilter('gnd', e.target));
+
+                    // Table Sorting
+                    document.querySelectorAll('th[data-sort]').forEach(th => {
+                        th.addEventListener('click', () => {
+                            const col = th.dataset.sort;
+                            // Map dataset names to State object keys
+                            const keyMap = { 'callsign': 'callsign', 'country': 'country', 'altitude': 'alt', 'speed': 'velocity', 'track': 'heading' };
+                            const targetKey = keyMap[col];
+
+                            if (State.sortCol === targetKey) {
+                                State.sortAsc = !State.sortAsc;
+                            } else {
+                                State.sortCol = targetKey;
+                                State.sortAsc = false; // Default desc for numbers usually
+                            }
+                            UIController.renderTable();
+                        });
+                    });
+
+                    // Follow Button
+                    DOM.btnFollow.addEventListener('click', () => {
+                        if (!State.selectedIcao) return;
+                        State.isFollowing = !State.isFollowing;
+                        if (State.isFollowing) {
+                            DOM.btnFollow.classList.remove('bg-slate-700', 'text-slate-300');
+                            DOM.btnFollow.classList.add('bg-accent', 'text-white');
+                            // Immediate pan
+                            const mData = State.markers.get(State.selectedIcao);
+                            if (mData) mapInstance.panTo(mData.marker.getLatLng());
+                        } else {
+                            DOM.btnFollow.classList.add('bg-slate-700', 'text-slate-300');
+                            DOM.btnFollow.classList.remove('bg-accent', 'text-white');
+                        }
+                    });
+
+                    // Close Panel (Mobile)
+                    document.getElementById('close-panel-btn').addEventListener('click', () => {
+                        DOM.panel.classList.add('translate-x-full');
+                    });
+
+                    // Toggle Bottom Table
+                    let tableOpen = true;
+                    document.getElementById('toggle-table-btn').addEventListener('click', (e) => {
+                        tableOpen = !tableOpen;
+                        if(tableOpen) {
+                            DOM.bottomPanel.classList.remove('h-12');
+                            DOM.bottomPanel.classList.add('h-64');
+                            e.currentTarget.querySelector('svg').style.transform = 'rotate(0deg)';
+                        } else {
+                            DOM.bottomPanel.classList.remove('h-64');
+                            DOM.bottomPanel.classList.add('h-12');
+                            e.currentTarget.querySelector('svg').style.transform = 'rotate(180deg)';
+                        }
+                    });
+
+                    // Timer Countdown
+                    countdownIntervalId = setInterval(() => {
+                        if (State.timerCountdown > 0) {
+                            State.timerCountdown--;
+                            DOM.timer.textContent = State.timerCountdown;
+                        } else {
+                            // Backup fetch trigger in case intervals drift
+                            DataController.fetchOpensky();
+                        }
+                    }, 1000);
+                }
+            };
+
+            // --- Initialization ---
+            const boot = () => {
+                MapController.init();
+                UIController.setupEventListeners();
+                
+                // Initial fetch
+                DataController.fetchOpensky();
+                
+                // Set main intervals
+                updateIntervalId = setInterval(DataController.fetchOpensky, CONFIG.UPDATE_INTERVAL);
+                animationFrameId = requestAnimationFrame(MapController.animateLoop);
+            };
+
+            return { start: boot };
+
+        })();
+
+        // Start App when DOM is ready
+        document.addEventListener('DOMContentLoaded', App.start);
+
+    </script>
+</body>
+</html>
