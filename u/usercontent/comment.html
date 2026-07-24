@@ -287,6 +287,7 @@
                 <option value="auto">Auto Detect</option>
                 <option value="javascript">JavaScript (JS / JSX)</option>
                 <option value="typescript">TypeScript (TS / TSX)</option>
+                <option value="fullhtml">Full HTML (HTML + CSS + JS)</option>
                 <option value="html">HTML / XHTML</option>
                 <option value="xml">XML / SVG</option>
                 <option value="css">CSS</option>
@@ -377,7 +378,7 @@
                 </div>
                 <div class="flex items-center gap-2 text-[11px] font-mono text-stone-500">
                     <span id="outputStatsMini">0 lines | 0 chars</span>
-                    <button onclick="swapInputOutput()" class="btn-paper px-2 py-0.5 rounded text-[11px]" title="Swap output back to input">🔀 Swap</button>
+                    <button onclick="swapInputOutput()" class="btn-paper px-2 py-0.5 rounded text-[11px]" title="Swap output back to input"><i class="fa-solid fa-rotate text-[10px]"> Swap</button>
                     <button onclick="triggerCopyOutput()" class="btn-paper px-2 py-0.5 rounded text-[11px] text-blue-800 font-semibold">Copy</button>
                 </div>
             </div>
@@ -480,6 +481,14 @@ const LANGUAGE_SIGNATURES = {
         { pattern: /<html[^>]*>/i, weight: 8 },
         { pattern: /<div|<p|<span|<head|<body|<script/i, weight: 5 },
         { pattern: /<!--[\s\S]*?-->/, weight: 6 }
+    ],
+    fullhtml: [
+        { pattern: /<!DOCTYPE\s+html/i, weight: 30 },
+        { pattern: /<html/i, weight: 20 },
+        { pattern: /<head/i, weight: 15 },
+        { pattern: /<body/i, weight: 15 },
+        { pattern: /<script[\s>]/i, weight: 20 },
+        { pattern: /<style[\s>]/i, weight: 20 }
     ],
     xml: [
         { pattern: /<\?xml\s+version/i, weight: 10 },
@@ -667,6 +676,8 @@ function removeCommentsFromCode(code, lang) {
         case 'html':
         case 'xml':
             return parseHTMLFamily(code);
+        case "fullhtml":
+            return parseFullHTML(code);
         case 'lua':
             return parseLuaFamily(code);
         case 'python':
@@ -1357,7 +1368,37 @@ function parseMatlabFamily(code) {
 
     return { cleanCode: result, commentsRemoved, charsRemoved };
 }
-
+function parseFullHTML(code) {
+    let totalComments = 0;
+    let totalChars = 0;
+    let html = parseHTMLFamily(code);
+    code = html.cleanCode;
+    totalComments += html.commentsRemoved;
+    totalChars += html.charsRemoved;
+    code = code.replace(
+        /<style\b[^>]*>([\s\S]*?)<\/style>/gi,
+        (match, css) => {
+            const result = parseCFamily(css, "css");
+            totalComments += result.commentsRemoved;
+            totalChars += result.charsRemoved;
+            return match.replace(css, result.cleanCode);
+        }
+    );
+    code = code.replace(
+        /<script\b[^>]*>([\s\S]*?)<\/script>/gi,
+        (match, js) => {
+            const result = parseCFamily(js, "javascript");
+            totalComments += result.commentsRemoved;
+            totalChars += result.charsRemoved;
+            return match.replace(js, result.cleanCode);
+        }
+    );
+    return {
+        cleanCode: code,
+        commentsRemoved: totalComments,
+        charsRemoved: totalChars
+    };
+}
 function cleanBlankLines(text, mode, trimTrailing) {
     const lines = text.split('\n');
     let blankRemovedCount = 0;
