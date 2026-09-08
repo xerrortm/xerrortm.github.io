@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>PHOTOHOP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Outfit:wght@900&display=swap" rel="stylesheet">
@@ -93,6 +93,37 @@
         ::-webkit-scrollbar-track { background: #f1f5f9; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 3px solid #f1f5f9; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* --- NEW: fullscreen photo viewer --- */
+        .vision-fullscreen {
+            position: fixed !important;
+            inset: 0 !important;
+            z-index: 130;
+            border-radius: 0 !important;
+            background: #000;
+        }
+        .vision-fullscreen img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain !important;
+            max-height: 100vh !important;
+        }
+
+        /* --- NEW: profile photo grid hover --- */
+        .profile-grid-item { transition: transform 0.3s ease; }
+        .profile-grid-item:hover { transform: scale(1.04); }
+
+        /* --- NEW: smoother touch scrolling for modals on iOS/mobile --- */
+        .momentum-scroll { -webkit-overflow-scrolling: touch; }
+
+        /* --- NEW: category / discover tiles --- */
+        .cat-tile { transition: transform 0.3s ease; }
+        .cat-tile:hover { transform: translateY(-4px); }
+
+        @media (max-width: 768px) {
+            #visionModal .max-w-6xl { gap: 1.5rem; }
+            #visionModal { padding: 1rem; }
+        }
     </style>
 </head>
 <body class="min-h-screen">
@@ -104,9 +135,11 @@
                 <span class="text-2xl font-display uppercase tracking-tight italic">PHOTO<span class="hype-text-gradient">HOP</span></span>
             </div>
             
-            <div class="flex items-center space-x-8">
+            <div class="flex items-center flex-wrap justify-center gap-x-8 gap-y-2">
                 <button onclick="switchTab('home')" id="tab-home" class="tab-btn active text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black">HOME</button>
                 <button onclick="switchTab('feed')" id="tab-feed" class="tab-btn text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black">ALL IMAGES</button>
+                <button onclick="switchTab('trending')" id="tab-trending" class="tab-btn text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black">TRENDING</button>
+                <button onclick="switchTab('discover')" id="tab-discover" class="tab-btn text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black">DISCOVER</button>
             </div>
 
             <div class="flex items-center space-x-4">
@@ -121,7 +154,7 @@
         </div>
     </nav>
 
-    <main class="pt-32 px-6 max-w-7xl mx-auto space-y-20 pb-32">
+    <main class="pt-40 md:pt-32 px-6 max-w-7xl mx-auto space-y-20 pb-32">
         
         <!-- HOME VIEW -->
         <div id="view-home" class="space-y-20">
@@ -141,6 +174,23 @@
                             LIKE IMAGE
                         </button>
                     </div>
+                </div>
+            </section>
+
+            <!-- NEW: WEEKLY THEME BANNER -->
+            <section class="glass p-10 rounded-[3rem] aura-shadow">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+                    <div>
+                        <span class="px-4 py-1.5 bg-purple-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full">🎉 THIS WEEK'S THEME</span>
+                        <h2 class="text-4xl md:text-5xl font-display uppercase italic mt-4"><span class="weekly-theme-name hype-text-gradient">—</span></h2>
+                        <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-2">
+                            <span class="weekly-theme-count">0 SUBMISSIONS</span> · ENDS IN <span class="weekly-theme-countdown text-black">—</span>
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">CURRENT LEADER</p>
+                    <div class="weekly-theme-leader grid grid-cols-1 sm:grid-cols-2 gap-6"></div>
                 </div>
             </section>
 
@@ -201,14 +251,26 @@
 
         <!-- FEED VIEW (HIDDEN BY DEFAULT) -->
         <div id="view-feed" class="hidden space-y-12">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6">
                 <div>
                     <h2 class="text-6xl font-display uppercase italic leading-none">ALL <span class="hype-text-gradient">IMAGES</span></h2>
                     <p class="text-gray-400 font-bold text-[10px] mt-2 tracking-widest uppercase">EXPLORE THE FULL COMMUNITY COLLECTION</p>
                 </div>
-                <div class="relative max-w-md w-full">
-                    <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-gray-300"></i>
-                    <input id="searchInput" type="text" placeholder="Search titles..." class="w-full bg-white border border-gray-100 aura-shadow rounded-3xl py-5 pl-16 pr-8 outline-none focus:ring-4 focus:ring-orange-500/10 transition-all font-bold text-lg">
+                <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                    <div class="relative flex-1 sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-6 top-1/2 -translate-y-1/2 text-gray-300"></i>
+                        <input id="searchInput" type="text" placeholder="Search title, user, category..." class="w-full bg-white border border-gray-100 aura-shadow rounded-3xl py-5 pl-16 pr-6 outline-none focus:ring-4 focus:ring-orange-500/10 transition-all font-bold text-sm">
+                    </div>
+                    <select id="categoryFilterSelect" class="bg-white border border-gray-100 aura-shadow rounded-3xl py-5 px-5 outline-none font-black text-[10px] uppercase tracking-widest cursor-pointer">
+                        <option value="all">ALL CATEGORIES</option>
+                    </select>
+                    <select id="sortBySelect" class="bg-white border border-gray-100 aura-shadow rounded-3xl py-5 px-5 outline-none font-black text-[10px] uppercase tracking-widest cursor-pointer">
+                        <option value="newest">NEWEST</option>
+                        <option value="oldest">OLDEST</option>
+                        <option value="likes">MOST LIKES</option>
+                        <option value="views">MOST VIEWED</option>
+                        <option value="trending">TRENDING</option>
+                    </select>
                 </div>
             </div>
 
@@ -217,83 +279,197 @@
             </div>
         </div>
 
+        <!-- NEW: TRENDING VIEW -->
+        <div id="view-trending" class="hidden space-y-12">
+            <div>
+                <h2 class="text-6xl font-display uppercase italic leading-none">TRENDING <span class="hype-text-gradient">NOW</span></h2>
+                <p class="text-gray-400 font-bold text-[10px] mt-2 tracking-widest uppercase">RANKED BY RECENT ACTIVITY — NOT JUST TOTAL LIKES</p>
+            </div>
+            <div id="trendingGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
+        </div>
+
+        <!-- NEW: DISCOVER VIEW -->
+        <div id="view-discover" class="hidden space-y-16">
+            <div>
+                <h2 class="text-6xl font-display uppercase italic leading-none">DISCOVER</h2>
+                <p class="text-gray-400 font-bold text-[10px] mt-2 tracking-widest uppercase">YOUR EXPLORATION HOMEPAGE</p>
+            </div>
+
+            <section>
+                <h3 class="text-2xl font-display uppercase italic mb-6">🔥 TRENDING NOW</h3>
+                <div id="discoverTrending" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
+            </section>
+
+            <section>
+                <h3 class="text-2xl font-display uppercase italic mb-6">🏆 PHOTO OF THE DAY</h3>
+                <div id="discoverPOTD" class="grid grid-cols-1 sm:grid-cols-2 gap-10 max-w-2xl"></div>
+            </section>
+
+            <section>
+                <h3 class="text-2xl font-display uppercase italic mb-6">✨ NEW UPLOADS</h3>
+                <div id="discoverNew" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
+            </section>
+
+            <section>
+                <h3 class="text-2xl font-display uppercase italic mb-6">❤️ MOST LIKED</h3>
+                <div id="discoverLiked" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
+            </section>
+
+            <section>
+                <h3 class="text-2xl font-display uppercase italic mb-6">🎨 EXPLORE CATEGORIES</h3>
+                <div id="discoverCategories" class="grid grid-cols-2 md:grid-cols-5 gap-5"></div>
+            </section>
+
+            <section class="glass p-10 rounded-[3rem] aura-shadow">
+                <h3 class="text-2xl font-display uppercase italic mb-2">🎉 THIS WEEK'S THEME</h3>
+                <p class="text-4xl font-display uppercase italic hype-text-gradient weekly-theme-name mb-2">—</p>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">
+                    <span class="weekly-theme-count">0 SUBMISSIONS</span> · ENDS IN <span class="weekly-theme-countdown text-black">—</span>
+                </p>
+                <div class="weekly-theme-leader grid grid-cols-1 sm:grid-cols-2 gap-6"></div>
+            </section>
+        </div>
+
     </main>
 
     <!-- PREVIEW MODAL -->
-    <div id="visionModal" class="fixed inset-0 z-[100] hidden bg-white/95 flex items-center justify-center p-4 md:p-12 overflow-y-auto">
+    <div id="visionModal" class="fixed inset-0 z-[100] hidden bg-white/95 flex items-center justify-center p-4 md:p-12 overflow-y-auto momentum-scroll">
         <button id="closeVision" class="fixed top-8 right-8 w-14 h-14 bg-black text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-2xl z-[110]">
             <i class="fa-solid fa-xmark text-xl"></i>
         </button>
-        <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div class="rounded-[3rem] overflow-hidden shadow-2xl aura-shadow">
+        <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+            <div id="visionImgWrap" class="rounded-[3rem] overflow-hidden shadow-2xl aura-shadow relative">
                 <img id="visionImg" src="" class="w-full object-cover max-h-[80vh]" alt="Preview">
+                <button onclick="toggleFullscreen()" title="Fullscreen" class="absolute bottom-4 right-4 w-12 h-12 bg-black/60 text-white rounded-2xl flex items-center justify-center hover:bg-black transition-colors">
+                    <i class="fa-solid fa-expand"></i>
+                </button>
             </div>
-            <div class="space-y-8 p-4">
-                <div class="flex items-center space-x-3">
-                    <span id="visionBadge" class="px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full bg-black text-white">
-    IMAGE
-</span>
+            <div class="space-y-8 p-2 md:p-4 max-h-[85vh] overflow-y-auto momentum-scroll">
+                <div class="flex items-center flex-wrap gap-3">
+                    <span id="visionBadge" class="px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full bg-black text-white">IMAGE</span>
+                    <span id="visionCategory" class="px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full bg-gray-100 text-black">CATEGORY</span>
                     <span id="visionLikes" class="text-gray-900 font-black text-sm uppercase tracking-widest"></span>
+                    <span id="visionViews" class="text-gray-400 font-black text-sm uppercase tracking-widest"></span>
                 </div>
-                <h2 id="visionTitle" class="text-6xl md:text-8xl font-display uppercase italic italic leading-none tracking-tighter">TITLE</h2>
-                <div class="flex items-center space-x-4">
-                    <div class="w-12 h-12 hype-gradient rounded-full"></div>
+                <h2 id="visionTitle" class="text-5xl md:text-8xl font-display uppercase italic italic leading-none tracking-tighter">TITLE</h2>
+                <div id="visionAuthorRow" class="flex items-center space-x-4 cursor-pointer w-fit">
+                    <div id="visionAuthorAvatar" class="w-12 h-12 hype-gradient rounded-full overflow-hidden flex-shrink-0"></div>
                     <div>
                         <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">UPLOADED BY</p>
-                        <p id="visionAuthor" class="text-xl font-display uppercase italic">NAME</p>
+                        <p id="visionAuthor" class="text-xl font-display uppercase italic hover:text-orange-500 transition-colors">NAME</p>
                     </div>
                 </div>
-                <div class="pt-8 flex space-x-4">
-    <button id="visionLikeBtn" class="flex-1 bg-black text-white px-8 py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:scale-[1.02] transition-transform">
-        LIKE PHOTO
-    </button>
+                <div class="flex flex-wrap gap-4">
+                    <button id="visionLikeBtn" class="flex-1 bg-black text-white px-8 py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:scale-[1.02] transition-transform">
+                        LIKE PHOTO
+                    </button>
 
-    <button id="visionDeleteBtn" class="bg-red-500 text-white px-6 py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:bg-red-600 transition-colors">
-        DELETE
-    </button>
+                    <button id="visionDeleteBtn" class="bg-red-500 text-white px-6 py-5 rounded-3xl font-black text-xs uppercase tracking-[0.2em] hover:bg-red-600 transition-colors">
+                        DELETE
+                    </button>
 
-    <button id="visionShare" class="w-20 bg-gray-100 text-black px-8 py-5 rounded-3xl flex items-center justify-center hover:bg-gray-200 transition-colors">
-        <i class="fa-solid fa-share-nodes"></i>
-    </button>
-</div>
+                    <button id="visionShare" class="w-20 bg-gray-100 text-black px-8 py-5 rounded-3xl flex items-center justify-center hover:bg-gray-200 transition-colors">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </button>
+                </div>
+
+                <!-- NEW: COMMENTS -->
+                <div class="border-t border-gray-100 pt-8 space-y-4">
+                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">💬 COMMENTS</p>
+                    <div class="flex space-x-3">
+                        <input id="commentInput" type="text" maxlength="300" placeholder="Write a comment..." class="flex-1 bg-gray-50 border border-gray-100 rounded-2xl py-3 px-5 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-sm">
+                        <button onclick="postComment()" class="bg-black text-white px-6 rounded-2xl font-black text-xs uppercase tracking-widest btn-premium">POST</button>
+                    </div>
+                    <div id="visionComments" class="space-y-3 max-h-72 overflow-y-auto momentum-scroll pr-1"></div>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- PROFILE MODAL -->
-    <div id="profileModal" class="fixed inset-0 z-[100] hidden bg-black/40 backdrop-blur-md flex items-center justify-center p-6">
-        <div class="bg-white max-w-md w-full rounded-[3rem] p-10 animate-reveal shadow-2xl">
-            <h2 class="text-4xl font-display uppercase mb-2 italic">YOUR <span class="hype-text-gradient">PROFILE</span></h2>
-            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-8">SET YOUR CUSTOM NAME</p>
-            <div class="space-y-6">
+    <div id="profileModal" class="fixed inset-0 z-[100] hidden bg-black/40 backdrop-blur-md flex items-center justify-center p-6 overflow-y-auto momentum-scroll">
+        <div class="bg-white max-w-2xl w-full rounded-[3rem] p-8 md:p-10 animate-reveal shadow-2xl my-10 max-h-[90vh] overflow-y-auto momentum-scroll">
+            <div class="flex justify-between items-start mb-8">
+                <div class="flex items-center space-x-5">
+                    <div id="profileAvatarWrap" class="w-20 h-20 rounded-3xl hype-gradient flex items-center justify-center text-white text-3xl font-display overflow-hidden flex-shrink-0">?</div>
+                    <div>
+                        <h2 id="profileDisplayName" class="text-2xl md:text-3xl font-display uppercase italic">NAME</h2>
+                        <p id="profileJoinDate" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mt-1">JOINED —</p>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('profileModal').classList.add('hidden')" class="w-10 h-10 bg-gray-100 rounded-2xl flex items-center justify-center hover:bg-gray-200 flex-shrink-0">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <p id="profileBio" class="text-sm font-bold text-gray-500 mb-8">No bio yet.</p>
+
+            <div class="grid grid-cols-3 gap-4 mb-10">
+                <div class="bg-gray-50 rounded-2xl p-4 text-center">
+                    <p id="profilePhotoCount" class="text-2xl font-display">0</p>
+                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1">PHOTOS</p>
+                </div>
+                <div class="bg-gray-50 rounded-2xl p-4 text-center">
+                    <p id="profileTotalLikes" class="text-2xl font-display">0</p>
+                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1">TOTAL LIKES</p>
+                </div>
+                <div class="bg-gray-50 rounded-2xl p-4 text-center">
+                    <p id="profileMostLikedCount" class="text-2xl font-display">0</p>
+                    <p class="text-[9px] font-black text-gray-400 uppercase tracking-widest mt-1">BEST PHOTO LIKES</p>
+                </div>
+            </div>
+
+            <button id="profileEditToggle" class="hidden mb-6 text-[10px] font-black text-orange-500 uppercase tracking-widest hover:underline">✎ EDIT PROFILE</button>
+
+            <div id="profileEditSection" class="hidden space-y-5 mb-10 border-t border-gray-100 pt-8">
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">DISPLAY NAME</label>
                     <input id="userNameInput" type="text" placeholder="Enter name..." class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg">
                 </div>
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">BIO</label>
+                    <textarea id="userBioInput" rows="3" maxlength="200" placeholder="Tell people about yourself..." class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold"></textarea>
+                </div>
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">PROFILE PICTURE</label>
+                    <input id="userAvatarInput" type="file" accept="image/*" class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none font-bold text-sm">
+                </div>
                 <div class="flex space-x-3">
                     <button id="saveProfile" class="flex-1 bg-black text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs btn-premium">SAVE CHANGES</button>
-                    <button onclick="document.getElementById('profileModal').classList.add('hidden')" class="px-8 bg-gray-100 py-4 rounded-2xl font-black text-xs uppercase tracking-widest">CLOSE</button>
+                    <button onclick="document.getElementById('profileEditSection').classList.add('hidden')" class="px-8 bg-gray-100 py-4 rounded-2xl font-black text-xs uppercase tracking-widest">CANCEL</button>
                 </div>
+            </div>
+
+            <div>
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">PHOTOS</p>
+                <div id="profilePhotoGrid" class="grid grid-cols-3 gap-3"></div>
             </div>
         </div>
     </div>
 
     <!-- UPLOAD MODAL -->
-    <div id="uploadModal" class="fixed inset-0 z-[100] hidden bg-black/40 backdrop-blur-md flex items-center justify-center p-6">
-        <div class="bg-white max-w-xl w-full rounded-[3rem] p-10 animate-reveal shadow-2xl">
+    <div id="uploadModal" class="fixed inset-0 z-[100] hidden bg-black/40 backdrop-blur-md flex items-center justify-center p-6 overflow-y-auto momentum-scroll">
+        <div class="bg-white max-w-xl w-full rounded-[3rem] p-10 animate-reveal shadow-2xl my-10">
             <h2 class="text-4xl font-display uppercase mb-2 italic">UPLOAD <span class="hype-text-gradient">PHOTO</span></h2>
             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-8">SHARE YOUR PHOTO WITH THE COMMUNITY</p>
             
             <div class="space-y-6">
                 <div>
-                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">IMAGE URL</label>
-                    <input id="imgFile" type="file" accept="image/*" placeholder="Paste link from Unsplash, Pexels, etc." class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg">
-                    <button onclick="document.getElementById('imgUrl').value = 'https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&q=80'" class="mt-2 text-[10px] font-black text-orange-500 uppercase tracking-widest ml-4 hover:underline">USE AUTO-GEN IMAGE</button>
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">IMAGE FILE</label>
+                    <input id="imgFile" type="file" accept="image/*" class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg">
                 </div>
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">TITLE</label>
                     <input id="imgTitle" type="text" placeholder="Give it a name..." class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg">
                 </div>
+                <div>
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">CATEGORY</label>
+                    <select id="imgCategory" class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg cursor-pointer"></select>
+                </div>
+                <label class="flex items-center space-x-3 bg-gray-50 rounded-2xl py-4 px-6 cursor-pointer">
+                    <input id="weeklyThemeOptIn" type="checkbox" class="w-5 h-5 accent-orange-500">
+                    <span id="weeklyThemeLabel" class="text-[10px] font-black text-gray-500 uppercase tracking-widest">SUBMIT TO THIS WEEK'S THEME</span>
+                </label>
                 <div class="flex space-x-3">
                     <button id="uploadBtn" class="flex-1 bg-black text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs btn-premium">UPLOAD NOW</button>
                     <button onclick="document.getElementById('uploadModal').classList.add('hidden')" class="px-8 bg-gray-100 py-4 rounded-2xl font-black text-xs uppercase tracking-widest">CANCEL</button>
@@ -313,7 +489,10 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, collection, query, onSnapshot, addDoc, Timestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import {
+            getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc,
+            collection, query, where, onSnapshot, addDoc, increment, Timestamp
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyA_XrD0M2R-V0IvU_lrxlZ82wIp_K7QoCg",
@@ -330,16 +509,40 @@
         const auth = getAuth(app);
         const appId = "hypedum_community_v2";
 
+        // --- NEW: shared constants ---
+        const CATEGORIES = ['nature','city','people','animals','travel','food','vehicles','architecture','landscape','other'];
+        const WEEKLY_THEMES = ["SUNSETS","OCEAN","NATURE","CITY NIGHTS","ANIMALS","TRAVEL","SKY","ARCHITECTURE","MINIMALISM","MACRO","VEHICLES","WEATHER"];
+        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/drqkilrfl/image/upload";
+        const CLOUDINARY_PRESET = "error-inc";
+        const VIEW_THROTTLE_MS = 30 * 60 * 1000; // 30 minutes
+
         let currentUser = null;
         let allPosts = [];
         let allProfiles = {};
         let currentVisionId = null;
         let searchTerm = "";
-let badgeMap = {
-    featured: null,
-    week: null,
-    year: null
-};
+        let categoryFilter = "all";
+        let sortBy = "newest";
+        let badgeMap = {
+            featured: null,
+            week: null,
+            year: null
+        };
+
+        // --- NEW: state for daily featured fix ---
+        let dailyFeaturedMeta = null;
+        let isPickingFeatured = false;
+
+        // --- NEW: state for profile modal ---
+        let profileViewUid = null;
+        let pendingAvatarUrl = null;
+
+        // --- NEW: state for comments ---
+        let commentsUnsub = null;
+        let lastSubscribedCommentsPostId = null;
+
+        // --- NEW: state for weekly theme countdown ---
+        let countdownInterval = null;
 
         signInAnonymously(auth).catch(err => console.error("Auth Failed", err));
 
@@ -352,10 +555,17 @@ let badgeMap = {
                 const profRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', user.uid);
                 const profSnap = await getDoc(profRef);
                 if (!profSnap.exists()) {
-                    await setDoc(profRef, { name: `USER_${user.uid.substring(0, 4)}`, uid: user.uid });
+                    await setDoc(profRef, {
+                        name: `USER_${user.uid.substring(0, 4)}`,
+                        uid: user.uid,
+                        bio: "",
+                        avatar: "",
+                        createdAt: Date.now()
+                    });
                 }
                 syncData();
                 syncProfiles();
+                syncDailyFeatured();
             }
         });
 
@@ -380,65 +590,232 @@ let badgeMap = {
             }, (err) => console.error("Posts sync error", err));
         }
 
+        // --- NEW: real-time listener on the pinned "photo of the day" doc ---
+        function syncDailyFeatured() {
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'meta', 'dailyFeatured');
+            onSnapshot(ref, (snap) => {
+                dailyFeaturedMeta = snap.exists() ? snap.data() : null;
+                renderUI();
+            }, (err) => console.error("Daily featured sync error", err));
+        }
+
         function renderUI() {
             renderFeatured();
             renderFeed();
             renderHallOfFame();
             renderLeaderboard();
             renderStats();
+            renderTrending();
+            renderDiscover();
+            renderWeeklyBanner();
+            if (profileViewUid) renderProfileModal();
             if (currentVisionId) openVision(currentVisionId);
         }
 
+        // ============================================================
+        // NEW: small shared helpers
+        // ============================================================
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str == null ? '' : String(str);
+            return div.innerHTML;
+        }
+
+        function hashStr(s) {
+            let h = 0;
+            for (let i = 0; i < s.length; i++) {
+                h = (h * 31 + s.charCodeAt(i)) >>> 0;
+            }
+            return h;
+        }
+
+        function formatTimeAgo(ts) {
+            if (!ts) return '';
+            const diff = Date.now() - ts;
+            const mins = Math.floor(diff / 60000);
+            if (mins < 1) return 'JUST NOW';
+            if (mins < 60) return `${mins}M AGO`;
+            const hrs = Math.floor(mins / 60);
+            if (hrs < 24) return `${hrs}H AGO`;
+            const days = Math.floor(hrs / 24);
+            if (days < 30) return `${days}D AGO`;
+            return new Date(ts).toLocaleDateString();
+        }
+
+        // Trending score: likes + views weighted, decayed by age so newer photos
+        // can out-rank older ones with more raw likes.
+        function computeTrendingScore(post) {
+            const ageHours = Math.max(0, (Date.now() - (post.timestamp || Date.now())) / 3600000);
+            const likes = post.likes || 0;
+            const views = post.views || 0;
+            return (likes * 3 + views * 1 + 1) / Math.pow(ageHours + 2, 1.5);
+        }
+
+        // Monday-based week window + deterministic rotating theme
+        function getWeekInfo() {
+            const now = new Date();
+            const dayIdx = (now.getDay() + 6) % 7; // 0 = Monday
+            const monday = new Date(now);
+            monday.setHours(0, 0, 0, 0);
+            monday.setDate(now.getDate() - dayIdx);
+            const nextMonday = new Date(monday);
+            nextMonday.setDate(monday.getDate() + 7);
+
+            const epoch = new Date(2024, 0, 1); // arbitrary fixed reference point
+            const weekIndex = Math.floor((monday - epoch) / (7 * 24 * 60 * 60 * 1000));
+            const idx = ((weekIndex % WEEKLY_THEMES.length) + WEEKLY_THEMES.length) % WEEKLY_THEMES.length;
+            return { theme: WEEKLY_THEMES[idx], weekStart: monday, weekEnd: nextMonday };
+        }
+
+        async function uploadToCloudinary(file) {
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", CLOUDINARY_PRESET);
+            const res = await fetch(CLOUDINARY_URL, { method: "POST", body: formData });
+            const data = await res.json();
+            if (!data.secure_url) throw new Error("Upload failed");
+            return data.secure_url;
+        }
+
+        function getPostBadge(post) {
+            if (!post?.id) return null;
+
+            if (post.id === badgeMap.featured) {
+                return { text: "TODAY'S FEATURED", color: "orange" };
+            }
+
+            if (post.id === badgeMap.week) {
+                return { text: "IMG OF THE WEEK", color: "orange" };
+            }
+
+            if (post.id === badgeMap.year) {
+                return { text: "IMG OF THE YEAR", color: "purple" };
+            }
+
+            return null;
+        }
+
+        // Reusable card markup used by the feed, trending, and discover grids
+        function postCardHTML(post, opts = {}) {
+            const badge = getPostBadge(post);
+            const authorName = allProfiles[post.authorId]?.name || 'UNKNOWN';
+            const catLabel = (post.category || 'other').toUpperCase();
+            const rightTag = opts.showScore
+                ? `<span class="text-[9px] font-black text-purple-500 uppercase tracking-widest"><i class="fa-solid fa-fire mr-1"></i>${computeTrendingScore(post).toFixed(1)}</span>`
+                : `<span class="text-[9px] font-black text-gray-300 uppercase tracking-widest"><i class="fa-solid fa-eye mr-1"></i>${post.views || 0}</span>`;
+
+            return `
+                <div class="img-card glass rounded-[2.5rem] aura-shadow overflow-hidden group cursor-pointer" onclick="openVision('${post.id}')">
+                    <div class="h-64 overflow-hidden relative">
+                        <img src="${post.url}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <div class="absolute top-4 left-4 flex flex-wrap gap-2 max-w-[85%]">
+                            ${badge ? `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${badge.color === 'orange' ? 'bg-orange-500 text-white' : 'bg-purple-500 text-white'}">${badge.text}</span>` : ''}
+                            <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-white/90 text-black">${catLabel}</span>
+                        </div>
+                    </div>
+                    <div class="p-8">
+                        <div class="flex justify-between items-start mb-4">
+                            <h3 class="text-xl font-display uppercase italic tracking-tight pr-2">${escapeHtml(post.title)}</h3>
+                            <button onclick="event.stopPropagation(); likePost('${post.id}')" class="text-gray-900 flex items-center space-x-1 hover:text-orange-500 transition-colors flex-shrink-0">
+                                <i class="${post.likedBy?.includes(currentUser?.uid) ? 'fa-solid' : 'fa-regular'} fa-heart text-lg"></i>
+                                <span class="font-black text-xs">${post.likes || 0}</span>
+                            </button>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center space-x-3 cursor-pointer" onclick="event.stopPropagation(); openProfileModal('${post.authorId}')">
+                                <div class="w-6 h-6 hype-gradient rounded-full"></div>
+                                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-black">${escapeHtml(authorName)}</span>
+                            </div>
+                            ${rightTag}
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function setGrid(id, posts, opts = {}) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.innerHTML = posts.length
+                ? posts.map(p => postCardHTML(p, opts)).join('')
+                : `<p class="col-span-full text-center text-gray-300 font-black uppercase tracking-widest py-10 text-xs">NOTHING HERE YET</p>`;
+        }
+
+        // ============================================================
+        // RENDER FUNCTIONS
+        // ============================================================
+
+        // --- FIXED: featured photo is now pinned per-day via a shared Firestore
+        // doc instead of being derived from `daySeed % allPosts.length`, which
+        // changed every time someone uploaded a new photo (since the array
+        // length it was modulo-ing against kept changing).
         function renderFeatured() {
-    if (allPosts.length === 0) return;
+            if (allPosts.length === 0) return;
 
-    const today = new Date();
+            ensureDailyFeatured();
 
-    // Create a number like 20260514
-    const daySeed =
-        today.getFullYear() * 10000 +
-        (today.getMonth() + 1) * 100 +
-        today.getDate();
+            const todayStr = new Date().toISOString().slice(0, 10);
+            let featured = null;
+            if (dailyFeaturedMeta && dailyFeaturedMeta.date === todayStr) {
+                featured = allPosts.find(p => p.id === dailyFeaturedMeta.postId) || null;
+            }
+            if (!featured) featured = allPosts[0]; // safe fallback while the pick resolves
 
-    const featuredIndex = daySeed % allPosts.length;
-    const featured = allPosts[featuredIndex];
-badgeMap.featured = featured.id;
-    const cleanTitle = (featured.title || "").trim();
-    const hasMultipleWords = cleanTitle.includes(" ");
+            badgeMap.featured = featured.id;
+            const cleanTitle = (featured.title || "").trim();
+            const hasMultipleWords = cleanTitle.includes(" ");
 
-    let headline;
+            let headline;
+            if (hasMultipleWords) {
+                headline = `THE <span class="hype-text-gradient">${escapeHtml(cleanTitle)}</span>`;
+            } else {
+                const authorName = allProfiles[featured.authorId]?.name || "UNKNOWN";
+                headline = `
+                    <span class="hype-text-gradient">${escapeHtml(cleanTitle)}</span>
+                    <span class="text-black">BY</span>
+                    <span class="text-black">${escapeHtml(authorName)}</span>
+                `;
+            }
 
-    if (hasMultipleWords) {
-        // Example: THE GOLDEN SUNSET
-        headline = `THE <span class="hype-text-gradient">${cleanTitle}</span>`;
-    } else {
-        // Example: AURORA BY XERRORTM
-        const authorName =
-            allProfiles[featured.authorId]?.name || "UNKNOWN";
+            document.getElementById('spotlightImg').src = featured.url;
+            document.getElementById('spotlightTitle').innerHTML = headline;
+            document.getElementById('spotlightLikes').innerHTML =
+                `<i class="fa-solid fa-heart text-orange-500 mr-1"></i> ${featured.likes || 0} LIKES`;
 
-        headline = `
-            <span class="hype-text-gradient">${cleanTitle}</span>
-            <span class="text-black">BY</span>
-            <span class="text-black">${authorName}</span>
-        `;
-    }
+            document.getElementById('spotlightContainer').onclick = () => openVision(featured.id);
 
-    // Update featured section
-    document.getElementById('spotlightImg').src = featured.url;
-    document.getElementById('spotlightTitle').innerHTML = headline;
-    document.getElementById('spotlightLikes').innerHTML =
-        `<i class="fa-solid fa-heart text-orange-500 mr-1"></i> ${featured.likes || 0} LIKES`;
+            document.getElementById('mainLikeBtn').onclick = (e) => {
+                e.stopPropagation();
+                likePost(featured.id);
+            };
+        }
 
-    // Open image preview
-    document.getElementById('spotlightContainer').onclick = () =>
-        openVision(featured.id);
+        // Picks (and pins) today's featured photo exactly once per calendar day.
+        async function ensureDailyFeatured() {
+            if (isPickingFeatured || allPosts.length === 0) return;
+            const todayStr = new Date().toISOString().slice(0, 10);
+            const stillValid = dailyFeaturedMeta
+                && dailyFeaturedMeta.date === todayStr
+                && allPosts.some(p => p.id === dailyFeaturedMeta.postId);
+            if (stillValid) return;
 
-    // Like button
-    document.getElementById('mainLikeBtn').onclick = (e) => {
-        e.stopPropagation();
-        likePost(featured.id);
-    };
-}
+            isPickingFeatured = true;
+            try {
+                const sorted = [...allPosts].sort((a, b) => (a.timestamp - b.timestamp) || a.id.localeCompare(b.id));
+                const idx = hashStr(todayStr) % sorted.length;
+                const picked = sorted[idx];
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'meta', 'dailyFeatured'), {
+                    date: todayStr,
+                    postId: picked.id
+                });
+            } catch (e) {
+                console.error("Failed to pin daily featured photo", e);
+            } finally {
+                isPickingFeatured = false;
+            }
+        }
+
         function renderHallOfFame() {
             if (allPosts.length === 0) return;
 
@@ -449,17 +826,17 @@ badgeMap.featured = featured.id;
             const weeklyPosts = allPosts.filter(p => (now - p.timestamp) < weekMs);
             const yearlyPosts = allPosts.filter(p => (now - p.timestamp) < yearMs);
 
-            const weeklyBest = [...(weeklyPosts.length ? weeklyPosts : allPosts)].sort((a,b) => (b.likes||0) - (a.likes||0))[0];
-            const yearlyBest = [...(yearlyPosts.length ? yearlyPosts : allPosts)].sort((a,b) => (b.likes||0) - (a.likes||0))[0];
-badgeMap.week = weeklyBest?.id || null;
-badgeMap.year = yearlyBest?.id || null;
+            const weeklyBest = [...(weeklyPosts.length ? weeklyPosts : allPosts)].sort((a, b) => (b.likes || 0) - (a.likes || 0))[0];
+            const yearlyBest = [...(yearlyPosts.length ? yearlyPosts : allPosts)].sort((a, b) => (b.likes || 0) - (a.likes || 0))[0];
+            badgeMap.week = weeklyBest?.id || null;
+            badgeMap.year = yearlyBest?.id || null;
 
             if (weeklyBest) {
                 document.getElementById('weeklyBestContainer').innerHTML = `
                     <div class="img-card rounded-3xl overflow-hidden aura-shadow cursor-pointer" onclick="openVision('${weeklyBest.id}')">
                         <img src="${weeklyBest.url}" class="h-48 w-full object-cover">
                         <div class="p-4 bg-white flex justify-between items-center">
-                            <span class="text-sm font-display uppercase italic">${weeklyBest.title}</span>
+                            <span class="text-sm font-display uppercase italic">${escapeHtml(weeklyBest.title)}</span>
                             <span class="text-[10px] font-black text-orange-500">${weeklyBest.likes || 0} LIKES</span>
                         </div>
                     </div>`;
@@ -470,49 +847,140 @@ badgeMap.year = yearlyBest?.id || null;
                     <div class="img-card rounded-3xl overflow-hidden aura-shadow cursor-pointer" onclick="openVision('${yearlyBest.id}')">
                         <img src="${yearlyBest.url}" class="h-48 w-full object-cover">
                         <div class="p-4 bg-white flex justify-between items-center">
-                            <span class="text-sm font-display uppercase italic">${yearlyBest.title}</span>
+                            <span class="text-sm font-display uppercase italic">${escapeHtml(yearlyBest.title)}</span>
                             <span class="text-[10px] font-black text-purple-500">${yearlyBest.likes || 0} LIKES</span>
                         </div>
                     </div>`;
             }
         }
 
+        function matchesSearch(p) {
+            if (!searchTerm) return true;
+            const t = searchTerm.toLowerCase();
+            const title = (p.title || '').toLowerCase();
+            const cat = (p.category || '').toLowerCase();
+            const author = (allProfiles[p.authorId]?.name || '').toLowerCase();
+            return title.includes(t) || cat.includes(t) || author.includes(t);
+        }
+
+        function sortPosts(posts) {
+            const arr = [...posts];
+            switch (sortBy) {
+                case 'oldest': return arr.sort((a, b) => a.timestamp - b.timestamp);
+                case 'likes': return arr.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+                case 'views': return arr.sort((a, b) => (b.views || 0) - (a.views || 0));
+                case 'trending': return arr.sort((a, b) => computeTrendingScore(b) - computeTrendingScore(a));
+                default: return arr.sort((a, b) => b.timestamp - a.timestamp);
+            }
+        }
+
         function renderFeed() {
             const feed = document.getElementById('feedGrid');
-            const filtered = allPosts.filter(p => p.title.toLowerCase().includes(searchTerm.toLowerCase()));
-            const sorted = [...filtered].sort((a, b) => b.timestamp - a.timestamp);
+            if (!feed) return;
+            let filtered = allPosts.filter(matchesSearch);
+            if (categoryFilter !== 'all') {
+                filtered = filtered.filter(p => (p.category || 'other') === categoryFilter);
+            }
+            const sorted = sortPosts(filtered);
+            feed.innerHTML = sorted.length
+                ? sorted.map(post => postCardHTML(post)).join('')
+                : `<p class="col-span-full text-center text-gray-300 font-black uppercase tracking-widest py-20">NO IMAGES FOUND</p>`;
+        }
 
-            
-            feed.innerHTML = sorted.map(post => {
-const badge = getPostBadge(post);
-return `
-                <div class="img-card glass rounded-[2.5rem] aura-shadow overflow-hidden group cursor-pointer" onclick="openVision('${post.id}')">
-                    <div class="h-64 overflow-hidden relative">
-                        <img src="${post.url}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
-${badge ? `
-<div class="absolute top-4 left-4">
-    <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest
-    ${badge.color === "orange" ? "bg-orange-500 text-white" : "bg-purple-500 text-white"}">
-        ${badge.text}
-    </span>
-</div>
-` : ""}
-                    </div>
-                    <div class="p-8">
-                        <div class="flex justify-between items-start mb-4">
-                            <h3 class="text-xl font-display uppercase italic tracking-tight">${post.title}</h3>
-                            <button onclick="event.stopPropagation(); likePost('${post.id}')" class="text-gray-900 flex items-center space-x-1 hover:text-orange-500 transition-colors">
-                                <i class="${post.likedBy?.includes(currentUser?.uid) ? 'fa-solid' : 'fa-regular'} fa-heart text-lg"></i>
-                                <span class="font-black text-xs">${post.likes || 0}</span>
-                            </button>
-                        </div>
-                        <div class="flex items-center space-x-3">
-                            <div class="w-6 h-6 hype-gradient rounded-full"></div>
-                            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">${allProfiles[post.authorId]?.name || 'UNKNOWN'}</span>
-                        </div>
-                    </div>
-                </div>
-            `}).join('');
+        // --- NEW: trending grid ---
+        function renderTrending() {
+            const container = document.getElementById('trendingGrid');
+            if (!container) return;
+            const sorted = [...allPosts].sort((a, b) => computeTrendingScore(b) - computeTrendingScore(a));
+            setGrid('trendingGrid', sorted, { showScore: true });
+        }
+
+        // --- NEW: discover page ---
+        function renderDiscover() {
+            if (!document.getElementById('discoverTrending')) return;
+            if (allPosts.length === 0) return;
+
+            const trendingNow = [...allPosts].sort((a, b) => computeTrendingScore(b) - computeTrendingScore(a)).slice(0, 6);
+            const newUploads = [...allPosts].sort((a, b) => b.timestamp - a.timestamp).slice(0, 6);
+            const mostLiked = [...allPosts].sort((a, b) => (b.likes || 0) - (a.likes || 0)).slice(0, 6);
+
+            setGrid('discoverTrending', trendingNow, { showScore: true });
+            setGrid('discoverNew', newUploads);
+            setGrid('discoverLiked', mostLiked);
+            renderDiscoverPOTD();
+            renderCategoryTiles();
+        }
+
+        function renderDiscoverPOTD() {
+            const el = document.getElementById('discoverPOTD');
+            if (!el) return;
+            const todayStr = new Date().toISOString().slice(0, 10);
+            const featured = (dailyFeaturedMeta && dailyFeaturedMeta.date === todayStr)
+                ? allPosts.find(p => p.id === dailyFeaturedMeta.postId)
+                : null;
+            el.innerHTML = featured ? postCardHTML(featured) : `<p class="text-gray-300 font-black uppercase tracking-widest text-xs">RESOLVING...</p>`;
+        }
+
+        function renderCategoryTiles() {
+            const el = document.getElementById('discoverCategories');
+            if (!el) return;
+            el.innerHTML = CATEGORIES.map(c => {
+                const count = allPosts.filter(p => (p.category || 'other') === c).length;
+                return `
+                    <div onclick="filterByCategory('${c}')" class="cat-tile cursor-pointer bg-white rounded-3xl aura-shadow p-6 text-center">
+                        <p class="font-display uppercase italic text-lg">${c}</p>
+                        <p class="text-[9px] font-black text-gray-300 uppercase tracking-widest mt-1">${count} PHOTOS</p>
+                    </div>`;
+            }).join('');
+        }
+
+        window.filterByCategory = (cat) => {
+            categoryFilter = cat;
+            const sel = document.getElementById('categoryFilterSelect');
+            if (sel) sel.value = cat;
+            switchTab('feed');
+        };
+
+        // --- NEW: weekly theme banner (drives both the home + discover copies via class selectors) ---
+        function renderWeeklyBanner() {
+            const { theme, weekStart, weekEnd } = getWeekInfo();
+            const submitted = allPosts.filter(p =>
+                p.weeklyTheme === theme &&
+                p.timestamp >= weekStart.getTime() &&
+                p.timestamp < weekEnd.getTime()
+            );
+            const leaders = [...submitted].sort((a, b) => (b.likes || 0) - (a.likes || 0)).slice(0, 2);
+
+            document.querySelectorAll('.weekly-theme-name').forEach(el => el.innerText = theme);
+            document.querySelectorAll('.weekly-theme-count').forEach(el => el.innerText = `${submitted.length} SUBMISSION${submitted.length === 1 ? '' : 'S'}`);
+            document.querySelectorAll('.weekly-theme-leader').forEach(el => {
+                el.innerHTML = leaders.length
+                    ? leaders.map(p => postCardHTML(p)).join('')
+                    : `<p class="text-[10px] font-black text-gray-300 uppercase tracking-widest col-span-full">NO SUBMISSIONS YET — BE THE FIRST!</p>`;
+            });
+
+            const label = document.getElementById('weeklyThemeLabel');
+            if (label) label.innerText = `SUBMIT TO THIS WEEK'S THEME: ${theme}`;
+
+            updateCountdown(weekEnd);
+        }
+
+        function updateCountdown(weekEnd) {
+            if (countdownInterval) clearInterval(countdownInterval);
+            const tick = () => {
+                const diff = weekEnd.getTime() - Date.now();
+                let text = 'THEME ENDED';
+                if (diff > 0) {
+                    const d = Math.floor(diff / 86400000);
+                    const h = Math.floor((diff % 86400000) / 3600000);
+                    const m = Math.floor((diff % 3600000) / 60000);
+                    const s = Math.floor((diff % 60000) / 1000);
+                    text = `${d}D ${h}H ${m}M ${s}S`;
+                }
+                document.querySelectorAll('.weekly-theme-countdown').forEach(el => el.innerText = text);
+            };
+            tick();
+            countdownInterval = setInterval(tick, 1000);
         }
 
         function renderLeaderboard() {
@@ -528,10 +996,10 @@ ${badge ? `
                 .slice(0, 5);
 
             document.getElementById('leaderboardList').innerHTML = sortedUsers.map((u, i) => `
-                <div class="flex justify-between items-center bg-white/50 p-4 rounded-2xl">
+                <div class="flex justify-between items-center bg-white/50 p-4 rounded-2xl cursor-pointer hover:bg-white transition-colors" onclick="openProfileModal('${u.uid}')">
                     <div class="flex items-center space-x-4">
                         <span class="font-display italic text-gray-300">#${i + 1}</span>
-                        <span class="font-black text-[10px] uppercase tracking-widest">${u.name}</span>
+                        <span class="font-black text-[10px] uppercase tracking-widest">${escapeHtml(u.name)}</span>
                     </div>
                     <span class="text-orange-500 font-black text-xs">${u.score} LIKES</span>
                 </div>
@@ -544,256 +1012,408 @@ ${badge ? `
         }
 
         window.switchTab = (tab) => {
-            const homeView = document.getElementById('view-home');
-            const feedView = document.getElementById('view-feed');
-            const tabHome = document.getElementById('tab-home');
-            const tabFeed = document.getElementById('tab-feed');
-
-            if (tab === 'home') {
-                homeView.classList.remove('hidden');
-                feedView.classList.add('hidden');
-                tabHome.classList.add('active');
-                tabFeed.classList.remove('active');
-            } else {
-                homeView.classList.add('hidden');
-                feedView.classList.remove('hidden');
-                tabHome.classList.remove('active');
-                tabFeed.classList.add('active');
-            }
+            const TABS = ['home', 'feed', 'trending', 'discover'];
+            TABS.forEach(t => {
+                const view = document.getElementById('view-' + t);
+                const btn = document.getElementById('tab-' + t);
+                if (view) view.classList.toggle('hidden', t !== tab);
+                if (btn) btn.classList.toggle('active', t === tab);
+            });
             renderUI();
         };
 
+        // ============================================================
+        // VISION MODAL (photo preview)
+        // ============================================================
+
         window.openVision = (postId) => {
-    const post = allPosts.find(p => p.id === postId);
-    if (!post) return;
+            const post = allPosts.find(p => p.id === postId);
+            if (!post) return;
 
-    currentVisionId = postId;
-const badge = getPostBadge(post);
+            currentVisionId = postId;
+            const badge = getPostBadge(post);
+            const badgeEl = document.getElementById("visionBadge");
 
-document.getElementById("visionModal").dataset.badge = badge ? badge.text : "";
-const badgeEl = document.getElementById("visionBadge");
+            if (badge) {
+                badgeEl.innerText = badge.text;
+                badgeEl.className =
+                    "px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full " +
+                    (badge.color === "orange" ? "bg-orange-500 text-white" : "bg-purple-600 text-white");
+            } else {
+                badgeEl.innerText = "IMAGE";
+                badgeEl.className =
+                    "px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full bg-gray-200 text-black";
+            }
 
-if (badge) {
-    badgeEl.innerText = badge.text;
-    badgeEl.className =
-        "px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full " +
-        (badge.color === "orange"
-            ? "bg-orange-500 text-white"
-            : "bg-purple-600 text-white");
-} else {
-    badgeEl.innerText = "IMAGE";
-    badgeEl.className =
-        "px-4 py-1 text-[10px] font-black uppercase tracking-[0.2em] rounded-full bg-gray-200 text-black";
-}
-    document.getElementById('visionImg').src = post.url;
-    document.getElementById('visionTitle').innerText = post.title;
-    document.getElementById('visionAuthor').innerText =
-        allProfiles[post.authorId]?.name || 'UNKNOWN';
-    document.getElementById('visionLikes').innerHTML =
-        `<i class="fa-solid fa-heart text-orange-500 mr-1"></i> ${post.likes || 0} TOTAL LIKES`;
+            document.getElementById('visionCategory').innerText = (post.category || 'other').toUpperCase();
+            document.getElementById('visionImg').src = post.url;
+            document.getElementById('visionTitle').innerText = post.title;
 
-    document.getElementById('visionModal').classList.remove('hidden');
+            const authorProfile = allProfiles[post.authorId];
+            document.getElementById('visionAuthor').innerText = authorProfile?.name || 'UNKNOWN';
+            document.getElementById('visionAuthorAvatar').innerHTML = authorProfile?.avatar
+                ? `<img src="${authorProfile.avatar}" class="w-full h-full object-cover">`
+                : '';
+            document.getElementById('visionAuthorRow').onclick = () => {
+                document.getElementById('visionModal').classList.add('hidden');
+                openProfileModal(post.authorId);
+            };
 
-    // Like button
-    document.getElementById('visionLikeBtn').onclick = () => likePost(postId);
+            document.getElementById('visionLikes').innerHTML =
+                `<i class="fa-solid fa-heart text-orange-500 mr-1"></i> ${post.likes || 0} TOTAL LIKES`;
+            document.getElementById('visionViews').innerHTML =
+                `<i class="fa-solid fa-eye mr-1"></i> ${post.views || 0} VIEWS`;
 
-    // Share button
-    document.getElementById('visionShare').onclick = async () => {
-    const modal = document.getElementById('visionModal');
+            document.getElementById('visionModal').classList.remove('hidden');
 
-    showToast("PREPARING SHARE... ");
+            // Like button
+            document.getElementById('visionLikeBtn').onclick = () => likePost(postId);
 
-    try {
-        const canvas = await html2canvas(modal, {
-            backgroundColor: "#ffffff",
-            scale: 2,
-            useCORS: true
-        });
+            // Share button
+            document.getElementById('visionShare').onclick = async () => {
+                const modal = document.getElementById('visionModal');
 
-        const blob = await new Promise(resolve => 
-            canvas.toBlob(resolve, "image/png")
-        );
+                showToast("PREPARING SHARE... ");
 
-        const file = new File(
-            [blob],
-            `${document.getElementById('visionTitle').innerText || "photo"}.png`,
-            { type: "image/png" }
-        );
+                try {
+                    const canvas = await html2canvas(modal, {
+                        backgroundColor: "#ffffff",
+                        scale: 2,
+                        useCORS: true
+                    });
 
-        // 🚀 Native share sheet
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
-            await navigator.share({
-                files: [file],
-                title: "Check this out",
-                text: `Check this image out on PHOTOHOP!😊 (${post.url})`
-            });
+                    const blob = await new Promise(resolve =>
+                        canvas.toBlob(resolve, "image/png")
+                    );
 
-            showToast("SHARED SUCCESSFULLY");
-        } else {
-            showToast("SHARE NOT SUPPORTED ON THIS DEVICE");
-        }
+                    const file = new File(
+                        [blob],
+                        `${document.getElementById('visionTitle').innerText || "photo"}.png`,
+                        { type: "image/png" }
+                    );
 
-    } catch (err) {
-        console.error(err);
-        showToast("SHARE FAILED");
-    }
-};
+                    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                        await navigator.share({
+                            files: [file],
+                            title: "Check this out",
+                            text: `Check this image out on PHOTOHOP!😊 (${post.url})`
+                        });
 
-    // Delete button
-    const deleteBtn = document.getElementById('visionDeleteBtn');
+                        showToast("SHARED SUCCESSFULLY");
+                    } else {
+                        showToast("SHARE NOT SUPPORTED ON THIS DEVICE");
+                    }
 
-    if (post.authorId === currentUser?.uid) {
-        deleteBtn.classList.remove('hidden');
-        deleteBtn.onclick = () => deletePost(postId); // 👈 passes the correct ID
-    } else {
-        deleteBtn.classList.add('hidden');
-        deleteBtn.onclick = null;
-    }
-};
+                } catch (err) {
+                    console.error(err);
+                    showToast("SHARE FAILED");
+                }
+            };
+
+            // Delete button
+            const deleteBtn = document.getElementById('visionDeleteBtn');
+            if (post.authorId === currentUser?.uid) {
+                deleteBtn.classList.remove('hidden');
+                deleteBtn.onclick = () => deletePost(postId);
+            } else {
+                deleteBtn.classList.add('hidden');
+                deleteBtn.onclick = null;
+            }
+
+            subscribeComments(postId);
+            registerView(postId);
+        };
 
         document.getElementById('closeVision').onclick = () => {
             document.getElementById('visionModal').classList.add('hidden');
+            document.getElementById('visionImgWrap').classList.remove('vision-fullscreen');
             currentVisionId = null;
+            if (commentsUnsub) { commentsUnsub(); commentsUnsub = null; }
+            lastSubscribedCommentsPostId = null;
         };
 
-        window.openProfileModal = () => {
-            const input = document.getElementById('userNameInput');
-            input.value = allProfiles[currentUser.uid]?.name || "";
+        window.toggleFullscreen = () => {
+            document.getElementById('visionImgWrap').classList.toggle('vision-fullscreen');
+        };
+
+        // --- NEW: view counter with a simple per-browser anti-spam throttle ---
+        function registerView(postId) {
+            try {
+                const key = `phhop_view_${postId}`;
+                const last = parseInt(localStorage.getItem(key) || '0', 10);
+                const now = Date.now();
+                if (now - last < VIEW_THROTTLE_MS) return;
+                localStorage.setItem(key, String(now));
+                const postRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId);
+                updateDoc(postRef, { views: increment(1) }).catch(e => console.error('View increment failed', e));
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // ============================================================
+        // NEW: COMMENTS
+        // ============================================================
+
+        function subscribeComments(postId) {
+            if (lastSubscribedCommentsPostId === postId && commentsUnsub) return;
+            if (commentsUnsub) { commentsUnsub(); commentsUnsub = null; }
+            lastSubscribedCommentsPostId = postId;
+
+            const q = query(
+                collection(db, 'artifacts', appId, 'public', 'data', 'comments'),
+                where('postId', '==', postId)
+            );
+            commentsUnsub = onSnapshot(q, (snap) => {
+                const comments = snap.docs
+                    .map(d => ({ id: d.id, ...d.data() }))
+                    .sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                renderComments(comments);
+            }, (err) => console.error('Comments sync error', err));
+        }
+
+        function renderComments(comments) {
+            const container = document.getElementById('visionComments');
+            if (!container) return;
+            if (comments.length === 0) {
+                container.innerHTML = `<p class="text-[10px] font-black text-gray-300 uppercase tracking-widest text-center py-6">NO COMMENTS YET — SAY SOMETHING!</p>`;
+                return;
+            }
+            container.innerHTML = comments.map(c => {
+                const name = allProfiles[c.authorId]?.name || 'UNKNOWN';
+                const mine = c.authorId === currentUser?.uid;
+                return `
+                    <div class="flex justify-between items-start bg-gray-50 rounded-2xl p-4">
+                        <div class="pr-3">
+                            <p class="text-[10px] font-black uppercase tracking-widest cursor-pointer hover:text-orange-500 transition-colors" onclick="openProfileModal('${c.authorId}')">${escapeHtml(name)}</p>
+                            <p class="text-sm font-bold text-gray-700 mt-1 break-words">${escapeHtml(c.text)}</p>
+                            <p class="text-[9px] font-bold text-gray-300 uppercase mt-1">${formatTimeAgo(c.timestamp)}</p>
+                        </div>
+                        ${mine ? `<button onclick="deleteComment('${c.id}')" class="text-gray-300 hover:text-red-500 transition-colors flex-shrink-0"><i class="fa-solid fa-trash text-xs"></i></button>` : ''}
+                    </div>`;
+            }).join('');
+        }
+
+        window.postComment = async () => {
+            const input = document.getElementById('commentInput');
+            const text = input.value.trim();
+            if (!text) { showToast('COMMENT CANNOT BE EMPTY'); return; }
+            if (!currentUser || !currentVisionId) return;
+
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'comments'), {
+                    postId: currentVisionId,
+                    authorId: currentUser.uid, // ownership is derived from the authenticated UID, never from client input
+                    text,
+                    timestamp: Date.now()
+                });
+                input.value = '';
+            } catch (e) {
+                console.error(e);
+                showToast('COMMENT FAILED');
+            }
+        };
+
+        document.getElementById('commentInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') postComment();
+        });
+
+        window.deleteComment = async (commentId) => {
+            if (!currentUser) return;
+            try {
+                // Client-side check is a UX nicety only — real enforcement must
+                // come from Firestore security rules (see notes at the end).
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'comments', commentId));
+            } catch (e) {
+                console.error(e);
+                showToast('DELETE FAILED');
+            }
+        };
+
+        // ============================================================
+        // PROFILE MODAL
+        // ============================================================
+
+        window.openProfileModal = (uid) => {
+            const targetUid = uid || currentUser?.uid;
+            if (!targetUid) return;
+            profileViewUid = targetUid;
+            pendingAvatarUrl = null;
+            renderProfileModal();
             document.getElementById('profileModal').classList.remove('hidden');
         };
 
+        function renderProfileModal() {
+            if (!profileViewUid) return;
+            const profile = allProfiles[profileViewUid] || {};
+            const isOwn = currentUser && profileViewUid === currentUser.uid;
+            const userPosts = allPosts.filter(p => p.authorId === profileViewUid);
+            const totalLikes = userPosts.reduce((a, p) => a + (p.likes || 0), 0);
+            const mostLiked = [...userPosts].sort((a, b) => (b.likes || 0) - (a.likes || 0))[0];
+
+            document.getElementById('profileDisplayName').innerText = profile.name || 'UNKNOWN';
+            document.getElementById('profileBio').innerText = profile.bio || 'No bio yet.';
+            document.getElementById('profileJoinDate').innerText = profile.createdAt
+                ? `JOINED ${new Date(profile.createdAt).toLocaleDateString()}`
+                : 'JOINED —';
+            document.getElementById('profilePhotoCount').innerText = userPosts.length;
+            document.getElementById('profileTotalLikes').innerText = totalLikes;
+            document.getElementById('profileMostLikedCount').innerText = mostLiked?.likes || 0;
+
+            const avatarWrap = document.getElementById('profileAvatarWrap');
+            avatarWrap.innerHTML = profile.avatar
+                ? `<img src="${profile.avatar}" class="w-full h-full object-cover">`
+                : escapeHtml((profile.name || '?').charAt(0).toUpperCase());
+
+            document.getElementById('profilePhotoGrid').innerHTML = userPosts.length
+                ? [...userPosts].sort((a, b) => b.timestamp - a.timestamp).map(p => `
+                    <div class="profile-grid-item rounded-2xl overflow-hidden cursor-pointer aspect-square" onclick="document.getElementById('profileModal').classList.add('hidden'); openVision('${p.id}')">
+                        <img src="${p.url}" class="w-full h-full object-cover">
+                    </div>`).join('')
+                : `<p class="col-span-3 text-center text-gray-300 font-black uppercase tracking-widest py-10 text-xs">NO PHOTOS YET</p>`;
+
+            const editToggle = document.getElementById('profileEditToggle');
+            const editSection = document.getElementById('profileEditSection');
+            if (isOwn) {
+                editToggle.classList.remove('hidden');
+                editToggle.onclick = () => {
+                    document.getElementById('userNameInput').value = profile.name || '';
+                    document.getElementById('userBioInput').value = profile.bio || '';
+                    editSection.classList.remove('hidden');
+                };
+            } else {
+                editToggle.classList.add('hidden');
+                editSection.classList.add('hidden');
+            }
+        }
+
+        document.getElementById('userAvatarInput').addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            try {
+                showToast('UPLOADING AVATAR...');
+                pendingAvatarUrl = await uploadToCloudinary(file);
+                showToast('AVATAR READY — HIT SAVE');
+            } catch (err) {
+                console.error(err);
+                showToast('AVATAR UPLOAD FAILED');
+            }
+        });
+
         document.getElementById('saveProfile').onclick = async () => {
-    const input = document.getElementById('userNameInput');
-    const name = input.value.trim();
+            const nameInput = document.getElementById('userNameInput');
+            const bioInput = document.getElementById('userBioInput');
+            const name = nameInput.value.trim();
+            const bio = bioInput.value.trim();
 
-    if (!name || !currentUser) {
-        showToast("ENTER A USERNAME");
-        return;
-    }
+            if (!name || !currentUser) {
+                showToast("ENTER A USERNAME");
+                return;
+            }
+            if (name.length < 3) {
+                showToast("USERNAME TOO SHORT");
+                return;
+            }
+            if (name.length > 20) {
+                showToast("USERNAME TOO LONG");
+                return;
+            }
 
-    // Optional validation
-    if (name.length < 3) {
-        showToast("USERNAME TOO SHORT");
-        return;
-    }
+            const lowerName = name.toLowerCase();
+            const nameTaken = Object.values(allProfiles).some(profile =>
+                profile.uid !== currentUser.uid &&
+                (profile.name || "").toLowerCase() === lowerName
+            );
+            if (nameTaken) {
+                showToast("USERNAME ALREADY TAKEN");
+                return;
+            }
 
-    if (name.length > 20) {
-        showToast("USERNAME TOO LONG");
-        return;
-    }
+            const saveBtn = document.getElementById('saveProfile');
+            try {
+                saveBtn.disabled = true;
+                saveBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin mr-2"></i>SAVING...`;
 
-    // Check if another user already uses this name (case-insensitive)
-    const lowerName = name.toLowerCase();
+                const profRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', currentUser.uid);
+                const updateData = { name, bio, uid: currentUser.uid };
+                if (pendingAvatarUrl) updateData.avatar = pendingAvatarUrl;
+                if (!allProfiles[currentUser.uid]?.createdAt) updateData.createdAt = Date.now();
 
-    const nameTaken = Object.values(allProfiles).some(profile =>
-        profile.uid !== currentUser.uid &&
-        (profile.name || "").toLowerCase() === lowerName
-    );
+                await setDoc(profRef, updateData, { merge: true });
 
-    if (nameTaken) {
-        showToast("USERNAME ALREADY TAKEN");
-        return;
-    }
+                document.getElementById('profileEditSection').classList.add('hidden');
+                pendingAvatarUrl = null;
+                showToast("PROFILE UPDATED");
+            } catch (error) {
+                console.error(error);
+                showToast("FAILED TO SAVE");
+            } finally {
+                saveBtn.disabled = false;
+                saveBtn.innerText = "SAVE CHANGES";
+            }
+        };
 
-    try {
-        const saveBtn = document.getElementById('saveProfile');
-        saveBtn.disabled = true;
-        saveBtn.innerHTML = `
-            <i class="fa-solid fa-spinner fa-spin mr-2"></i>
-            SAVING...
-        `;
+        // ============================================================
+        // UPLOAD
+        // ============================================================
 
-        const profRef = doc(
-            db,
-            'artifacts',
-            appId,
-            'public',
-            'data',
-            'profiles',
-            currentUser.uid
-        );
-
-        await setDoc(
-            profRef,
-            {
-                name: name,
-                uid: currentUser.uid
-            },
-            { merge: true }
-        );
-
-        document.getElementById('profileModal').classList.add('hidden');
-        showToast("USERNAME UPDATED");
-    } catch (error) {
-        console.error(error);
-        showToast("FAILED TO SAVE");
-    } finally {
-        const saveBtn = document.getElementById('saveProfile');
-        saveBtn.disabled = false;
-        saveBtn.innerText = "SAVE CHANGES";
-    }
-};
         document.getElementById('openUpload').onclick = () => {
             document.getElementById('uploadModal').classList.remove('hidden');
         };
 
         document.getElementById('uploadBtn').onclick = async () => {
-    const fileInput = document.getElementById('imgFile');
-    const title = document.getElementById('imgTitle').value.trim();
-    const btn = document.getElementById('uploadBtn');
+            const fileInput = document.getElementById('imgFile');
+            const title = document.getElementById('imgTitle').value.trim();
+            const category = document.getElementById('imgCategory').value || 'other';
+            const joinTheme = document.getElementById('weeklyThemeOptIn')?.checked;
+            const btn = document.getElementById('uploadBtn');
 
-    const file = fileInput.files[0];
+            const file = fileInput.files[0];
 
-    if (!file || !title || !currentUser) return;
-
-    btn.disabled = true;
-    btn.innerText = "UPLOADING...";
-
-    const formData = new FormData();
-
-    formData.append("file", file);
-
-    // 🔥 CHANGE THESE TWO VALUES
-    formData.append("upload_preset", "error-inc");
-
-    try {
-        const res = await fetch(
-            "https://api.cloudinary.com/v1_1/drqkilrfl/image/upload",
-            {
-                method: "POST",
-                body: formData
+            if (!file || !title || !currentUser) {
+                showToast("FILL IN ALL FIELDS");
+                return;
             }
-        );
 
-        const data = await res.json();
+            btn.disabled = true;
+            btn.innerText = "UPLOADING...";
 
-        const url = data.secure_url;
+            try {
+                const url = await uploadToCloudinary(file);
+                const { theme } = getWeekInfo();
 
-        if (!url) throw new Error("Upload failed");
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'posts'), {
+                    url,
+                    title,
+                    category,
+                    authorId: currentUser.uid,
+                    likes: 0,
+                    likedBy: [],
+                    views: 0,
+                    weeklyTheme: joinTheme ? theme : null,
+                    timestamp: Date.now()
+                });
 
-        await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'posts'), {
-            url,
-            title,
-            authorId: currentUser.uid,
-            likes: 0,
-            likedBy: [],
-            timestamp: Date.now()
-        });
+                fileInput.value = "";
+                document.getElementById('imgTitle').value = "";
+                document.getElementById('weeklyThemeOptIn').checked = false;
+                document.getElementById('uploadModal').classList.add('hidden');
 
-        fileInput.value = "";
-        document.getElementById('imgTitle').value = "";
-        document.getElementById('uploadModal').classList.add('hidden');
+                showToast("UPLOAD SUCCESS 🚀");
 
-        showToast("UPLOAD SUCCESS 🚀");
+            } catch (err) {
+                console.error(err);
+                showToast("UPLOAD FAILED ❌");
+            }
 
-    } catch (err) {
-        console.error(err);
-        showToast("UPLOAD FAILED ❌");
-    }
+            btn.disabled = false;
+            btn.innerText = "UPLOAD NOW";
+        };
 
-    btn.disabled = false;
-    btn.innerText = "UPLOAD NOW";
-};
+        // ============================================================
+        // LIKES / DELETE
+        // ============================================================
+
         async function likePost(postId) {
             if (!currentUser) return;
             const postRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId);
@@ -815,60 +1435,46 @@ if (badge) {
             await updateDoc(postRef, { likes: newLikes, likedBy: newLikedBy });
             showToast(likedBy.includes(currentUser.uid) ? "UNLIKED" : "LIKED");
         }
-// Add this function anywhere in your script (for example below likePost())
+        // FIXED: likePost is now exposed on window so the inline onclick="likePost(...)"
+        // handlers used in the feed/trending/discover card grids can actually find it —
+        // as a plain module-scoped function it was unreachable from inline HTML attributes.
+        window.likePost = likePost;
 
-import { deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        async function deletePost(postId) {
+            if (!currentUser) return;
 
-async function deletePost(postId) {
-    if (!currentUser) return;
+            const post = allPosts.find(p => p.id === postId);
+            if (!post) return;
 
-    const post = allPosts.find(p => p.id === postId);
-    if (!post) return;
+            // Only allow the uploader to delete their own image
+            if (post.authorId !== currentUser.uid) {
+                showToast("YOU CAN ONLY DELETE YOUR OWN IMAGES");
+                return;
+            }
 
-    // Only allow the uploader to delete their own image
-    if (post.authorId !== currentUser.uid) {
-        showToast("YOU CAN ONLY DELETE YOUR OWN IMAGES");
-        return;
-    }
+            // Confirm before deleting
+            const confirmed = confirm(`Delete "${post.title}"?`);
+            if (!confirmed) return;
 
-    // Confirm before deleting
-    const confirmed = confirm(`Delete "${post.title}"?`);
-    if (!confirmed) return;
+            try {
+                await deleteDoc(
+                    doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId)
+                );
 
-    try {
-        await deleteDoc(
-            doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId)
-        );
+                // Close preview if the deleted image is open
+                if (currentVisionId === postId) {
+                    document.getElementById('visionModal').classList.add('hidden');
+                    currentVisionId = null;
+                    if (commentsUnsub) { commentsUnsub(); commentsUnsub = null; }
+                    lastSubscribedCommentsPostId = null;
+                }
 
-        // Close preview if the deleted image is open
-        if (currentVisionId === postId) {
-            document.getElementById('visionModal').classList.add('hidden');
-            currentVisionId = null;
+                showToast("IMAGE DELETED");
+            } catch (error) {
+                console.error(error);
+                showToast("DELETE FAILED");
+            }
         }
-
-        showToast("IMAGE DELETED");
-    } catch (error) {
-        console.error(error);
-        showToast("DELETE FAILED");
-    }
-}
-function getPostBadge(post) {
-    if (!post?.id) return null;
-
-    if (post.id === badgeMap.featured) {
-        return { text: "TODAY'S FEATURED", color: "orange" };
-    }
-
-    if (post.id === badgeMap.week) {
-        return { text: "IMG OF THE WEEK", color: "orange" };
-    }
-
-    if (post.id === badgeMap.year) {
-        return { text: "IMG OF THE YEAR", color: "purple" };
-    }
-
-    return null;
-}
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
@@ -881,6 +1487,30 @@ function getPostBadge(post) {
             searchTerm = e.target.value;
             renderFeed();
         });
+
+        // --- NEW: category filter + sort controls ---
+        document.getElementById('categoryFilterSelect').addEventListener('change', (e) => {
+            categoryFilter = e.target.value;
+            renderFeed();
+        });
+        document.getElementById('sortBySelect').addEventListener('change', (e) => {
+            sortBy = e.target.value;
+            renderFeed();
+        });
+
+        // --- NEW: populate the category <select> elements ---
+        function populateCategorySelects() {
+            const filterSel = document.getElementById('categoryFilterSelect');
+            if (filterSel) {
+                filterSel.innerHTML = '<option value="all">ALL CATEGORIES</option>' +
+                    CATEGORIES.map(c => `<option value="${c}">${c.toUpperCase()}</option>`).join('');
+            }
+            const uploadSel = document.getElementById('imgCategory');
+            if (uploadSel) {
+                uploadSel.innerHTML = CATEGORIES.map(c => `<option value="${c}">${c.toUpperCase()}</option>`).join('');
+            }
+        }
+        populateCategorySelects();
 
         // Initialize with Home tab
         switchTab('home');
