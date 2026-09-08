@@ -67,7 +67,7 @@
             position: relative;
             overflow: hidden;
         }
-        
+
         .btn-premium:hover {
             transform: translateY(-3px) scale(1.02);
             box-shadow: 0 15px 30px -10px rgba(255, 77, 0, 0.3);
@@ -94,7 +94,6 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 3px solid #f1f5f9; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        /* --- NEW: fullscreen photo viewer --- */
         .vision-fullscreen {
             position: fixed !important;
             inset: 0 !important;
@@ -109,14 +108,11 @@
             max-height: 100vh !important;
         }
 
-        /* --- NEW: profile photo grid hover --- */
         .profile-grid-item { transition: transform 0.3s ease; }
         .profile-grid-item:hover { transform: scale(1.04); }
 
-        /* --- NEW: smoother touch scrolling for modals on iOS/mobile --- */
         .momentum-scroll { -webkit-overflow-scrolling: touch; }
 
-        /* --- NEW: category / discover tiles --- */
         .cat-tile { transition: transform 0.3s ease; }
         .cat-tile:hover { transform: translateY(-4px); }
 
@@ -134,7 +130,7 @@
                 <div class="w-10 h-10 hype-gradient rounded-xl flex items-center justify-center font-display text-white text-xl shadow-lg rotate-3">H</div>
                 <span class="text-2xl font-display uppercase tracking-tight italic">PHOTO<span class="hype-text-gradient">HOP</span></span>
             </div>
-            
+
             <div class="flex items-center flex-wrap justify-center gap-x-8 gap-y-2">
                 <button onclick="switchTab('home')" id="tab-home" class="tab-btn active text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black">HOME</button>
                 <button onclick="switchTab('feed')" id="tab-feed" class="tab-btn text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black">ALL IMAGES</button>
@@ -143,9 +139,10 @@
             </div>
 
             <div class="flex items-center space-x-4">
-                <div id="userBadge" class="hidden flex items-center bg-white px-4 py-2 rounded-2xl border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors" onclick="openProfileModal()">
+                <div id="userBadge" class="hidden flex items-center bg-white px-4 py-2 rounded-2xl border border-gray-100 cursor-pointer hover:bg-gray-50 transition-colors" onclick="openAccountMenu()">
                     <div class="w-2 h-2 bg-orange-500 rounded-full animate-pulse mr-2"></div>
                     <span id="displayUserName" class="text-[10px] font-black text-gray-500 uppercase tracking-widest">GUEST_ID</span>
+                    <span id="modBadge" class="hidden ml-2 px-2 py-0.5 bg-purple-600 text-white text-[8px] font-black rounded-full tracking-widest">MOD</span>
                 </div>
                 <button id="openUpload" class="bg-black text-white px-6 py-3 rounded-2xl font-black text-xs btn-premium tracking-widest flex items-center">
                     <i class="fa-solid fa-plus mr-2"></i> UPLOAD
@@ -155,14 +152,21 @@
     </nav>
 
     <main class="pt-40 md:pt-32 px-6 max-w-7xl mx-auto space-y-20 pb-32">
-        
-        <!-- HOME VIEW -->
+
+        <div id="secureAccountBanner" class="hidden bg-black text-white rounded-[2rem] px-8 py-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span class="text-[10px] font-black uppercase tracking-widest">🔒 SECURE YOUR ACCOUNT — create a password so you can access your PHOTOHOP account from other devices</span>
+            <div class="flex items-center gap-3 flex-shrink-0">
+                <button onclick="openAuthModal('secure')" class="bg-white text-black px-5 py-2.5 rounded-xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-transform">SECURE NOW</button>
+                <button onclick="dismissSecureBanner()" class="text-white/40 hover:text-white transition-colors"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+
         <div id="view-home" class="space-y-20">
-            <!-- TODAY'S FEATURED SECTION -->
+
             <section id="spotlightContainer" class="relative w-full h-[500px] md:h-[600px] rounded-[3rem] overflow-hidden group aura-shadow cursor-pointer">
                 <div class="absolute inset-0 bg-gradient-to-t from-white via-white/20 to-transparent z-10 opacity-90"></div>
                 <img id="spotlightImg" src="https://placehold.co/1200x800/eee/999?text=Featured+Photo" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105" alt="Featured">
-                
+
                 <div class="absolute bottom-0 left-0 p-8 md:p-12 z-20 w-full">
                     <div class="flex items-center space-x-3 mb-4">
                         <span class="px-4 py-1.5 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl">TODAY'S FEATURED</span>
@@ -177,7 +181,6 @@
                 </div>
             </section>
 
-            <!-- NEW: WEEKLY THEME BANNER -->
             <section class="glass p-10 rounded-[3rem] aura-shadow">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
                     <div>
@@ -194,7 +197,6 @@
                 </div>
             </section>
 
-            <!-- HALL OF FAME & LEADERBOARD GRID -->
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-12">
                 <div class="lg:col-span-3 space-y-16">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -214,7 +216,7 @@
                             <div id="yearlyBestContainer"></div>
                         </div>
                     </div>
-                    
+
                     <div class="bg-black text-white p-12 rounded-[3.5rem] shadow-2xl flex flex-col md:flex-row justify-between items-center gap-8">
                         <div>
                             <h2 class="text-4xl font-display uppercase italic italic leading-none">JOIN THE <span class="hype-text-gradient">COMMUNITY</span></h2>
@@ -249,7 +251,6 @@
             </div>
         </div>
 
-        <!-- FEED VIEW (HIDDEN BY DEFAULT) -->
         <div id="view-feed" class="hidden space-y-12">
             <div class="flex flex-col md:flex-row justify-between items-center gap-6">
                 <div>
@@ -275,11 +276,10 @@
             </div>
 
             <div id="feedGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                <!-- Posts injected here -->
+
             </div>
         </div>
 
-        <!-- NEW: TRENDING VIEW -->
         <div id="view-trending" class="hidden space-y-12">
             <div>
                 <h2 class="text-6xl font-display uppercase italic leading-none">TRENDING <span class="hype-text-gradient">NOW</span></h2>
@@ -288,7 +288,6 @@
             <div id="trendingGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10"></div>
         </div>
 
-        <!-- NEW: DISCOVER VIEW -->
         <div id="view-discover" class="hidden space-y-16">
             <div>
                 <h2 class="text-6xl font-display uppercase italic leading-none">DISCOVER</h2>
@@ -332,7 +331,6 @@
 
     </main>
 
-    <!-- PREVIEW MODAL -->
     <div id="visionModal" class="fixed inset-0 z-[100] hidden bg-white/95 flex items-center justify-center p-4 md:p-12 overflow-y-auto momentum-scroll">
         <button id="closeVision" class="fixed top-8 right-8 w-14 h-14 bg-black text-white rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-2xl z-[110]">
             <i class="fa-solid fa-xmark text-xl"></i>
@@ -373,7 +371,6 @@
                     </button>
                 </div>
 
-                <!-- NEW: COMMENTS -->
                 <div class="border-t border-gray-100 pt-8 space-y-4">
                     <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">💬 COMMENTS</p>
                     <div class="flex space-x-3">
@@ -386,7 +383,6 @@
         </div>
     </div>
 
-    <!-- PROFILE MODAL -->
     <div id="profileModal" class="fixed inset-0 z-[100] hidden bg-black/40 backdrop-blur-md flex items-center justify-center p-6 overflow-y-auto momentum-scroll">
         <div class="bg-white max-w-2xl w-full rounded-[3rem] p-8 md:p-10 animate-reveal shadow-2xl my-10 max-h-[90vh] overflow-y-auto momentum-scroll">
             <div class="flex justify-between items-start mb-8">
@@ -447,12 +443,11 @@
         </div>
     </div>
 
-    <!-- UPLOAD MODAL -->
     <div id="uploadModal" class="fixed inset-0 z-[100] hidden bg-black/40 backdrop-blur-md flex items-center justify-center p-6 overflow-y-auto momentum-scroll">
         <div class="bg-white max-w-xl w-full rounded-[3rem] p-10 animate-reveal shadow-2xl my-10">
             <h2 class="text-4xl font-display uppercase mb-2 italic">UPLOAD <span class="hype-text-gradient">PHOTO</span></h2>
             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-8">SHARE YOUR PHOTO WITH THE COMMUNITY</p>
-            
+
             <div class="space-y-6">
                 <div>
                     <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">IMAGE FILE</label>
@@ -478,7 +473,75 @@
         </div>
     </div>
 
-    <!-- TOAST NOTIFICATION -->
+    <div id="accountMenuModal" class="fixed inset-0 z-[100] hidden bg-black/40 backdrop-blur-md flex items-center justify-center p-6">
+        <div class="bg-white max-w-sm w-full rounded-[2.5rem] p-8 animate-reveal shadow-2xl">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-2xl font-display uppercase italic">ACCOUNT</h3>
+                <button onclick="closeAccountMenu()" class="w-9 h-9 bg-gray-100 rounded-2xl flex items-center justify-center hover:bg-gray-200 flex-shrink-0">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p id="accountMenuName" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">—</p>
+            <div class="space-y-3">
+                <button onclick="closeAccountMenu(); openProfileModal();" class="w-full bg-gray-50 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 text-left px-6 transition-colors">
+                    <i class="fa-solid fa-user mr-3 text-gray-400"></i>VIEW PROFILE
+                </button>
+                <button id="accountMenuSecureBtn" onclick="closeAccountMenu(); openAuthModal('secure');" class="hidden w-full bg-orange-50 text-orange-600 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-orange-100 text-left px-6 transition-colors">
+                    <i class="fa-solid fa-lock mr-3"></i>SECURE MY ACCOUNT
+                </button>
+                <button id="accountMenuSignInBtn" onclick="closeAccountMenu(); openAuthModal('signin');" class="hidden w-full bg-gray-50 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 text-left px-6 transition-colors">
+                    <i class="fa-solid fa-right-to-bracket mr-3 text-gray-400"></i>SIGN IN TO EXISTING ACCOUNT
+                </button>
+                <button id="accountMenuChangeUsernameBtn" onclick="closeAccountMenu(); openAuthModal('changeUsername');" class="hidden w-full bg-gray-50 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 text-left px-6 transition-colors">
+                    <i class="fa-solid fa-at mr-3 text-gray-400"></i>CHANGE USERNAME
+                </button>
+                <button id="accountMenuChangePasswordBtn" onclick="closeAccountMenu(); openAuthModal('changePassword');" class="hidden w-full bg-gray-50 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-gray-100 text-left px-6 transition-colors">
+                    <i class="fa-solid fa-key mr-3 text-gray-400"></i>CHANGE PASSWORD
+                </button>
+                <button onclick="handleSignOut()" class="w-full bg-red-50 text-red-500 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-100 text-left px-6 transition-colors">
+                    <i class="fa-solid fa-arrow-right-from-bracket mr-3"></i>SIGN OUT
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="authModal" class="fixed inset-0 z-[110] hidden bg-black/50 backdrop-blur-md flex items-center justify-center p-6">
+        <div class="bg-white max-w-md w-full rounded-[2.5rem] p-10 animate-reveal shadow-2xl my-10 max-h-[90vh] overflow-y-auto momentum-scroll">
+            <div class="flex justify-between items-start mb-2">
+                <h2 id="authModalTitle" class="text-3xl font-display uppercase italic">SIGN IN</h2>
+                <button onclick="closeAuthModal()" class="w-9 h-9 bg-gray-100 rounded-2xl flex items-center justify-center hover:bg-gray-200 flex-shrink-0">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <p id="authModalSubtitle" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-8">ACCESS YOUR PHOTOHOP ACCOUNT</p>
+
+            <div class="space-y-5">
+                <div id="authCurrentPasswordGroup" class="hidden">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">CURRENT PASSWORD</label>
+                    <input id="authCurrentPassword" type="password" autocomplete="current-password" class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg">
+                </div>
+                <div id="authUsernameGroup">
+                    <label id="authUsernameLabel" class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">USERNAME</label>
+                    <input id="authUsername" type="text" maxlength="20" autocomplete="username" placeholder="e.g. xerrortm" class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg">
+                </div>
+                <div id="authPasswordGroup">
+                    <label id="authPasswordLabel" class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">PASSWORD</label>
+                    <input id="authPassword" type="password" autocomplete="new-password" class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg">
+                </div>
+                <div id="authConfirmGroup" class="hidden">
+                    <label id="authConfirmLabel" class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-4 mb-2 block">CONFIRM PASSWORD</label>
+                    <input id="authConfirm" type="password" autocomplete="new-password" class="w-full bg-gray-50 border border-gray-100 rounded-2xl py-4 px-6 outline-none focus:ring-4 focus:ring-orange-500/10 font-bold text-lg">
+                </div>
+
+                <button id="authSubmitBtn" onclick="submitAuthForm()" class="w-full bg-black text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs btn-premium">SIGN IN</button>
+
+                <div id="authSwitchRow" class="text-center">
+                    <button id="authSwitchModeBtn" onclick="switchAuthMode()" class="text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-black underline"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] hidden">
         <div class="bg-black text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-2xl flex items-center">
             <i class="fa-solid fa-heart text-orange-500 mr-3 animate-pulse"></i>
@@ -487,8 +550,15 @@
     </div>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            initializeApp
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth, signInAnonymously, onAuthStateChanged,
+            createUserWithEmailAndPassword, signInWithEmailAndPassword,
+            linkWithCredential, EmailAuthProvider, updateEmail, updatePassword,
+            reauthenticateWithCredential, signOut
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import {
             getFirestore, doc, setDoc, getDoc, updateDoc, deleteDoc,
             collection, query, where, onSnapshot, addDoc, increment, Timestamp
@@ -509,12 +579,13 @@
         const auth = getAuth(app);
         const appId = "hypedum_community_v2";
 
-        // --- NEW: shared constants ---
         const CATEGORIES = ['nature','city','people','animals','travel','food','vehicles','architecture','landscape','other'];
         const WEEKLY_THEMES = ["SUNSETS","OCEAN","NATURE","CITY NIGHTS","ANIMALS","TRAVEL","SKY","ARCHITECTURE","MINIMALISM","MACRO","VEHICLES","WEATHER"];
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/drqkilrfl/image/upload";
         const CLOUDINARY_PRESET = "error-inc";
-        const VIEW_THROTTLE_MS = 30 * 60 * 1000; // 30 minutes
+        const VIEW_THROTTLE_MS = 30 * 60 * 1000;
+
+        const USERNAME_DOMAIN = "photohop.local";
 
         let currentUser = null;
         let allPosts = [];
@@ -529,20 +600,23 @@
             year: null
         };
 
-        // --- NEW: state for daily featured fix ---
         let dailyFeaturedMeta = null;
         let isPickingFeatured = false;
 
-        // --- NEW: state for profile modal ---
         let profileViewUid = null;
         let pendingAvatarUrl = null;
 
-        // --- NEW: state for comments ---
         let commentsUnsub = null;
         let lastSubscribedCommentsPostId = null;
 
-        // --- NEW: state for weekly theme countdown ---
         let countdownInterval = null;
+
+        let postsUnsub = null;
+        let profilesUnsub = null;
+        let dailyFeaturedUnsub = null;
+
+        let authMode = 'signin';
+        let secureBannerDismissed = false;
 
         signInAnonymously(auth).catch(err => console.error("Auth Failed", err));
 
@@ -550,8 +624,7 @@
             if (user) {
                 currentUser = user;
                 document.getElementById('userBadge').classList.remove('hidden');
-                
-                // Fetch/Initialize Profile
+
                 const profRef = doc(db, 'artifacts', appId, 'public', 'data', 'profiles', user.uid);
                 const profSnap = await getDoc(profRef);
                 if (!profSnap.exists()) {
@@ -561,39 +634,54 @@
                         bio: "",
                         avatar: "",
                         createdAt: Date.now()
+
                     });
                 }
                 syncData();
                 syncProfiles();
                 syncDailyFeatured();
+                updateSecureBanner();
+                updateModBadge();
+            } else {
+
+                currentUser = null;
+                document.getElementById('userBadge').classList.add('hidden');
+                document.getElementById('secureAccountBanner').classList.add('hidden');
+                if (postsUnsub) { postsUnsub(); postsUnsub = null; }
+                if (profilesUnsub) { profilesUnsub(); profilesUnsub = null; }
+                if (dailyFeaturedUnsub) { dailyFeaturedUnsub(); dailyFeaturedUnsub = null; }
+                signInAnonymously(auth).catch(err => console.error("Auth Failed", err));
             }
         });
 
         function syncProfiles() {
+            if (profilesUnsub) { profilesUnsub(); profilesUnsub = null; }
             const q = collection(db, 'artifacts', appId, 'public', 'data', 'profiles');
-            onSnapshot(q, (snap) => {
+            profilesUnsub = onSnapshot(q, (snap) => {
                 snap.forEach(doc => {
                     allProfiles[doc.id] = doc.data();
                 });
                 if (currentUser && allProfiles[currentUser.uid]) {
                     document.getElementById('displayUserName').innerText = allProfiles[currentUser.uid].name;
                 }
+                updateModBadge();
                 renderUI();
             }, (err) => console.error("Profile sync error", err));
         }
 
         function syncData() {
+            if (postsUnsub) { postsUnsub(); postsUnsub = null; }
             const q = collection(db, 'artifacts', appId, 'public', 'data', 'posts');
-            onSnapshot(q, (snap) => {
+            postsUnsub = onSnapshot(q, (snap) => {
                 allPosts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
                 renderUI();
             }, (err) => console.error("Posts sync error", err));
         }
 
-        // --- NEW: real-time listener on the pinned "photo of the day" doc ---
         function syncDailyFeatured() {
+            if (dailyFeaturedUnsub) { dailyFeaturedUnsub(); dailyFeaturedUnsub = null; }
             const ref = doc(db, 'artifacts', appId, 'public', 'data', 'meta', 'dailyFeatured');
-            onSnapshot(ref, (snap) => {
+            dailyFeaturedUnsub = onSnapshot(ref, (snap) => {
                 dailyFeaturedMeta = snap.exists() ? snap.data() : null;
                 renderUI();
             }, (err) => console.error("Daily featured sync error", err));
@@ -611,10 +699,6 @@
             if (profileViewUid) renderProfileModal();
             if (currentVisionId) openVision(currentVisionId);
         }
-
-        // ============================================================
-        // NEW: small shared helpers
-        // ============================================================
 
         function escapeHtml(str) {
             const div = document.createElement('div');
@@ -643,8 +727,6 @@
             return new Date(ts).toLocaleDateString();
         }
 
-        // Trending score: likes + views weighted, decayed by age so newer photos
-        // can out-rank older ones with more raw likes.
         function computeTrendingScore(post) {
             const ageHours = Math.max(0, (Date.now() - (post.timestamp || Date.now())) / 3600000);
             const likes = post.likes || 0;
@@ -652,17 +734,16 @@
             return (likes * 3 + views * 1 + 1) / Math.pow(ageHours + 2, 1.5);
         }
 
-        // Monday-based week window + deterministic rotating theme
         function getWeekInfo() {
             const now = new Date();
-            const dayIdx = (now.getDay() + 6) % 7; // 0 = Monday
+            const dayIdx = (now.getDay() + 6) % 7;
             const monday = new Date(now);
             monday.setHours(0, 0, 0, 0);
             monday.setDate(now.getDate() - dayIdx);
             const nextMonday = new Date(monday);
             nextMonday.setDate(monday.getDate() + 7);
 
-            const epoch = new Date(2024, 0, 1); // arbitrary fixed reference point
+            const epoch = new Date(2024, 0, 1);
             const weekIndex = Math.floor((monday - epoch) / (7 * 24 * 60 * 60 * 1000));
             const idx = ((weekIndex % WEEKLY_THEMES.length) + WEEKLY_THEMES.length) % WEEKLY_THEMES.length;
             return { theme: WEEKLY_THEMES[idx], weekStart: monday, weekEnd: nextMonday };
@@ -696,7 +777,46 @@
             return null;
         }
 
-        // Reusable card markup used by the feed, trending, and discover grids
+        function isModerator() {
+            return !!(currentUser && allProfiles[currentUser.uid]?.moderator === true);
+        }
+
+        function isPermanentAccountUser() {
+            return !!(currentUser && currentUser.isAnonymous === false);
+        }
+
+        function getLoginUsername() {
+            const email = currentUser?.email;
+            const suffix = '@' + USERNAME_DOMAIN;
+            if (!email || !email.endsWith(suffix)) return null;
+            return email.slice(0, -suffix.length);
+        }
+
+        function usernameToEmail(username) {
+            return `${username.trim().toLowerCase()}@${USERNAME_DOMAIN}`;
+        }
+
+        function validateUsername(u) {
+            if (!u) return "ENTER A USERNAME";
+            if (!/^[A-Za-z0-9_]{3,20}$/.test(u)) return "USERNAME MUST BE 3-20 CHARACTERS (LETTERS, NUMBERS, UNDERSCORE)";
+            return null;
+        }
+
+        function validatePassword(p) {
+            if (!p || p.length < 6) return "PASSWORD MUST BE AT LEAST 6 CHARACTERS";
+            return null;
+        }
+
+        function mapAuthError(e) {
+            const code = e?.code || '';
+            if (code.includes('email-already-in-use')) return 'USERNAME ALREADY TAKEN';
+            if (code.includes('user-not-found') || code.includes('invalid-credential') || code.includes('wrong-password')) return 'INVALID USERNAME OR PASSWORD';
+            if (code.includes('weak-password')) return 'PASSWORD TOO WEAK (MIN 6 CHARACTERS)';
+            if (code.includes('requires-recent-login')) return 'PLEASE SIGN OUT AND SIGN BACK IN, THEN RETRY';
+            if (code.includes('credential-already-in-use') || code.includes('email-already-exists')) return 'USERNAME ALREADY TAKEN';
+            return 'SOMETHING WENT WRONG — TRY AGAIN';
+        }
+
         function postCardHTML(post, opts = {}) {
             const badge = getPostBadge(post);
             const authorName = allProfiles[post.authorId]?.name || 'UNKNOWN';
@@ -742,14 +862,6 @@
                 : `<p class="col-span-full text-center text-gray-300 font-black uppercase tracking-widest py-10 text-xs">NOTHING HERE YET</p>`;
         }
 
-        // ============================================================
-        // RENDER FUNCTIONS
-        // ============================================================
-
-        // --- FIXED: featured photo is now pinned per-day via a shared Firestore
-        // doc instead of being derived from `daySeed % allPosts.length`, which
-        // changed every time someone uploaded a new photo (since the array
-        // length it was modulo-ing against kept changing).
         function renderFeatured() {
             if (allPosts.length === 0) return;
 
@@ -760,7 +872,7 @@
             if (dailyFeaturedMeta && dailyFeaturedMeta.date === todayStr) {
                 featured = allPosts.find(p => p.id === dailyFeaturedMeta.postId) || null;
             }
-            if (!featured) featured = allPosts[0]; // safe fallback while the pick resolves
+            if (!featured) featured = allPosts[0];
 
             badgeMap.featured = featured.id;
             const cleanTitle = (featured.title || "").trim();
@@ -791,7 +903,6 @@
             };
         }
 
-        // Picks (and pins) today's featured photo exactly once per calendar day.
         async function ensureDailyFeatured() {
             if (isPickingFeatured || allPosts.length === 0) return;
             const todayStr = new Date().toISOString().slice(0, 10);
@@ -887,7 +998,6 @@
                 : `<p class="col-span-full text-center text-gray-300 font-black uppercase tracking-widest py-20">NO IMAGES FOUND</p>`;
         }
 
-        // --- NEW: trending grid ---
         function renderTrending() {
             const container = document.getElementById('trendingGrid');
             if (!container) return;
@@ -895,7 +1005,6 @@
             setGrid('trendingGrid', sorted, { showScore: true });
         }
 
-        // --- NEW: discover page ---
         function renderDiscover() {
             if (!document.getElementById('discoverTrending')) return;
             if (allPosts.length === 0) return;
@@ -941,7 +1050,6 @@
             switchTab('feed');
         };
 
-        // --- NEW: weekly theme banner (drives both the home + discover copies via class selectors) ---
         function renderWeeklyBanner() {
             const { theme, weekStart, weekEnd } = getWeekInfo();
             const submitted = allPosts.filter(p =>
@@ -1022,10 +1130,6 @@
             renderUI();
         };
 
-        // ============================================================
-        // VISION MODAL (photo preview)
-        // ============================================================
-
         window.openVision = (postId) => {
             const post = allPosts.find(p => p.id === postId);
             if (!post) return;
@@ -1066,10 +1170,8 @@
 
             document.getElementById('visionModal').classList.remove('hidden');
 
-            // Like button
             document.getElementById('visionLikeBtn').onclick = () => likePost(postId);
 
-            // Share button
             document.getElementById('visionShare').onclick = async () => {
                 const modal = document.getElementById('visionModal');
 
@@ -1110,10 +1212,14 @@
                 }
             };
 
-            // Delete button
             const deleteBtn = document.getElementById('visionDeleteBtn');
-            if (post.authorId === currentUser?.uid) {
+            const modActive = isModerator();
+            const canDeletePost = modActive || post.authorId === currentUser?.uid;
+            if (canDeletePost) {
                 deleteBtn.classList.remove('hidden');
+                deleteBtn.innerHTML = (modActive && post.authorId !== currentUser?.uid)
+                    ? '<i class="fa-solid fa-shield-halved mr-2"></i>REMOVE (MOD)'
+                    : 'DELETE';
                 deleteBtn.onclick = () => deletePost(postId);
             } else {
                 deleteBtn.classList.add('hidden');
@@ -1136,7 +1242,6 @@
             document.getElementById('visionImgWrap').classList.toggle('vision-fullscreen');
         };
 
-        // --- NEW: view counter with a simple per-browser anti-spam throttle ---
         function registerView(postId) {
             try {
                 const key = `phhop_view_${postId}`;
@@ -1150,10 +1255,6 @@
                 console.error(e);
             }
         }
-
-        // ============================================================
-        // NEW: COMMENTS
-        // ============================================================
 
         function subscribeComments(postId) {
             if (lastSubscribedCommentsPostId === postId && commentsUnsub) return;
@@ -1179,9 +1280,11 @@
                 container.innerHTML = `<p class="text-[10px] font-black text-gray-300 uppercase tracking-widest text-center py-6">NO COMMENTS YET — SAY SOMETHING!</p>`;
                 return;
             }
+            const modActive = isModerator();
             container.innerHTML = comments.map(c => {
                 const name = allProfiles[c.authorId]?.name || 'UNKNOWN';
-                const mine = c.authorId === currentUser?.uid;
+
+                const canDeleteComment = modActive || c.authorId === currentUser?.uid;
                 return `
                     <div class="flex justify-between items-start bg-gray-50 rounded-2xl p-4">
                         <div class="pr-3">
@@ -1189,7 +1292,7 @@
                             <p class="text-sm font-bold text-gray-700 mt-1 break-words">${escapeHtml(c.text)}</p>
                             <p class="text-[9px] font-bold text-gray-300 uppercase mt-1">${formatTimeAgo(c.timestamp)}</p>
                         </div>
-                        ${mine ? `<button onclick="deleteComment('${c.id}')" class="text-gray-300 hover:text-red-500 transition-colors flex-shrink-0"><i class="fa-solid fa-trash text-xs"></i></button>` : ''}
+                        ${canDeleteComment ? `<button onclick="deleteComment('${c.id}')" title="${modActive && c.authorId !== currentUser?.uid ? 'Remove (moderator)' : 'Delete'}" class="text-gray-300 hover:text-red-500 transition-colors flex-shrink-0"><i class="fa-solid fa-trash text-xs"></i></button>` : ''}
                     </div>`;
             }).join('');
         }
@@ -1203,7 +1306,7 @@
             try {
                 await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'comments'), {
                     postId: currentVisionId,
-                    authorId: currentUser.uid, // ownership is derived from the authenticated UID, never from client input
+                    authorId: currentUser.uid,
                     text,
                     timestamp: Date.now()
                 });
@@ -1221,18 +1324,13 @@
         window.deleteComment = async (commentId) => {
             if (!currentUser) return;
             try {
-                // Client-side check is a UX nicety only — real enforcement must
-                // come from Firestore security rules (see notes at the end).
+
                 await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'comments', commentId));
             } catch (e) {
                 console.error(e);
                 showToast('DELETE FAILED');
             }
         };
-
-        // ============================================================
-        // PROFILE MODAL
-        // ============================================================
 
         window.openProfileModal = (uid) => {
             const targetUid = uid || currentUser?.uid;
@@ -1353,9 +1451,225 @@
             }
         };
 
-        // ============================================================
-        // UPLOAD
-        // ============================================================
+        function updateModBadge() {
+            const badge = document.getElementById('modBadge');
+            if (badge) badge.classList.toggle('hidden', !isModerator());
+        }
+
+        function updateSecureBanner() {
+            const banner = document.getElementById('secureAccountBanner');
+            if (!banner) return;
+            const shouldShow = !!(currentUser && currentUser.isAnonymous && !secureBannerDismissed);
+            banner.classList.toggle('hidden', !shouldShow);
+        }
+
+        window.dismissSecureBanner = () => {
+            secureBannerDismissed = true;
+            updateSecureBanner();
+        };
+
+        function renderAccountMenu() {
+            const nameEl = document.getElementById('accountMenuName');
+            const secureBtn = document.getElementById('accountMenuSecureBtn');
+            const signinBtn = document.getElementById('accountMenuSignInBtn');
+            const changeUserBtn = document.getElementById('accountMenuChangeUsernameBtn');
+            const changePwBtn = document.getElementById('accountMenuChangePasswordBtn');
+
+            const displayName = allProfiles[currentUser?.uid]?.name || 'GUEST';
+            const permanent = isPermanentAccountUser();
+            nameEl.innerText = permanent
+                ? `@${getLoginUsername() || displayName} · PERMANENT ACCOUNT`
+                : `${displayName} · GUEST SESSION`;
+
+            secureBtn.classList.toggle('hidden', permanent);
+            signinBtn.classList.toggle('hidden', permanent);
+            changeUserBtn.classList.toggle('hidden', !permanent);
+            changePwBtn.classList.toggle('hidden', !permanent);
+        }
+
+        window.openAccountMenu = () => {
+            renderAccountMenu();
+            document.getElementById('accountMenuModal').classList.remove('hidden');
+        };
+
+        window.closeAccountMenu = () => {
+            document.getElementById('accountMenuModal').classList.add('hidden');
+        };
+
+        window.handleSignOut = async () => {
+            if (!confirm('Sign out of PHOTOHOP? You can sign back in with your username and password any time.')) return;
+            closeAccountMenu();
+            try {
+                await signOut(auth);
+                showToast('SIGNED OUT');
+            } catch (e) {
+                console.error(e);
+                showToast('SIGN OUT FAILED');
+            }
+        };
+
+        window.openAuthModal = (mode) => {
+            authMode = mode;
+            document.getElementById('authUsername').value = '';
+            document.getElementById('authPassword').value = '';
+            document.getElementById('authConfirm').value = '';
+            document.getElementById('authCurrentPassword').value = '';
+            configureAuthModal();
+            document.getElementById('authModal').classList.remove('hidden');
+        };
+
+        window.closeAuthModal = () => {
+            document.getElementById('authModal').classList.add('hidden');
+        };
+
+        function configureAuthModal() {
+            const title = document.getElementById('authModalTitle');
+            const subtitle = document.getElementById('authModalSubtitle');
+            const usernameGroup = document.getElementById('authUsernameGroup');
+            const usernameLabel = document.getElementById('authUsernameLabel');
+            const passwordGroup = document.getElementById('authPasswordGroup');
+            const passwordLabel = document.getElementById('authPasswordLabel');
+            const confirmGroup = document.getElementById('authConfirmGroup');
+            const confirmLabel = document.getElementById('authConfirmLabel');
+            const currentPwGroup = document.getElementById('authCurrentPasswordGroup');
+            const submitBtn = document.getElementById('authSubmitBtn');
+            const switchRow = document.getElementById('authSwitchRow');
+            const switchBtn = document.getElementById('authSwitchModeBtn');
+
+            usernameGroup.classList.remove('hidden');
+            passwordGroup.classList.remove('hidden');
+            confirmGroup.classList.add('hidden');
+            currentPwGroup.classList.add('hidden');
+            switchRow.classList.remove('hidden');
+            usernameLabel.innerText = 'USERNAME';
+            passwordLabel.innerText = 'PASSWORD';
+            confirmLabel.innerText = 'CONFIRM PASSWORD';
+
+            if (authMode === 'signin') {
+                title.innerText = 'SIGN IN';
+                subtitle.innerText = 'ACCESS YOUR PHOTOHOP ACCOUNT FROM ANY DEVICE';
+                submitBtn.innerText = 'SIGN IN';
+                switchBtn.innerText = "DON'T HAVE AN ACCOUNT? CREATE ONE";
+            } else if (authMode === 'create') {
+                title.innerText = 'CREATE ACCOUNT';
+                subtitle.innerText = 'CHOOSE A USERNAME AND PASSWORD';
+                confirmGroup.classList.remove('hidden');
+                submitBtn.innerText = 'CREATE ACCOUNT';
+                switchBtn.innerText = 'ALREADY HAVE AN ACCOUNT? SIGN IN';
+            } else if (authMode === 'secure') {
+                title.innerText = 'SECURE YOUR ACCOUNT';
+                subtitle.innerText = "CREATE A PASSWORD SO YOU CAN ACCESS YOUR PHOTOHOP ACCOUNT FROM OTHER DEVICES";
+                confirmGroup.classList.remove('hidden');
+                submitBtn.innerText = 'SAVE & SECURE ACCOUNT';
+                switchRow.classList.add('hidden');
+                const existingName = allProfiles[currentUser?.uid]?.name;
+                if (existingName && !/^USER_/.test(existingName)) {
+                    document.getElementById('authUsername').value = existingName;
+                }
+            } else if (authMode === 'changeUsername') {
+                title.innerText = 'CHANGE USERNAME';
+                subtitle.innerText = 'PICK A NEW UNIQUE USERNAME';
+                passwordGroup.classList.add('hidden');
+                currentPwGroup.classList.remove('hidden');
+                submitBtn.innerText = 'SAVE USERNAME';
+                switchRow.classList.add('hidden');
+            } else if (authMode === 'changePassword') {
+                title.innerText = 'CHANGE PASSWORD';
+                subtitle.innerText = 'ENTER YOUR CURRENT PASSWORD AND A NEW ONE';
+                usernameGroup.classList.add('hidden');
+                currentPwGroup.classList.remove('hidden');
+                passwordLabel.innerText = 'NEW PASSWORD';
+                confirmLabel.innerText = 'CONFIRM NEW PASSWORD';
+                confirmGroup.classList.remove('hidden');
+                submitBtn.innerText = 'SAVE PASSWORD';
+                switchRow.classList.add('hidden');
+            }
+        }
+
+        window.switchAuthMode = () => {
+            authMode = authMode === 'signin' ? 'create' : 'signin';
+            configureAuthModal();
+        };
+
+        window.submitAuthForm = async () => {
+            const username = document.getElementById('authUsername').value.trim();
+            const password = document.getElementById('authPassword').value;
+            const confirmPw = document.getElementById('authConfirm').value;
+            const currentPassword = document.getElementById('authCurrentPassword').value;
+            const btn = document.getElementById('authSubmitBtn');
+            const originalText = btn.innerText;
+
+            try {
+                if (authMode === 'signin') {
+                    const err = validateUsername(username); if (err) { showToast(err); return; }
+                    if (!password) { showToast('ENTER YOUR PASSWORD'); return; }
+                    btn.disabled = true; btn.innerText = 'SIGNING IN...';
+                    await signInWithEmailAndPassword(auth, usernameToEmail(username), password);
+                    closeAuthModal();
+                    showToast('WELCOME BACK, ' + username.toUpperCase());
+
+                } else if (authMode === 'create' || authMode === 'secure') {
+                    const err = validateUsername(username); if (err) { showToast(err); return; }
+                    const perr = validatePassword(password); if (perr) { showToast(perr); return; }
+                    if (password !== confirmPw) { showToast('PASSWORDS DO NOT MATCH'); return; }
+                    btn.disabled = true; btn.innerText = 'SECURING...';
+
+                    const email = usernameToEmail(username);
+                    const credential = EmailAuthProvider.credential(email, password);
+                    let resultUser;
+                    if (auth.currentUser && auth.currentUser.isAnonymous) {
+
+                        const result = await linkWithCredential(auth.currentUser, credential);
+                        resultUser = result.user;
+                    } else {
+                        const result = await createUserWithEmailAndPassword(auth, email, password);
+                        resultUser = result.user;
+                    }
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', resultUser.uid), {
+                        name: username, uid: resultUser.uid
+                    }, { merge: true });
+
+                    secureBannerDismissed = true;
+                    updateSecureBanner();
+                    closeAuthModal();
+                    showToast('ACCOUNT SECURED 🔒');
+
+                } else if (authMode === 'changeUsername') {
+                    const err = validateUsername(username); if (err) { showToast(err); return; }
+                    if (!currentPassword) { showToast('ENTER YOUR CURRENT PASSWORD'); return; }
+                    if (!auth.currentUser?.email) { showToast('SIGN IN WITH A PASSWORD FIRST'); return; }
+                    btn.disabled = true; btn.innerText = 'SAVING...';
+
+                    const reauthCred = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+                    await reauthenticateWithCredential(auth.currentUser, reauthCred);
+                    await updateEmail(auth.currentUser, usernameToEmail(username));
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'profiles', currentUser.uid), { name: username }, { merge: true });
+
+                    closeAuthModal();
+                    showToast('USERNAME UPDATED');
+
+                } else if (authMode === 'changePassword') {
+                    const perr = validatePassword(password); if (perr) { showToast(perr); return; }
+                    if (!currentPassword) { showToast('ENTER YOUR CURRENT PASSWORD'); return; }
+                    if (password !== confirmPw) { showToast('PASSWORDS DO NOT MATCH'); return; }
+                    if (!auth.currentUser?.email) { showToast('SIGN IN WITH A PASSWORD FIRST'); return; }
+                    btn.disabled = true; btn.innerText = 'SAVING...';
+
+                    const reauthCred = EmailAuthProvider.credential(auth.currentUser.email, currentPassword);
+                    await reauthenticateWithCredential(auth.currentUser, reauthCred);
+                    await updatePassword(auth.currentUser, password);
+
+                    closeAuthModal();
+                    showToast('PASSWORD UPDATED');
+                }
+            } catch (e) {
+                console.error(e);
+                showToast(mapAuthError(e));
+            } finally {
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        };
 
         document.getElementById('openUpload').onclick = () => {
             document.getElementById('uploadModal').classList.remove('hidden');
@@ -1410,10 +1724,6 @@
             btn.innerText = "UPLOAD NOW";
         };
 
-        // ============================================================
-        // LIKES / DELETE
-        // ============================================================
-
         async function likePost(postId) {
             if (!currentUser) return;
             const postRef = doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId);
@@ -1435,9 +1745,7 @@
             await updateDoc(postRef, { likes: newLikes, likedBy: newLikedBy });
             showToast(likedBy.includes(currentUser.uid) ? "UNLIKED" : "LIKED");
         }
-        // FIXED: likePost is now exposed on window so the inline onclick="likePost(...)"
-        // handlers used in the feed/trending/discover card grids can actually find it —
-        // as a plain module-scoped function it was unreachable from inline HTML attributes.
+
         window.likePost = likePost;
 
         async function deletePost(postId) {
@@ -1446,13 +1754,13 @@
             const post = allPosts.find(p => p.id === postId);
             if (!post) return;
 
-            // Only allow the uploader to delete their own image
-            if (post.authorId !== currentUser.uid) {
+            const modActive = isModerator();
+            const canDelete = modActive || post.authorId === currentUser.uid;
+            if (!canDelete) {
                 showToast("YOU CAN ONLY DELETE YOUR OWN IMAGES");
                 return;
             }
 
-            // Confirm before deleting
             const confirmed = confirm(`Delete "${post.title}"?`);
             if (!confirmed) return;
 
@@ -1461,7 +1769,6 @@
                     doc(db, 'artifacts', appId, 'public', 'data', 'posts', postId)
                 );
 
-                // Close preview if the deleted image is open
                 if (currentVisionId === postId) {
                     document.getElementById('visionModal').classList.add('hidden');
                     currentVisionId = null;
@@ -1469,7 +1776,7 @@
                     lastSubscribedCommentsPostId = null;
                 }
 
-                showToast("IMAGE DELETED");
+                showToast(modActive && post.authorId !== currentUser.uid ? "IMAGE REMOVED (MODERATOR)" : "IMAGE DELETED");
             } catch (error) {
                 console.error(error);
                 showToast("DELETE FAILED");
@@ -1488,7 +1795,6 @@
             renderFeed();
         });
 
-        // --- NEW: category filter + sort controls ---
         document.getElementById('categoryFilterSelect').addEventListener('change', (e) => {
             categoryFilter = e.target.value;
             renderFeed();
@@ -1498,7 +1804,6 @@
             renderFeed();
         });
 
-        // --- NEW: populate the category <select> elements ---
         function populateCategorySelects() {
             const filterSel = document.getElementById('categoryFilterSelect');
             if (filterSel) {
@@ -1512,7 +1817,6 @@
         }
         populateCategorySelects();
 
-        // Initialize with Home tab
         switchTab('home');
 
     </script>
