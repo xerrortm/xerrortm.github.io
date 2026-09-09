@@ -12,25 +12,39 @@
         :root {
             --hype-orange: #ff4d00;
             --hype-purple: #8a2be2;
+            --ink: #0f172a;
+            --ink-soft: #475569;
+            --ink-faint: #94a3b8;
+            --surface: #ffffff;
+            --surface-sunken: #f8fafc;
+            --line: #eef1f5;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04);
+            --shadow-md: 0 8px 24px -8px rgba(15, 23, 42, 0.10);
+            --shadow-lg: 0 24px 48px -16px rgba(15, 23, 42, 0.14);
+            --ease: cubic-bezier(0.22, 1, 0.36, 1);
         }
+
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f8fafc;
-            color: #0f172a;
+            background-color: var(--surface-sunken);
+            color: var(--ink);
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            text-rendering: optimizeLegibility;
         }
 
         .font-display { font-family: 'Outfit', sans-serif; }
 
         .glass {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.86);
+            backdrop-filter: blur(16px) saturate(1.4);
+            border: 1px solid rgba(15, 23, 42, 0.06);
         }
 
         .aura-shadow {
-            box-shadow: 0 20px 50px -12px rgba(0, 0, 0, 0.08);
+            box-shadow: var(--shadow-sm), var(--shadow-md);
         }
 
         .hype-gradient {
@@ -45,10 +59,12 @@
 
         .tab-btn {
             position: relative;
-            transition: all 0.3s ease;
+            transition: color 0.2s var(--ease);
+            padding-bottom: 2px;
         }
+        .tab-btn:hover { color: var(--ink); }
         .tab-btn.active {
-            color: black;
+            color: var(--ink);
         }
         .tab-btn.active::after {
             content: '';
@@ -56,43 +72,67 @@
             bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
-            width: 20px;
-            height: 4px;
+            width: 16px;
+            height: 3px;
             background: var(--hype-orange);
             border-radius: 10px;
         }
 
         .btn-premium {
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: transform 0.22s var(--ease), box-shadow 0.22s var(--ease), background-color 0.22s var(--ease);
             position: relative;
             overflow: hidden;
         }
 
         .btn-premium:hover {
-            transform: translateY(-3px) scale(1.02);
-            box-shadow: 0 15px 30px -10px rgba(255, 77, 0, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -8px rgba(15, 23, 42, 0.25);
+        }
+        .btn-premium:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+        .btn-premium:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
         }
 
         .img-card {
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: transform 0.35s var(--ease), box-shadow 0.35s var(--ease), border-color 0.35s var(--ease);
+            border: 1px solid var(--line);
         }
 
         .img-card:hover {
-            transform: scale(1.02);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
         }
 
-        #visionModal { transition: all 0.4s ease; }
+        input[type="text"], input[type="password"], input[type="file"], textarea, select {
+            transition: box-shadow 0.2s var(--ease), border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+        }
+        input[type="text"]:focus, input[type="password"]:focus, textarea:focus, select:focus {
+            background-color: var(--surface) !important;
+            border-color: rgba(255, 77, 0, 0.35) !important;
+        }
+        input::placeholder, textarea::placeholder { color: #b8c0cc; font-weight: 600; }
+
+        #visionModal { transition: opacity 0.3s var(--ease); }
 
         @keyframes reveal {
-            from { transform: scale(0.9); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
+            from { transform: translateY(8px) scale(0.98); opacity: 0; }
+            to { transform: translateY(0) scale(1); opacity: 1; }
         }
-        .animate-reveal { animation: reveal 0.4s ease forwards; }
+        .animate-reveal { animation: reveal 0.3s var(--ease) forwards; }
 
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: #f1f5f9; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; border: 3px solid #f1f5f9; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spin-icon { animation: spin 0.8s linear infinite; display: inline-block; }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #d7dce3; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #b6bec9; }
 
         .vision-fullscreen {
             position: fixed !important;
@@ -108,30 +148,54 @@
             max-height: 100vh !important;
         }
 
-        .profile-grid-item { transition: transform 0.3s ease; }
-        .profile-grid-item:hover { transform: scale(1.04); }
+        .profile-grid-item { transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease); border: 1px solid var(--line); }
+        .profile-grid-item:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 
         .momentum-scroll { -webkit-overflow-scrolling: touch; }
 
-        .cat-tile { transition: transform 0.3s ease; }
-        .cat-tile:hover { transform: translateY(-4px); }
+        .cat-tile {
+            transition: transform 0.25s var(--ease), box-shadow 0.25s var(--ease), border-color 0.25s var(--ease);
+            border: 1px solid var(--line);
+        }
+        .cat-tile:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); border-color: rgba(255, 77, 0, 0.25); }
+
+        .comment-bubble {
+            border: 1px solid var(--line);
+            transition: border-color 0.2s var(--ease), background-color 0.2s var(--ease);
+        }
+        .comment-bubble:hover { border-color: #e2e6ec; }
+
+        .empty-state {
+            color: var(--ink-faint);
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hero-title { font-size: clamp(2.5rem, 8vw, 6rem); }
 
         @media (max-width: 768px) {
             #visionModal .max-w-6xl { gap: 1.5rem; }
-            #visionModal { padding: 1rem; }
+            #visionModal { padding: 0.75rem; }
+            #spotlightContainer { height: 420px !important; }
+        }
+
+        @media (max-width: 480px) {
+            #spotlightContainer { height: 380px !important; border-radius: 1.75rem !important; }
+            .aura-shadow { box-shadow: var(--shadow-sm), var(--shadow-md); }
         }
     </style>
 </head>
 <body class="min-h-screen">
 
-    <nav class="fixed top-0 w-full z-50 glass border-b border-gray-100 py-4 px-8">
-        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+    <nav class="fixed top-0 w-full z-50 glass border-b border-gray-100 py-3 md:py-4 px-4 md:px-8">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-3 md:gap-4">
             <div class="flex items-center space-x-3 cursor-pointer" onclick="switchTab('home')">
-                <div class="w-10 h-10 hype-gradient rounded-xl flex items-center justify-center font-display text-white text-xl shadow-lg rotate-3">H</div>
-                <span class="text-2xl font-display uppercase tracking-tight italic">PHOTO<span class="hype-text-gradient">HOP</span></span>
+                <div class="w-9 h-9 md:w-10 md:h-10 hype-gradient rounded-xl flex items-center justify-center font-display text-white text-lg md:text-xl shadow-md rotate-3">H</div>
+                <span class="text-xl md:text-2xl font-display uppercase tracking-tight italic">PHOTO<span class="hype-text-gradient">HOP</span></span>
             </div>
 
-            <div class="flex items-center flex-wrap justify-center gap-x-8 gap-y-2">
+            <div class="flex items-center flex-wrap justify-center gap-x-6 md:gap-x-8 gap-y-2">
                 <button onclick="switchTab('home')" id="tab-home" class="tab-btn active text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black">HOME</button>
                 <button onclick="switchTab('feed')" id="tab-feed" class="tab-btn text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black">ALL IMAGES</button>
                 <button onclick="switchTab('trending')" id="tab-trending" class="tab-btn text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black">TRENDING</button>
@@ -172,7 +236,7 @@
                         <span class="px-4 py-1.5 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl">TODAY'S FEATURED</span>
                         <span id="spotlightLikes" class="text-gray-900 text-xs font-black uppercase tracking-widest"><i class="fa-solid fa-heart text-orange-500 mr-1"></i> 0 LIKES</span>
                     </div>
-                    <h1 id="spotlightTitle" class="text-5xl md:text-8xl font-display uppercase italic tracking-tighter mb-8 leading-none">THE <span class="hype-text-gradient">BEST</span> OF TODAY</h1>
+                    <h1 id="spotlightTitle" class="hero-title font-display uppercase italic tracking-tighter mb-8 leading-none">THE <span class="hype-text-gradient">BEST</span> OF TODAY</h1>
                     <div class="flex space-x-4">
                         <button id="mainLikeBtn" class="bg-white text-black border border-gray-200 px-8 py-4 rounded-3xl font-black text-sm uppercase shadow-xl btn-premium">
                             LIKE IMAGE
@@ -444,7 +508,7 @@
     </div>
 
     <div id="uploadModal" class="fixed inset-0 z-[100] hidden bg-black/40 backdrop-blur-md flex items-center justify-center p-6 overflow-y-auto momentum-scroll">
-        <div class="bg-white max-w-xl w-full rounded-[3rem] p-10 animate-reveal shadow-2xl my-10">
+        <div class="bg-white max-w-xl w-full rounded-[2rem] sm:rounded-[3rem] p-6 sm:p-10 animate-reveal shadow-2xl my-10">
             <h2 class="text-4xl font-display uppercase mb-2 italic">UPLOAD <span class="hype-text-gradient">PHOTO</span></h2>
             <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-8">SHARE YOUR PHOTO WITH THE COMMUNITY</p>
 
@@ -506,7 +570,7 @@
     </div>
 
     <div id="authModal" class="fixed inset-0 z-[110] hidden bg-black/50 backdrop-blur-md flex items-center justify-center p-6">
-        <div class="bg-white max-w-md w-full rounded-[2.5rem] p-10 animate-reveal shadow-2xl my-10 max-h-[90vh] overflow-y-auto momentum-scroll">
+        <div class="bg-white max-w-md w-full rounded-[2rem] sm:rounded-[2.5rem] p-6 sm:p-10 animate-reveal shadow-2xl my-10 max-h-[90vh] overflow-y-auto momentum-scroll">
             <div class="flex justify-between items-start mb-2">
                 <h2 id="authModalTitle" class="text-3xl font-display uppercase italic">SIGN IN</h2>
                 <button onclick="closeAuthModal()" class="w-9 h-9 bg-gray-100 rounded-2xl flex items-center justify-center hover:bg-gray-200 flex-shrink-0">
@@ -618,8 +682,6 @@
         let authMode = 'signin';
         let secureBannerDismissed = false;
 
-        signInAnonymously(auth).catch(err => console.error("Auth Failed", err));
-
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
@@ -704,6 +766,13 @@
             const div = document.createElement('div');
             div.textContent = str == null ? '' : String(str);
             return div.innerHTML;
+        }
+
+        function getLocalDateKey(d = new Date()) {
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
         function hashStr(s) {
@@ -828,7 +897,7 @@
             return `
                 <div class="img-card glass rounded-[2.5rem] aura-shadow overflow-hidden group cursor-pointer" onclick="openVision('${post.id}')">
                     <div class="h-64 overflow-hidden relative">
-                        <img src="${post.url}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        <img src="${post.url}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                         <div class="absolute top-4 left-4 flex flex-wrap gap-2 max-w-[85%]">
                             ${badge ? `<span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest ${badge.color === 'orange' ? 'bg-orange-500 text-white' : 'bg-purple-500 text-white'}">${badge.text}</span>` : ''}
                             <span class="px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest bg-white/90 text-black">${catLabel}</span>
@@ -859,7 +928,7 @@
             if (!el) return;
             el.innerHTML = posts.length
                 ? posts.map(p => postCardHTML(p, opts)).join('')
-                : `<p class="col-span-full text-center text-gray-300 font-black uppercase tracking-widest py-10 text-xs">NOTHING HERE YET</p>`;
+                : `<p class="col-span-full text-center empty-state text-xs py-14"><i class="fa-regular fa-image mr-2"></i>NOTHING HERE YET</p>`;
         }
 
         function renderFeatured() {
@@ -867,7 +936,7 @@
 
             ensureDailyFeatured();
 
-            const todayStr = new Date().toISOString().slice(0, 10);
+            const todayStr = getLocalDateKey();
             let featured = null;
             if (dailyFeaturedMeta && dailyFeaturedMeta.date === todayStr) {
                 featured = allPosts.find(p => p.id === dailyFeaturedMeta.postId) || null;
@@ -905,7 +974,7 @@
 
         async function ensureDailyFeatured() {
             if (isPickingFeatured || allPosts.length === 0) return;
-            const todayStr = new Date().toISOString().slice(0, 10);
+            const todayStr = getLocalDateKey();
             const stillValid = dailyFeaturedMeta
                 && dailyFeaturedMeta.date === todayStr
                 && allPosts.some(p => p.id === dailyFeaturedMeta.postId);
@@ -995,7 +1064,7 @@
             const sorted = sortPosts(filtered);
             feed.innerHTML = sorted.length
                 ? sorted.map(post => postCardHTML(post)).join('')
-                : `<p class="col-span-full text-center text-gray-300 font-black uppercase tracking-widest py-20">NO IMAGES FOUND</p>`;
+                : `<p class="col-span-full text-center empty-state text-xs py-24"><i class="fa-solid fa-magnifying-glass mr-2"></i>NO IMAGES FOUND</p>`;
         }
 
         function renderTrending() {
@@ -1023,11 +1092,11 @@
         function renderDiscoverPOTD() {
             const el = document.getElementById('discoverPOTD');
             if (!el) return;
-            const todayStr = new Date().toISOString().slice(0, 10);
+            const todayStr = getLocalDateKey();
             const featured = (dailyFeaturedMeta && dailyFeaturedMeta.date === todayStr)
                 ? allPosts.find(p => p.id === dailyFeaturedMeta.postId)
                 : null;
-            el.innerHTML = featured ? postCardHTML(featured) : `<p class="text-gray-300 font-black uppercase tracking-widest text-xs">RESOLVING...</p>`;
+            el.innerHTML = featured ? postCardHTML(featured) : `<p class="empty-state text-xs py-6"><i class="fa-solid fa-spinner spin-icon mr-2"></i>RESOLVING...</p>`;
         }
 
         function renderCategoryTiles() {
@@ -1064,7 +1133,7 @@
             document.querySelectorAll('.weekly-theme-leader').forEach(el => {
                 el.innerHTML = leaders.length
                     ? leaders.map(p => postCardHTML(p)).join('')
-                    : `<p class="text-[10px] font-black text-gray-300 uppercase tracking-widest col-span-full">NO SUBMISSIONS YET — BE THE FIRST!</p>`;
+                    : `<p class="empty-state text-[10px] col-span-full py-4"><i class="fa-regular fa-star mr-2"></i>NO SUBMISSIONS YET — BE THE FIRST!</p>`;
             });
 
             const label = document.getElementById('weeklyThemeLabel');
@@ -1277,7 +1346,7 @@
             const container = document.getElementById('visionComments');
             if (!container) return;
             if (comments.length === 0) {
-                container.innerHTML = `<p class="text-[10px] font-black text-gray-300 uppercase tracking-widest text-center py-6">NO COMMENTS YET — SAY SOMETHING!</p>`;
+                container.innerHTML = `<p class="empty-state text-[10px] text-center py-8"><i class="fa-regular fa-comment-dots mr-2"></i>NO COMMENTS YET — SAY SOMETHING!</p>`;
                 return;
             }
             const modActive = isModerator();
@@ -1286,13 +1355,13 @@
 
                 const canDeleteComment = modActive || c.authorId === currentUser?.uid;
                 return `
-                    <div class="flex justify-between items-start bg-gray-50 rounded-2xl p-4">
-                        <div class="pr-3">
+                    <div class="comment-bubble flex justify-between items-start bg-gray-50 rounded-2xl p-4">
+                        <div class="pr-3 min-w-0">
                             <p class="text-[10px] font-black uppercase tracking-widest cursor-pointer hover:text-orange-500 transition-colors" onclick="openProfileModal('${c.authorId}')">${escapeHtml(name)}</p>
-                            <p class="text-sm font-bold text-gray-700 mt-1 break-words">${escapeHtml(c.text)}</p>
-                            <p class="text-[9px] font-bold text-gray-300 uppercase mt-1">${formatTimeAgo(c.timestamp)}</p>
+                            <p class="text-sm font-semibold text-gray-700 mt-1 break-words leading-relaxed">${escapeHtml(c.text)}</p>
+                            <p class="text-[9px] font-bold text-gray-400 uppercase mt-1.5 tracking-wider">${formatTimeAgo(c.timestamp)}</p>
                         </div>
-                        ${canDeleteComment ? `<button onclick="deleteComment('${c.id}')" title="${modActive && c.authorId !== currentUser?.uid ? 'Remove (moderator)' : 'Delete'}" class="text-gray-300 hover:text-red-500 transition-colors flex-shrink-0"><i class="fa-solid fa-trash text-xs"></i></button>` : ''}
+                        ${canDeleteComment ? `<button onclick="deleteComment('${c.id}')" title="${modActive && c.authorId !== currentUser?.uid ? 'Remove (moderator)' : 'Delete'}" class="text-gray-300 hover:text-red-500 transition-colors flex-shrink-0 p-1 -m-1"><i class="fa-solid fa-trash text-xs"></i></button>` : ''}
                     </div>`;
             }).join('');
         }
@@ -1368,7 +1437,7 @@
                     <div class="profile-grid-item rounded-2xl overflow-hidden cursor-pointer aspect-square" onclick="document.getElementById('profileModal').classList.add('hidden'); openVision('${p.id}')">
                         <img src="${p.url}" class="w-full h-full object-cover">
                     </div>`).join('')
-                : `<p class="col-span-3 text-center text-gray-300 font-black uppercase tracking-widest py-10 text-xs">NO PHOTOS YET</p>`;
+                : `<p class="col-span-3 text-center empty-state text-xs py-14"><i class="fa-regular fa-images mr-2"></i>NO PHOTOS YET</p>`;
 
             const editToggle = document.getElementById('profileEditToggle');
             const editSection = document.getElementById('profileEditSection');
@@ -1816,6 +1885,15 @@
             }
         }
         populateCategorySelects();
+
+        let lastKnownDateKey = getLocalDateKey();
+        setInterval(() => {
+            const nowKey = getLocalDateKey();
+            if (nowKey !== lastKnownDateKey) {
+                lastKnownDateKey = nowKey;
+                renderUI();
+            }
+        }, 60 * 1000);
 
         switchTab('home');
 
