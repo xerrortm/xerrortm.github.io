@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>[🏆]PHOTOHOP</title>
+    <title>PHOTOHOP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Outfit:wght@900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1078,123 +1078,52 @@
             }
             badgeMap.champion = worldCupHistory[0]?.championId || null;
         }
-        function ensureWCRoundMatches(data) {
-    const currentIdx = WC_ROUNDS.indexOf(data.currentRound || 'r16');
-    if (currentIdx <= 0) return false;
-    let changed = false;
-    for (let i = 1; i <= currentIdx; i++) {
-        const prevKey = WC_ROUNDS[i - 1];
-        const roundKey = WC_ROUNDS[i];
-        const prevMatches = data.matches?.[prevKey] || [];
-        const roundMatches = data.matches?.[roundKey] || [];
-        prevMatches.forEach(m => {
-            if (!m.winnerId && m.a) {
-                m.winnerId = (m.b && (m.votesB || 0) > (m.votesA || 0)) ? m.b : m.a;
-                changed = true;
-            }
-        });
-        for (let j = 0; j < roundMatches.length; j++) {
-            const expectedA = prevMatches[j * 2]?.winnerId || null;
-            const expectedB = prevMatches[j * 2 + 1]?.winnerId || null;
-            if (roundMatches[j].a !== expectedA) {
-                roundMatches[j].a = expectedA;
-                changed = true;
-            }
-            if (roundMatches[j].b !== expectedB) {
-                roundMatches[j].b = expectedB;
-                changed = true;
-            }
-        }
-    }
-    return changed;
-}
         async function ensureWorldCup() {
-    if (isPickingWC) return;
-    const todayKey = getLocalDateKey();
-if (!worldCupDoc || worldCupDoc.status !== 'active') {
-    if (worldCupDoc?.status === 'completed') {
-        const daysSinceCompletion = daysBetweenKeys(worldCupDoc.completedDate || worldCupDoc.startDate, todayKey);
-        if (daysSinceCompletion < 1) return;
-    }
-        const eligible = getEligibleWCPhotos();
-        if (eligible.length < 16) return;
-        isPickingWC = true;
-        try {
-            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'worldCup', 'current');
-            await runTransaction(db, async (tx) => {
-                const snap = await tx.get(ref);
-                if (snap.exists() && snap.data().status === 'active') return;
-                if (snap.exists() && snap.data().status === 'completed' && snap.data().startDate === todayKey) return;
-                const sorted = [...eligible].sort((a, b) => a.id.localeCompare(b.id));
-                const seed = hashStr('wc_' + todayKey);
-                const picked = seededShuffle(sorted, seed).slice(0, 16);
-                const r16 = [];
-                for (let i = 0; i < picked.length; i += 2) {
-                    r16.push({
-                        id: `r16_${r16.length}`,
-                        a: picked[i].id,
-                        b: picked[i + 1]?.id || null,
-                        votesA: 0,
-                        votesB: 0,
-                        winnerId: null
+            if (isPickingWC) return;
+            const todayKey = getLocalDateKey();
+            if (!worldCupDoc || worldCupDoc.status !== 'active') {
+                if (worldCupDoc && worldCupDoc.status === 'completed' && worldCupDoc.startDate === todayKey) return;
+                const eligible = getEligibleWCPhotos();
+                if (eligible.length < 16) return;
+                isPickingWC = true;
+                try {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'worldCup', 'current');
+                    await runTransaction(db, async (tx) => {
+                        const snap = await tx.get(ref);
+                        if (snap.exists() && snap.data().status === 'active') return;
+                        if (snap.exists() && snap.data().status === 'completed' && snap.data().startDate === todayKey) return;
+                        const sorted = [...eligible].sort((a, b) => a.id.localeCompare(b.id));
+                        const seed = hashStr('wc_' + todayKey);
+                        const picked = seededShuffle(sorted, seed).slice(0, 16);
+                        const r16 = [];
+                        for (let i = 0; i < picked.length; i += 2) {
+                            r16.push({ id: `r16_${r16.length}`, a: picked[i].id, b: picked[i + 1]?.id || null, votesA: 0, votesB: 0, winnerId: null });
+                        }
+                        tx.set(ref, {
+                            status: 'active',
+                            startDate: todayKey,
+                            currentRound: 'r16',
+                            photoIds: picked.map(p => p.id),
+                            matches: { r16, qf: emptyWCMatches(4, 'qf'), sf: emptyWCMatches(2, 'sf'), final: emptyWCMatches(1, 'final') },
+                            championId: null,
+                            createdAt: Date.now()
+                        });
                     });
+                } catch (e) {
+                    console.error("Failed to set up the World Cup", e);
+                } finally {
+                    isPickingWC = false;
                 }
-                tx.set(ref, {
-                    status: 'active',
-                    startDate: todayKey,
-                    currentRound: 'r16',
-                    photoIds: picked.map(p => p.id),
-                    matches: {
-                        r16,
-                        qf: emptyWCMatches(4, 'qf'),
-                        sf: emptyWCMatches(2, 'sf'),
-                        final: emptyWCMatches(1, 'final')
-                    },
-                    championId: null,
-                    createdAt: Date.now()
-                });
-            });
-        } catch (e) {
-            console.error("Failed to set up the World Cup", e);
-        } finally {
-            isPickingWC = false;
-        }
-        return;
-    }
-    const daysPassed = daysBetweenKeys(worldCupDoc.startDate, todayKey);
-    const targetRoundIdx = Math.min(
-        Math.max(daysPassed, 0),
-        WC_ROUNDS.length - 1
-    );
-    const storedIdx = WC_ROUNDS.indexOf(worldCupDoc.currentRound || 'r16');
-    const finalDue = daysPassed >= WC_ROUNDS.length && !worldCupDoc.championId;
-    if (storedIdx < 0) return;
-    if (storedIdx > 0) {
-        const repairedData = structuredClone(worldCupDoc);
-        if (ensureWCRoundMatches(repairedData)) {
-            isPickingWC = true;
-            try {
-                const ref = doc(db, 'artifacts', appId, 'public', 'data', 'worldCup', 'current');
-                await runTransaction(db, async (tx) => {
-                    const snap = await tx.get(ref);
-                    if (!snap.exists()) return;
-                    const latest = snap.data();
-                    if (latest.currentRound !== worldCupDoc.currentRound) return;
-                    tx.update(ref, {
-                        matches: repairedData.matches
-                    });
-                });
-            } catch (e) {
-                console.error("Failed to repair World Cup round", e);
-            } finally {
-                isPickingWC = false;
+                return;
+            }
+            const daysPassed = daysBetweenKeys(worldCupDoc.startDate, todayKey);
+            const targetRoundIdx = Math.min(Math.max(daysPassed, 0), WC_ROUNDS.length - 1);
+            const storedIdx = WC_ROUNDS.indexOf(worldCupDoc.currentRound || 'r16');
+            const finalDue = daysPassed >= WC_ROUNDS.length && !worldCupDoc.championId;
+            if (targetRoundIdx > storedIdx || finalDue) {
+                await advanceWorldCup(targetRoundIdx, finalDue);
             }
         }
-    }
-    if (targetRoundIdx > storedIdx || finalDue) {
-        await advanceWorldCup(targetRoundIdx, finalDue);
-    }
-}
         async function advanceWorldCup(targetRoundIdx, finalDue) {
             if (isPickingWC) return;
             isPickingWC = true;
@@ -1232,7 +1161,6 @@ if (!worldCupDoc || worldCupDoc.status !== 'active') {
                         if (finalMatch.winnerId) {
                             data.championId = finalMatch.winnerId;
                             data.status = 'completed';
-                            data.completedDate = getLocalDateKey();
                             tx.set(histRef, {
                                 startDate: data.startDate,
                                 championId: data.championId,
