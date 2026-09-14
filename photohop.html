@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>PHOTOHOP</title>
+    <title>[🏆]PHOTOHOP</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=Outfit:wght@900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -1111,8 +1111,11 @@
         async function ensureWorldCup() {
     if (isPickingWC) return;
     const todayKey = getLocalDateKey();
-    if (!worldCupDoc || worldCupDoc.status !== 'active') {
-        if (worldCupDoc && worldCupDoc.status === 'completed' && worldCupDoc.startDate === todayKey) return;
+if (!worldCupDoc || worldCupDoc.status !== 'active') {
+    if (worldCupDoc?.status === 'completed') {
+        const daysSinceCompletion = daysBetweenKeys(worldCupDoc.completedDate || worldCupDoc.startDate, todayKey);
+        if (daysSinceCompletion < 1) return;
+    }
         const eligible = getEligibleWCPhotos();
         if (eligible.length < 16) return;
         isPickingWC = true;
@@ -1229,6 +1232,7 @@
                         if (finalMatch.winnerId) {
                             data.championId = finalMatch.winnerId;
                             data.status = 'completed';
+                            data.completedDate = getLocalDateKey();
                             tx.set(histRef, {
                                 startDate: data.startDate,
                                 championId: data.championId,
