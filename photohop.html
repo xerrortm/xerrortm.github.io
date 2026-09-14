@@ -149,6 +149,59 @@
             text-transform: uppercase;
         }
         .hero-title { font-size: clamp(2.5rem, 8vw, 6rem); }
+        @keyframes wc-glow {
+            0%, 100% { box-shadow: 0 0 60px -10px rgba(255, 77, 0, 0.5), 0 0 100px -20px rgba(138, 43, 226, 0.4); }
+            50% { box-shadow: 0 0 90px -10px rgba(255, 77, 0, 0.75), 0 0 150px -20px rgba(138, 43, 226, 0.65); }
+        }
+        .wc-glow-pulse { animation: wc-glow 3s ease-in-out infinite; }
+        @keyframes wc-float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-14px) scale(1.03); }
+        }
+        .wc-float { animation: wc-float 5s ease-in-out infinite; }
+        @keyframes wc-shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        .wc-shimmer-text {
+            background: linear-gradient(90deg, #fff 0%, #ffd77a 25%, #fff 50%, #ffd77a 75%, #fff 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: wc-shimmer 3.2s linear infinite;
+        }
+        @keyframes wc-pop-in {
+            0% { opacity: 0; transform: scale(0.9) translateY(16px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .wc-pop-in { animation: wc-pop-in 0.45s var(--ease) forwards; }
+        @keyframes wc-vs-pulse {
+            0%, 100% { transform: scale(1) rotate(-6deg); }
+            50% { transform: scale(1.15) rotate(-6deg); }
+        }
+        .wc-vs-badge { animation: wc-vs-pulse 1.6s ease-in-out infinite; }
+        @keyframes wc-confetti-fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+        .wc-confetti-piece { position: fixed; top: 0; width: 9px; height: 15px; z-index: 500; pointer-events: none; animation: wc-confetti-fall linear forwards; }
+        @keyframes wc-champion-reveal {
+            0% { opacity: 0; transform: scale(0.5) rotateY(90deg); }
+            60% { opacity: 1; transform: scale(1.08) rotateY(0deg); }
+            100% { opacity: 1; transform: scale(1) rotateY(0deg); }
+        }
+        .wc-champion-reveal { animation: wc-champion-reveal 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+        .wc-glass-dark {
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(20px) saturate(1.6);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            transition: transform 0.25s var(--ease), background-color 0.25s var(--ease);
+        }
+        .wc-glass-dark:hover { background: rgba(15, 23, 42, 0.7); }
+        .wc-bracket-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .wc-round-dot { width: 9px; height: 9px; border-radius: 9999px; background: rgba(255, 255, 255, 0.25); transition: all 0.3s var(--ease); }
+        .wc-round-dot.active { background: #fff; box-shadow: 0 0 12px 2px rgba(255, 255, 255, 0.8); }
+        #wcConfettiLayer { position: fixed; inset: 0; pointer-events: none; z-index: 500; overflow: hidden; }
         @media (max-width: 768px) {
             #visionModal .max-w-6xl { gap: 1.5rem; }
             #visionModal { padding: 0.75rem; }
@@ -327,17 +380,27 @@
                     <div class="weekly-theme-leader grid grid-cols-1 sm:grid-cols-2 gap-4 w-full md:w-auto md:min-w-[380px]"></div>
                 </div>
             </section>
-            <section class="glass p-8 md:p-14 rounded-[3rem] aura-shadow">
-                <div class="flex flex-col items-center text-center mb-10">
-                    <span class="px-4 py-1.5 bg-black text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full">📸 DAILY EVENT</span>
-                    <h3 class="text-5xl md:text-6xl font-display uppercase italic mt-5">PHOTO <span class="hype-text-gradient">HEAD-TO-HEAD</span></h3>
-                    <p class="text-gray-400 text-[10px] font-black uppercase tracking-widest mt-2">TODAY'S MATCH</p>
+            <section class="relative overflow-hidden rounded-[3rem] p-8 md:p-16 text-white wc-glow-pulse" style="background: linear-gradient(135deg, #1a0630 0%, #3d0b5c 35%, var(--hype-purple) 65%, var(--hype-orange) 100%);">
+                <div class="absolute -top-16 -right-16 w-72 h-72 bg-white/10 rounded-full blur-3xl pointer-events-none wc-float"></div>
+                <div class="absolute -bottom-20 -left-10 w-80 h-80 bg-orange-400/20 rounded-full blur-3xl pointer-events-none wc-float" style="animation-delay:1.5s"></div>
+                <div class="relative">
+                    <div class="flex flex-col items-center text-center mb-10">
+                        <span class="px-5 py-2 bg-white/15 backdrop-blur-md text-[10px] font-black uppercase tracking-[0.3em] rounded-full border border-white/20">🌍 GLOBAL LIVE TOURNAMENT</span>
+                        <h2 class="hero-title font-display uppercase italic mt-6 leading-none wc-shimmer-text">🏆 WORLD CUP</h2>
+                        <p id="wcRoundLabel" class="text-white/80 text-xs md:text-sm font-black uppercase tracking-[0.3em] mt-4">LOADING TOURNAMENT...</p>
+                        <p id="wcCountdown" class="text-white/50 text-[10px] font-black uppercase tracking-widest mt-2"></p>
+                        <div id="wcRoundDots" class="flex items-center gap-2 mt-6"></div>
+                    </div>
+                    <div id="wcEventCard"></div>
                 </div>
-                <div id="h2hEventCard"></div>
             </section>
             <section>
-                <h3 class="text-2xl font-display uppercase italic mb-6">🏆 PREVIOUS CHAMPIONS</h3>
-                <div id="h2hChampions" class="flex space-x-5 overflow-x-auto momentum-scroll pb-4"></div>
+                <h3 class="text-2xl font-display uppercase italic mb-6">🗂️ BRACKET</h3>
+                <div id="wcBracket" class="wc-bracket-scroll"></div>
+            </section>
+            <section>
+                <h3 class="text-2xl font-display uppercase italic mb-6">🏆 WORLD CUP HISTORY</h3>
+                <div id="wcHistoryStrip" class="flex space-x-5 overflow-x-auto momentum-scroll pb-4"></div>
             </section>
         </div>
         <div id="view-discover" class="hidden space-y-16">
@@ -423,19 +486,18 @@
             </div>
         </div>
     </div>
-    <div id="h2hModal" class="fixed inset-0 z-[140] hidden overflow-y-auto momentum-scroll">
-        <div class="absolute inset-0 hype-gradient"></div>
-        <div class="absolute inset-0 bg-black/15"></div>
-        <button id="closeH2H" class="fixed top-6 right-6 md:top-8 md:right-8 w-14 h-14 bg-white/20 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/30 transition-colors shadow-2xl z-10">
+    <div id="wcModal" class="fixed inset-0 z-[140] hidden overflow-y-auto momentum-scroll">
+        <div class="absolute inset-0" style="background: linear-gradient(135deg, #1a0630 0%, #3d0b5c 40%, var(--hype-purple) 70%, var(--hype-orange) 100%);"></div>
+        <div class="absolute inset-0 bg-black/25"></div>
+        <button id="closeWC" class="fixed top-6 right-6 md:top-8 md:right-8 w-14 h-14 bg-white/15 backdrop-blur-md text-white rounded-full flex items-center justify-center hover:bg-white/25 transition-colors shadow-2xl z-20">
             <i class="fa-solid fa-xmark text-xl"></i>
         </button>
-        <div class="relative min-h-screen flex flex-col items-center justify-center px-4 py-24 md:py-16">
-            <div class="text-center mb-10 animate-reveal">
-                <p class="text-white/70 text-[10px] font-black uppercase tracking-[0.3em] mb-2">TODAY'S MATCH</p>
-                <h2 class="text-4xl md:text-6xl font-display uppercase italic text-white">PHOTO HEAD-TO-HEAD</h2>
-            </div>
-            <div id="h2hMatchupWrap" class="w-full max-w-5xl"></div>
+        <div class="relative min-h-screen flex flex-col items-center px-4 py-20 md:py-16">
+            <div id="wcModalHeader" class="text-center mb-8 wc-pop-in"></div>
+            <div id="wcModalBody" class="w-full max-w-6xl"></div>
+            <div id="wcModalNav" class="flex items-center gap-3 mt-10"></div>
         </div>
+        <div id="wcConfettiLayer"></div>
     </div>
     <div id="profileModal" class="fixed inset-0 z-[100] hidden bg-black/40 backdrop-blur-md flex items-center justify-center p-6 overflow-y-auto momentum-scroll">
         <div class="bg-white max-w-2xl w-full rounded-[3rem] p-8 md:p-10 animate-reveal shadow-2xl my-10 max-h-[90vh] overflow-y-auto momentum-scroll">
@@ -637,11 +699,18 @@
         };
         let dailyFeaturedMeta = null;
         let isPickingFeatured = false;
-        let headToHeadDocs = {};
-        let userVoteToday = null;
-        let isPickingH2H = false;
-        let h2hUnsub = null;
-        let h2hVoteUnsub = null;
+        const WC_ROUNDS = ['r16', 'qf', 'sf', 'final'];
+        const WC_ROUND_LABELS = { r16: 'ROUND OF 16', qf: 'QUARTER-FINALS', sf: 'SEMI-FINALS', final: 'FINAL' };
+        let worldCupDoc = null;
+        let worldCupHistory = [];
+        let userWCVotes = {};
+        let isPickingWC = false;
+        let wcUnsub = null;
+        let wcHistoryUnsub = null;
+        let wcVoteUnsub = null;
+        let wcActiveMatchId = null;
+        let wcConfettiFiredFor = null;
+        let wcCountdownInterval = null;
         let profileViewUid = null;
         let pendingAvatarUrl = null;
         let commentsUnsub = null;
@@ -670,8 +739,8 @@
                 syncData();
                 syncProfiles();
                 syncDailyFeatured();
-                syncHeadToHead();
-                syncHeadToHeadVote();
+                syncWorldCup();
+                syncWorldCupVotes();
                 updateSecureBanner();
                 updateModBadge();
             } else {
@@ -681,10 +750,12 @@
                 if (postsUnsub) { postsUnsub(); postsUnsub = null; }
                 if (profilesUnsub) { profilesUnsub(); profilesUnsub = null; }
                 if (dailyFeaturedUnsub) { dailyFeaturedUnsub(); dailyFeaturedUnsub = null; }
-                if (h2hUnsub) { h2hUnsub(); h2hUnsub = null; }
-                if (h2hVoteUnsub) { h2hVoteUnsub(); h2hVoteUnsub = null; }
-                headToHeadDocs = {};
-                userVoteToday = null;
+                if (wcUnsub) { wcUnsub(); wcUnsub = null; }
+                if (wcHistoryUnsub) { wcHistoryUnsub(); wcHistoryUnsub = null; }
+                if (wcVoteUnsub) { wcVoteUnsub(); wcVoteUnsub = null; }
+                worldCupDoc = null;
+                worldCupHistory = [];
+                userWCVotes = {};
                 signInAnonymously(auth).catch(err => console.error("Auth Failed", err));
             }
         });
@@ -718,27 +789,35 @@
                 renderUI();
             }, (err) => console.error("Daily featured sync error", err));
         }
-        function syncHeadToHead() {
-            if (h2hUnsub) { h2hUnsub(); h2hUnsub = null; }
-            const q = collection(db, 'artifacts', appId, 'public', 'data', 'headToHead');
-            h2hUnsub = onSnapshot(q, (snap) => {
-                headToHeadDocs = {};
-                snap.forEach(d => { headToHeadDocs[d.id] = d.data(); });
+        function syncWorldCup() {
+            if (wcUnsub) { wcUnsub(); wcUnsub = null; }
+            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'worldCup', 'current');
+            wcUnsub = onSnapshot(ref, (snap) => {
+                worldCupDoc = snap.exists() ? snap.data() : null;
                 renderUI();
-            }, (err) => console.error("Head-to-Head sync error", err));
+            }, (err) => console.error("World Cup sync error", err));
+            if (wcHistoryUnsub) { wcHistoryUnsub(); wcHistoryUnsub = null; }
+            const hq = collection(db, 'artifacts', appId, 'public', 'data', 'worldCupHistory');
+            wcHistoryUnsub = onSnapshot(hq, (snap) => {
+                worldCupHistory = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => b.id.localeCompare(a.id));
+                renderUI();
+            }, (err) => console.error("World Cup history sync error", err));
         }
-        function syncHeadToHeadVote() {
-            if (h2hVoteUnsub) { h2hVoteUnsub(); h2hVoteUnsub = null; }
-            if (!currentUser) { userVoteToday = null; return; }
-            const todayKey = getLocalDateKey();
-            const ref = doc(db, 'artifacts', appId, 'public', 'data', 'headToHeadVotes', `${todayKey}_${currentUser.uid}`);
-            h2hVoteUnsub = onSnapshot(ref, (snap) => {
-                userVoteToday = snap.exists() ? snap.data() : null;
+        function syncWorldCupVotes() {
+            if (wcVoteUnsub) { wcVoteUnsub(); wcVoteUnsub = null; }
+            if (!currentUser) { userWCVotes = {}; return; }
+            const q = query(collection(db, 'artifacts', appId, 'public', 'data', 'worldCupVotes'), where('uid', '==', currentUser.uid));
+            wcVoteUnsub = onSnapshot(q, (snap) => {
+                userWCVotes = {};
+                snap.forEach(d => {
+                    const v = d.data();
+                    userWCVotes[`${v.tournamentId}_${v.matchId}`] = v;
+                });
                 renderEvents();
-            }, (err) => console.error("Head-to-Head vote sync error", err));
+            }, (err) => console.error("World Cup vote sync error", err));
         }
         function renderUI() {
-            computeCurrentChampion();
+            computeWorldCupChampionBadge();
             renderFeatured();
             renderFeed();
             renderHallOfFame();
@@ -812,7 +891,7 @@
         function getPostBadge(post) {
             if (!post?.id) return null;
             if (post.id === badgeMap.champion) {
-                return { text: "🏆 HEAD-TO-HEAD CHAMPION", color: "champion" };
+                return { text: "🏆 WORLD CUP CHAMPION", color: "champion" };
             }
             if (post.id === badgeMap.featured) {
                 return { text: "TODAY'S FEATURED", color: "orange" };
@@ -961,208 +1040,431 @@
                 isPickingFeatured = false;
             }
         }
-        function getEligibleH2HPhotos() {
+        function getEligibleWCPhotos() {
             return allPosts.filter(p => p.id && p.url && (p.title || '').trim().length > 0);
         }
-        function getH2HToday() {
-            const key = getLocalDateKey();
-            return { key, data: headToHeadDocs[key] || null };
-        }
-        function h2hPhoto(id) {
+        function wcPhoto(id) {
             return allPosts.find(p => p.id === id) || null;
         }
-        function computeCurrentChampion() {
-            const dates = Object.keys(headToHeadDocs)
-                .filter(d => headToHeadDocs[d].winnerId)
-                .sort((a, b) => b.localeCompare(a));
-            badgeMap.champion = dates.length ? headToHeadDocs[dates[0]].winnerId : null;
+        function mulberry32(seed) {
+            return function () {
+                seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+                let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+                t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+                return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+            };
         }
-        async function ensureDailyHeadToHead() {
-            if (isPickingH2H) return;
+        function seededShuffle(arr, seed) {
+            const a = [...arr];
+            const rnd = mulberry32(seed);
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(rnd() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+        function daysBetweenKeys(startKey, endKey) {
+            const a = new Date(startKey + 'T00:00:00');
+            const b = new Date(endKey + 'T00:00:00');
+            return Math.round((b - a) / 86400000);
+        }
+        function emptyWCMatches(n, prefix) {
+            return Array.from({ length: n }, (_, i) => ({ id: `${prefix}_${i}`, a: null, b: null, votesA: 0, votesB: 0, winnerId: null }));
+        }
+        function computeWorldCupChampionBadge() {
+            if (worldCupDoc && worldCupDoc.status === 'completed' && worldCupDoc.championId) {
+                badgeMap.champion = worldCupDoc.championId;
+                return;
+            }
+            badgeMap.champion = worldCupHistory[0]?.championId || null;
+        }
+        async function ensureWorldCup() {
+            if (isPickingWC) return;
             const todayKey = getLocalDateKey();
-            if (headToHeadDocs[todayKey]) { finalizePreviousHeadToHead(); return; }
-            const eligible = getEligibleH2HPhotos();
-            if (eligible.length < 2) return;
-            isPickingH2H = true;
+            if (!worldCupDoc || worldCupDoc.status !== 'active') {
+                if (worldCupDoc && worldCupDoc.status === 'completed' && worldCupDoc.startDate === todayKey) return;
+                const eligible = getEligibleWCPhotos();
+                if (eligible.length < 16) return;
+                isPickingWC = true;
+                try {
+                    const ref = doc(db, 'artifacts', appId, 'public', 'data', 'worldCup', 'current');
+                    await runTransaction(db, async (tx) => {
+                        const snap = await tx.get(ref);
+                        if (snap.exists() && snap.data().status === 'active') return;
+                        if (snap.exists() && snap.data().status === 'completed' && snap.data().startDate === todayKey) return;
+                        const sorted = [...eligible].sort((a, b) => a.id.localeCompare(b.id));
+                        const seed = hashStr('wc_' + todayKey);
+                        const picked = seededShuffle(sorted, seed).slice(0, 16);
+                        const r16 = [];
+                        for (let i = 0; i < picked.length; i += 2) {
+                            r16.push({ id: `r16_${r16.length}`, a: picked[i].id, b: picked[i + 1]?.id || null, votesA: 0, votesB: 0, winnerId: null });
+                        }
+                        tx.set(ref, {
+                            status: 'active',
+                            startDate: todayKey,
+                            currentRound: 'r16',
+                            photoIds: picked.map(p => p.id),
+                            matches: { r16, qf: emptyWCMatches(4, 'qf'), sf: emptyWCMatches(2, 'sf'), final: emptyWCMatches(1, 'final') },
+                            championId: null,
+                            createdAt: Date.now()
+                        });
+                    });
+                } catch (e) {
+                    console.error("Failed to set up the World Cup", e);
+                } finally {
+                    isPickingWC = false;
+                }
+                return;
+            }
+            const daysPassed = daysBetweenKeys(worldCupDoc.startDate, todayKey);
+            const targetRoundIdx = Math.min(Math.max(daysPassed, 0), WC_ROUNDS.length - 1);
+            const storedIdx = WC_ROUNDS.indexOf(worldCupDoc.currentRound || 'r16');
+            const finalDue = daysPassed >= WC_ROUNDS.length && !worldCupDoc.championId;
+            if (targetRoundIdx > storedIdx || finalDue) {
+                await advanceWorldCup(targetRoundIdx, finalDue);
+            }
+        }
+        async function advanceWorldCup(targetRoundIdx, finalDue) {
+            if (isPickingWC) return;
+            isPickingWC = true;
             try {
-                const sorted = [...eligible].sort((a, b) => a.id.localeCompare(b.id));
-                const seed = hashStr(todayKey);
-                const idxA = seed % sorted.length;
-                let idxB = (seed + 1 + (seed % Math.max(1, sorted.length - 1))) % sorted.length;
-                if (idxB === idxA) idxB = (idxA + 1) % sorted.length;
-                const photoA = sorted[idxA];
-                const photoB = sorted[idxB];
-                const ref = doc(db, 'artifacts', appId, 'public', 'data', 'headToHead', todayKey);
+                const ref = doc(db, 'artifacts', appId, 'public', 'data', 'worldCup', 'current');
+                const histRef = doc(db, 'artifacts', appId, 'public', 'data', 'worldCupHistory', worldCupDoc.startDate);
                 await runTransaction(db, async (tx) => {
                     const snap = await tx.get(ref);
-                    if (snap.exists()) return;
-                    tx.set(ref, {
-                        date: todayKey,
-                        photoAId: photoA.id,
-                        photoBId: photoB.id,
-                        votesA: 0,
-                        votesB: 0,
-                        totalVotes: 0,
-                        createdAt: Date.now()
-                    });
+                    if (!snap.exists()) return;
+                    const data = snap.data();
+                    if (data.status !== 'active') return;
+                    let roundIdx = WC_ROUNDS.indexOf(data.currentRound || 'r16');
+                    while (roundIdx < targetRoundIdx && roundIdx < WC_ROUNDS.length - 1) {
+                        const roundKey = WC_ROUNDS[roundIdx];
+                        const matches = data.matches[roundKey];
+                        matches.forEach(m => {
+                            if (!m.winnerId && m.a) {
+                                m.winnerId = (m.b && (m.votesB || 0) > (m.votesA || 0)) ? m.b : m.a;
+                            }
+                        });
+                        const nextKey = WC_ROUNDS[roundIdx + 1];
+                        const nextMatches = data.matches[nextKey];
+                        for (let i = 0; i < nextMatches.length; i++) {
+                            nextMatches[i].a = matches[i * 2]?.winnerId || null;
+                            nextMatches[i].b = matches[i * 2 + 1]?.winnerId || null;
+                        }
+                        data.currentRound = nextKey;
+                        roundIdx++;
+                    }
+                    if (finalDue && data.currentRound === 'final' && !data.championId) {
+                        const finalMatch = data.matches.final[0];
+                        if (!finalMatch.winnerId && finalMatch.a) {
+                            finalMatch.winnerId = (finalMatch.b && (finalMatch.votesB || 0) > (finalMatch.votesA || 0)) ? finalMatch.b : finalMatch.a;
+                        }
+                        if (finalMatch.winnerId) {
+                            data.championId = finalMatch.winnerId;
+                            data.status = 'completed';
+                            tx.set(histRef, {
+                                startDate: data.startDate,
+                                championId: data.championId,
+                                photoIds: data.photoIds,
+                                matches: data.matches,
+                                completedAt: Date.now()
+                            });
+                        }
+                    }
+                    tx.set(ref, data);
                 });
-                finalizePreviousHeadToHead();
             } catch (e) {
-                console.error("Failed to set up today's Head-to-Head", e);
+                console.error("Failed to advance the World Cup", e);
             } finally {
-                isPickingH2H = false;
+                isPickingWC = false;
             }
         }
-        async function finalizePreviousHeadToHead() {
-            const todayKey = getLocalDateKey();
-            const pastDates = Object.keys(headToHeadDocs)
-                .filter(d => d < todayKey && !headToHeadDocs[d].winnerId && ((headToHeadDocs[d].votesA || 0) + (headToHeadDocs[d].votesB || 0)) > 0)
-                .sort();
-            for (const d of pastDates) {
-                const data = headToHeadDocs[d];
-                const winnerId = (data.votesA || 0) >= (data.votesB || 0) ? data.photoAId : data.photoBId;
-                try {
-                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'headToHead', d), { winnerId });
-                } catch (e) {
-                    console.error("Failed to finalize Head-to-Head winner for " + d, e);
-                }
-            }
-        }
-        window.voteHeadToHead = async (choice) => {
-            if (!currentUser) return;
-            const todayKey = getLocalDateKey();
-            if (!headToHeadDocs[todayKey]) { showToast("NO MATCHUP YET"); return; }
-            if (userVoteToday) { showToast("YOU ALREADY VOTED TODAY"); return; }
-            const voteRef = doc(db, 'artifacts', appId, 'public', 'data', 'headToHeadVotes', `${todayKey}_${currentUser.uid}`);
-            const h2hRef = doc(db, 'artifacts', appId, 'public', 'data', 'headToHead', todayKey);
+        window.voteWorldCup = async (matchId, choice) => {
+            if (!currentUser || !worldCupDoc || worldCupDoc.status !== 'active') return;
+            const round = worldCupDoc.currentRound;
+            const match = (worldCupDoc.matches[round] || []).find(m => m.id === matchId);
+            if (!match || !match.a || !match.b) { showToast("MATCH NOT READY"); return; }
+            const voteKey = `${worldCupDoc.startDate}_${matchId}`;
+            if (userWCVotes[voteKey]) { showToast("ALREADY VOTED ON THIS MATCH"); return; }
+            const voteRef = doc(db, 'artifacts', appId, 'public', 'data', 'worldCupVotes', `${voteKey}_${currentUser.uid}`);
+            const wcRef = doc(db, 'artifacts', appId, 'public', 'data', 'worldCup', 'current');
             try {
                 await runTransaction(db, async (tx) => {
                     const voteSnap = await tx.get(voteRef);
                     if (voteSnap.exists()) throw new Error('ALREADY_VOTED');
-                    const h2hSnap = await tx.get(h2hRef);
-                    if (!h2hSnap.exists()) throw new Error('NO_MATCHUP');
-                    const data = h2hSnap.data();
-                    const votesA = (data.votesA || 0) + (choice === 'A' ? 1 : 0);
-                    const votesB = (data.votesB || 0) + (choice === 'B' ? 1 : 0);
-                    tx.set(voteRef, { date: todayKey, uid: currentUser.uid, choice, timestamp: Date.now() });
-                    tx.update(h2hRef, { votesA, votesB, totalVotes: votesA + votesB });
+                    const wcSnap = await tx.get(wcRef);
+                    if (!wcSnap.exists()) throw new Error('NO_TOURNAMENT');
+                    const data = wcSnap.data();
+                    if (data.status !== 'active' || data.currentRound !== round) throw new Error('ROUND_CLOSED');
+                    const matches = data.matches[round];
+                    const m = matches.find(x => x.id === matchId);
+                    if (!m || !m.a || !m.b) throw new Error('MATCH_NOT_READY');
+                    if (choice === 'A') m.votesA = (m.votesA || 0) + 1; else m.votesB = (m.votesB || 0) + 1;
+                    tx.set(voteRef, { uid: currentUser.uid, tournamentId: data.startDate, matchId, choice, timestamp: Date.now() });
+                    tx.update(wcRef, { [`matches.${round}`]: matches });
                 });
-                showToast("VOTE SUBMITTED 🔥");
+                showToast("VOTE LOCKED IN 🔥");
+                triggerVoteConfetti();
             } catch (e) {
                 console.error(e);
-                showToast(e.message === 'ALREADY_VOTED' ? "YOU ALREADY VOTED TODAY" : "VOTE FAILED");
+                const msg = e.message === 'ALREADY_VOTED' ? "ALREADY VOTED ON THIS MATCH"
+                    : e.message === 'ROUND_CLOSED' ? "THIS ROUND HAS ENDED"
+                    : e.message === 'MATCH_NOT_READY' ? "MATCH NOT READY"
+                    : "VOTE FAILED";
+                showToast(msg);
             }
         };
+        function spawnConfettiPiece(container, colors) {
+            const el = document.createElement('div');
+            el.className = 'wc-confetti-piece';
+            el.style.background = colors[Math.floor(Math.random() * colors.length)];
+            el.style.left = Math.random() * 100 + 'vw';
+            el.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+            el.style.animationDuration = (2 + Math.random() * 1.5) + 's';
+            container.appendChild(el);
+            setTimeout(() => el.remove(), 3700);
+        }
+        function fireConfetti(count) {
+            const container = document.getElementById('wcConfettiLayer') || document.body;
+            const colors = ['#ff4d00', '#8a2be2', '#ffd700', '#ffffff', '#ff8a4d'];
+            for (let i = 0; i < count; i++) {
+                setTimeout(() => spawnConfettiPiece(container, colors), i * 30);
+            }
+        }
+        function triggerVoteConfetti() { fireConfetti(24); }
+        function triggerChampionConfetti() {
+            if (!worldCupDoc || wcConfettiFiredFor === worldCupDoc.startDate) return;
+            wcConfettiFiredFor = worldCupDoc.startDate;
+            fireConfetti(90);
+        }
+        function startWCCountdown() {
+            if (wcCountdownInterval) clearInterval(wcCountdownInterval);
+            const tick = () => {
+                const el = document.getElementById('wcCountdown');
+                if (!el) return;
+                if (!worldCupDoc || worldCupDoc.status !== 'active') { el.innerText = ''; return; }
+                const now = new Date();
+                const nextMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0);
+                const diff = nextMidnight - now;
+                const h = Math.floor(diff / 3600000);
+                const m = Math.floor((diff % 3600000) / 60000);
+                const s = Math.floor((diff % 60000) / 1000);
+                const nextRoundIdx = WC_ROUNDS.indexOf(worldCupDoc.currentRound) + 1;
+                const label = nextRoundIdx < WC_ROUNDS.length ? `NEXT: ${WC_ROUND_LABELS[WC_ROUNDS[nextRoundIdx]]}` : 'CHAMPION CROWNED';
+                el.innerText = nextRoundIdx < WC_ROUNDS.length ? `${label} IN ${h}H ${m}M ${s}S` : label;
+            };
+            tick();
+            wcCountdownInterval = setInterval(tick, 1000);
+        }
         window.openWeeklyThemeSubmit = () => {
             document.getElementById('uploadModal').classList.remove('hidden');
             const chk = document.getElementById('weeklyThemeOptIn');
             if (chk) chk.checked = true;
         };
-        window.openH2HModal = () => {
-            document.getElementById('h2hModal').classList.remove('hidden');
-            renderH2HFullscreen();
+        window.openWCModal = (matchId) => {
+            wcActiveMatchId = matchId || null;
+            document.getElementById('wcModal').classList.remove('hidden');
+            renderWCModal();
+        };
+        window.wcShowMatch = (matchId) => { wcActiveMatchId = matchId; renderWCModal(); };
+        window.wcBackToMatch = () => { renderWCModal(); };
+        window.wcShowBracketInModal = () => {
+            document.getElementById('wcModalBody').innerHTML = `<div class="bg-white/95 rounded-[2.5rem] p-6 md:p-10 aura-shadow">${wcBracketHTML()}</div>`;
+            document.getElementById('wcModalNav').innerHTML = (worldCupDoc && worldCupDoc.status === 'active')
+                ? `<button onclick="wcBackToMatch()" class="bg-white/15 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/25">BACK TO MATCH</button>`
+                : '';
         };
         function renderEvents() {
-            ensureDailyHeadToHead();
-            renderH2HEventCard();
-            renderH2HFullscreen();
-            renderH2HChampions();
+            ensureWorldCup();
+            renderWCEventCard();
+            renderWCBracket();
+            renderWCModal();
+            renderWCHistory();
         }
-        function renderH2HEventCard() {
-            const el = document.getElementById('h2hEventCard');
+        function wcRoundProgressHTML(roundKey, completed) {
+            const idx = completed ? WC_ROUNDS.length : WC_ROUNDS.indexOf(roundKey);
+            return WC_ROUNDS.map((r, i) => `<span class="wc-round-dot ${i <= idx ? 'active' : ''}" title="${WC_ROUND_LABELS[r]}"></span>`).join('<span class="w-5 h-px bg-white/20"></span>');
+        }
+        function renderWCEventCard() {
+            const labelEl = document.getElementById('wcRoundLabel');
+            const dotsEl = document.getElementById('wcRoundDots');
+            const el = document.getElementById('wcEventCard');
             if (!el) return;
-            const { data } = getH2HToday();
-            if (!data) {
-                el.innerHTML = `<p class="empty-state text-xs text-center py-10"><i class="fa-solid fa-hourglass-half mr-2"></i>NOT ENOUGH PHOTOS YET — UPLOAD SOME TO START TODAY'S MATCH</p>`;
+            if (!worldCupDoc) {
+                if (labelEl) labelEl.innerText = 'GATHERING PHOTOS FOR THE FIRST TOURNAMENT...';
+                if (dotsEl) dotsEl.innerHTML = '';
+                el.innerHTML = `<p class="text-white/70 text-center font-black uppercase tracking-widest text-xs py-10"><i class="fa-solid fa-hourglass-half mr-2"></i>NEED 16 COMMUNITY PHOTOS TO KICK OFF THE WORLD CUP</p>`;
                 return;
             }
-            const photoA = h2hPhoto(data.photoAId);
-            const photoB = h2hPhoto(data.photoBId);
-            if (!photoA || !photoB) {
-                el.innerHTML = `<p class="empty-state text-xs text-center py-10"><i class="fa-solid fa-spinner spin-icon mr-2"></i>PREPARING TODAY'S MATCH...</p>`;
+            const completed = worldCupDoc.status === 'completed';
+            const round = worldCupDoc.currentRound;
+            if (labelEl) labelEl.innerText = completed ? `🏆 CHAMPION CROWNED` : `${WC_ROUND_LABELS[round]} · DAY ${WC_ROUNDS.indexOf(round) + 1} OF 4`;
+            if (dotsEl) dotsEl.innerHTML = wcRoundProgressHTML(round, completed);
+            if (completed) {
+                const champ = wcPhoto(worldCupDoc.championId);
+                el.innerHTML = champ ? `
+                    <div class="max-w-md mx-auto text-center wc-champion-reveal">
+                        <div class="rounded-[2.5rem] overflow-hidden aura-shadow border-4 border-yellow-300/80"><img src="${champ.url}" class="w-full h-72 object-cover"></div>
+                        <p class="wc-shimmer-text text-3xl font-display uppercase italic mt-6">🏆 ${escapeHtml(champ.title)}</p>
+                        <p class="text-white/70 text-[10px] font-black uppercase tracking-widest mt-2">BY ${escapeHtml(allProfiles[champ.authorId]?.name || 'UNKNOWN')}</p>
+                        <button onclick="openWCModal()" class="mt-6 bg-white text-black px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest btn-premium">RELIVE THE FINAL</button>
+                    </div>` : `<p class="text-white/70 text-center text-xs py-10">RESOLVING CHAMPION...</p>`;
                 return;
             }
-            const total = data.totalVotes || 0;
-            const voted = !!userVoteToday;
+            const matches = (worldCupDoc.matches[round] || []).filter(m => m.a && m.b);
+            if (!matches.length) {
+                el.innerHTML = `<p class="text-white/70 text-center font-black uppercase tracking-widest text-xs py-10"><i class="fa-solid fa-spinner spin-icon mr-2"></i>PAIRING UP THIS ROUND'S MATCHES...</p>`;
+                return;
+            }
+            const grid = matches.map(m => {
+                const a = wcPhoto(m.a), b = wcPhoto(m.b);
+                if (!a || !b) return '';
+                const voted = userWCVotes[`${worldCupDoc.startDate}_${m.id}`];
+                return `
+                    <div class="wc-glass-dark rounded-3xl p-3 cursor-pointer hover:scale-[1.02] transition-transform" onclick="openWCModal('${m.id}')">
+                        <div class="grid grid-cols-2 gap-1.5 rounded-2xl overflow-hidden">
+                            <img src="${a.url}" class="w-full h-24 object-cover">
+                            <img src="${b.url}" class="w-full h-24 object-cover">
+                        </div>
+                        <p class="text-white/60 text-[9px] font-black uppercase tracking-widest text-center mt-2">${voted ? 'VOTED · TAP TO VIEW' : 'TAP TO VOTE'}</p>
+                    </div>`;
+            }).join('');
             el.innerHTML = `
-                <div class="grid grid-cols-2 gap-4 md:gap-8 max-w-2xl mx-auto mb-8">
-                    <div class="rounded-3xl overflow-hidden aura-shadow"><img src="${photoA.url}" class="w-full h-40 md:h-56 object-cover"></div>
-                    <div class="rounded-3xl overflow-hidden aura-shadow"><img src="${photoB.url}" class="w-full h-40 md:h-56 object-cover"></div>
-                </div>
-                <div class="text-center">
-                    <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-4">${total} VOTE${total === 1 ? '' : 'S'} SO FAR</p>
-                    <button onclick="openH2HModal()" class="hype-gradient text-white px-10 py-5 rounded-3xl font-black text-xs uppercase tracking-widest btn-premium">${voted ? 'VIEW RESULTS' : 'VOTE NOW'}</button>
-                </div>`;
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 max-w-4xl mx-auto mb-8">${grid}</div>
+                <div class="text-center"><button onclick="openWCModal()" class="hype-gradient text-white px-10 py-5 rounded-3xl font-black text-xs uppercase tracking-widest btn-premium wc-glow-pulse">ENTER THE ARENA <i class="fa-solid fa-arrow-right ml-2"></i></button></div>`;
         }
-        function renderH2HFullscreen() {
-            const wrap = document.getElementById('h2hMatchupWrap');
-            if (!wrap) return;
-            const { data } = getH2HToday();
-            if (!data) {
-                wrap.innerHTML = `<p class="text-white text-center font-black uppercase tracking-widest text-xs py-20"><i class="fa-solid fa-hourglass-half mr-2"></i>NOT ENOUGH PHOTOS YET</p>`;
+        function renderWCModal() {
+            const modal = document.getElementById('wcModal');
+            if (!modal || modal.classList.contains('hidden')) return;
+            const header = document.getElementById('wcModalHeader');
+            const body = document.getElementById('wcModalBody');
+            const nav = document.getElementById('wcModalNav');
+            if (!worldCupDoc) {
+                header.innerHTML = '';
+                body.innerHTML = `<p class="text-white text-center font-black uppercase tracking-widest text-xs py-20">NOT ENOUGH PHOTOS YET</p>`;
+                nav.innerHTML = '';
                 return;
             }
-            const photoA = h2hPhoto(data.photoAId);
-            const photoB = h2hPhoto(data.photoBId);
-            if (!photoA || !photoB) {
-                wrap.innerHTML = `<p class="text-white text-center font-black uppercase tracking-widest text-xs py-20"><i class="fa-solid fa-spinner spin-icon mr-2"></i>PREPARING TODAY'S MATCH...</p>`;
+            if (worldCupDoc.status === 'completed') {
+                const champ = wcPhoto(worldCupDoc.championId);
+                header.innerHTML = `<p class="text-white/70 text-[10px] font-black uppercase tracking-[0.3em] mb-2">🏆 WORLD CUP</p><h2 class="text-4xl md:text-6xl font-display uppercase italic wc-shimmer-text">CHAMPION CROWNED</h2>`;
+                body.innerHTML = champ ? `
+                    <div class="max-w-lg mx-auto text-center wc-champion-reveal">
+                        <div class="rounded-[3rem] overflow-hidden shadow-2xl border-4 border-yellow-300/80 relative">
+                            <img src="${champ.url}" class="w-full h-[420px] object-cover">
+                            <span class="absolute top-6 left-6 bg-gradient-to-r from-yellow-400 to-orange-500 text-black px-5 py-2 rounded-full text-[10px] font-black uppercase tracking-widest">🏆 CHAMPION</span>
+                        </div>
+                        <p class="text-white text-4xl font-display uppercase italic mt-8">${escapeHtml(champ.title)}</p>
+                        <p class="text-white/70 text-[10px] font-black uppercase tracking-widest mt-2">BY ${escapeHtml(allProfiles[champ.authorId]?.name || 'UNKNOWN')}</p>
+                    </div>` : '';
+                nav.innerHTML = `<button onclick="wcShowBracketInModal()" class="bg-white/15 text-white px-6 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/25">VIEW FULL BRACKET</button>`;
+                triggerChampionConfetti();
                 return;
             }
-            const votesA = data.votesA || 0, votesB = data.votesB || 0, total = votesA + votesB;
+            const round = worldCupDoc.currentRound;
+            const matches = (worldCupDoc.matches[round] || []).filter(m => m.a && m.b);
+            if (!matches.length) {
+                header.innerHTML = `<p class="text-white/70 text-[10px] font-black uppercase tracking-[0.3em] mb-2">🏆 WORLD CUP</p><h2 class="text-4xl font-display uppercase italic text-white">${WC_ROUND_LABELS[round]}</h2>`;
+                body.innerHTML = `<p class="text-white text-center font-black uppercase tracking-widest text-xs py-20"><i class="fa-solid fa-spinner spin-icon mr-2"></i>PAIRING UP THIS ROUND...</p>`;
+                nav.innerHTML = '';
+                return;
+            }
+            if (!wcActiveMatchId || !matches.find(m => m.id === wcActiveMatchId)) {
+                const firstUnvoted = matches.find(m => !userWCVotes[`${worldCupDoc.startDate}_${m.id}`]);
+                wcActiveMatchId = (firstUnvoted || matches[0]).id;
+            }
+            const match = matches.find(m => m.id === wcActiveMatchId);
+            const matchNum = matches.findIndex(m => m.id === wcActiveMatchId) + 1;
+            const a = wcPhoto(match.a), b = wcPhoto(match.b);
+            const voted = userWCVotes[`${worldCupDoc.startDate}_${match.id}`];
+            const votesA = match.votesA || 0, votesB = match.votesB || 0, total = votesA + votesB;
             const pctA = total ? Math.round((votesA / total) * 100) : 0;
             const pctB = total ? 100 - pctA : 0;
-            const voted = userVoteToday;
-            const nameA = allProfiles[photoA.authorId]?.name || 'UNKNOWN';
-            const nameB = allProfiles[photoB.authorId]?.name || 'UNKNOWN';
-            const card = (photo, name, side, pct, votes) => `
-                <div class="relative rounded-[2.5rem] overflow-hidden aura-shadow bg-black animate-reveal ${voted && voted.choice === side ? 'ring-4 ring-white' : ''}">
-                    <img src="${photo.url}" class="w-full h-72 md:h-[420px] object-cover">
-                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-6">
+            const nameA = allProfiles[a?.authorId]?.name || 'UNKNOWN';
+            const nameB = allProfiles[b?.authorId]?.name || 'UNKNOWN';
+            header.innerHTML = `
+                <p class="text-white/70 text-[10px] font-black uppercase tracking-[0.3em] mb-2">🏆 WORLD CUP</p>
+                <h2 class="text-4xl md:text-6xl font-display uppercase italic text-white">${WC_ROUND_LABELS[round]}</h2>
+                <p class="text-white/60 text-[10px] font-black uppercase tracking-widest mt-2">MATCH ${String(matchNum).padStart(2, '0')} OF ${matches.length}</p>`;
+            const card = (photo, name, side, pct, votes) => photo ? `
+                <div class="relative rounded-[2.5rem] overflow-hidden shadow-2xl bg-black wc-pop-in ${voted && voted.choice === side ? 'ring-4 ring-white' : ''}">
+                    <img src="${photo.url}" class="w-full h-72 md:h-[460px] object-cover">
+                    <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-6">
                         <p class="text-white/70 text-[9px] font-black uppercase tracking-widest">${escapeHtml(name)}</p>
-                        ${voted ? `<p class="text-white text-3xl font-display italic mt-1">${pct}%</p><p class="text-white/60 text-[9px] font-black uppercase tracking-widest">${votes} VOTE${votes === 1 ? '' : 'S'}</p>` : ''}
+                        <p class="text-white text-xl font-display italic truncate">${escapeHtml(photo.title)}</p>
+                        ${voted ? `<p class="text-white text-4xl font-display italic mt-2">${pct}%</p><p class="text-white/60 text-[9px] font-black uppercase tracking-widest">${votes} VOTE${votes === 1 ? '' : 'S'}</p>` : ''}
                     </div>
                     ${voted && voted.choice === side ? `<span class="absolute top-4 right-4 bg-white text-black px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest">YOUR PICK</span>` : ''}
-                </div>`;
-            wrap.innerHTML = `
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                    ${card(photoA, nameA, 'A', pctA, votesA)}
-                    ${card(photoB, nameB, 'B', pctB, votesB)}
+                </div>` : '';
+            body.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 relative">
+                    ${card(a, nameA, 'A', pctA, votesA)}
+                    <div class="hidden md:flex items-center justify-center absolute inset-0 pointer-events-none">
+                        <span class="wc-vs-badge w-20 h-20 rounded-full hype-gradient text-white font-display italic text-2xl flex items-center justify-center shadow-2xl">VS</span>
+                    </div>
+                    ${card(b, nameB, 'B', pctB, votesB)}
                 </div>
                 <div class="text-center mt-10">
                     ${voted
-                        ? `<p class="text-white font-black uppercase tracking-widest text-xs"><i class="fa-solid fa-check mr-2"></i>VOTE RECORDED · ${total} TOTAL VOTE${total === 1 ? '' : 'S'}</p>`
-                        : `<p class="text-white font-black tracking-[0.1em] text-2xl md:text-3xl font-display italic mb-6">WHICH ONE WINS?</p>
+                        ? `<p class="text-white font-black uppercase tracking-widest text-xs"><i class="fa-solid fa-check mr-2"></i>VOTE LOCKED IN · ${total} TOTAL VOTE${total === 1 ? '' : 'S'}</p>`
+                        : `<p class="wc-shimmer-text font-black tracking-[0.1em] text-2xl md:text-4xl font-display italic mb-6">WHICH PHOTO WINS?</p>
                            <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                              <button onclick="voteHeadToHead('A')" class="bg-white text-black px-10 py-5 rounded-3xl font-black text-sm uppercase tracking-widest btn-premium"><i class="fa-solid fa-arrow-left mr-2"></i>PHOTO A</button>
-                              <button onclick="voteHeadToHead('B')" class="bg-white text-black px-10 py-5 rounded-3xl font-black text-sm uppercase tracking-widest btn-premium">PHOTO B<i class="fa-solid fa-arrow-right ml-2"></i></button>
+                              <button onclick="voteWorldCup('${match.id}','A')" class="bg-white text-black px-10 py-5 rounded-3xl font-black text-sm uppercase tracking-widest btn-premium"><i class="fa-solid fa-arrow-left mr-2"></i>PHOTO A</button>
+                              <button onclick="voteWorldCup('${match.id}','B')" class="bg-white text-black px-10 py-5 rounded-3xl font-black text-sm uppercase tracking-widest btn-premium">PHOTO B<i class="fa-solid fa-arrow-right ml-2"></i></button>
                            </div>`
                     }
                 </div>`;
+            nav.innerHTML = matches.length > 1 ? `
+                <div class="flex flex-wrap items-center justify-center gap-2">
+                    ${matches.map((m, i) => `<button onclick="wcShowMatch('${m.id}')" class="w-10 h-10 rounded-2xl font-black text-[10px] ${m.id === match.id ? 'bg-white text-black' : 'bg-white/15 text-white hover:bg-white/25'}">${i + 1}</button>`).join('')}
+                </div>
+                <button onclick="wcShowBracketInModal()" class="bg-white/15 text-white px-5 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/25 ml-2">VIEW BRACKET</button>` : `
+                <button onclick="wcShowBracketInModal()" class="bg-white/15 text-white px-5 py-3 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-white/25">VIEW BRACKET</button>`;
         }
-        function renderH2HChampions() {
-            const el = document.getElementById('h2hChampions');
+        function wcBracketHTML() {
+            if (!worldCupDoc) return `<p class="empty-state text-xs text-center py-10">NO TOURNAMENT YET</p>`;
+            const cols = WC_ROUNDS.map(r => {
+                const matches = worldCupDoc.matches[r] || [];
+                const rowHTML = (photo, isWinner) => `
+                    <div class="flex items-center gap-2 px-3 py-2 rounded-xl ${isWinner ? 'bg-orange-50 border border-orange-200' : 'bg-gray-50'} ${!photo ? 'opacity-40' : ''}">
+                        ${photo ? `<img src="${photo.url}" class="w-8 h-8 rounded-lg object-cover">` : `<div class="w-8 h-8 rounded-lg bg-gray-200"></div>`}
+                        <span class="text-[9px] font-black uppercase tracking-wide truncate flex-1">${photo ? escapeHtml(photo.title) : 'TBD'}</span>
+                        ${isWinner ? '<i class="fa-solid fa-check text-orange-500 text-[10px]"></i>' : ''}
+                    </div>`;
+                return `
+                    <div class="flex-shrink-0 w-56 space-y-6">
+                        <p class="text-[10px] font-black uppercase tracking-widest text-center ${worldCupDoc.currentRound === r && worldCupDoc.status === 'active' ? 'text-orange-500' : 'text-gray-400'}">${WC_ROUND_LABELS[r]}</p>
+                        ${matches.map(m => {
+                            const a = wcPhoto(m.a), b = wcPhoto(m.b);
+                            return `<div class="space-y-1.5">
+                                ${rowHTML(a, !!(m.winnerId && m.winnerId === m.a))}
+                                ${rowHTML(b, !!(m.winnerId && m.winnerId === m.b))}
+                            </div>`;
+                        }).join('')}
+                    </div>`;
+            }).join('<div class="flex-shrink-0 w-6"></div>');
+            return `<div class="flex gap-4 items-start pb-4">${cols}</div>`;
+        }
+        function renderWCBracket() {
+            const el = document.getElementById('wcBracket');
+            if (el) el.innerHTML = wcBracketHTML();
+        }
+        function renderWCHistory() {
+            const el = document.getElementById('wcHistoryStrip');
             if (!el) return;
-            const champions = Object.keys(headToHeadDocs)
-                .filter(d => headToHeadDocs[d].winnerId)
-                .sort((a, b) => b.localeCompare(a))
-                .slice(0, 10);
-            if (!champions.length) {
+            if (!worldCupHistory.length) {
                 el.innerHTML = `<p class="empty-state text-[10px] py-6"><i class="fa-solid fa-trophy mr-2"></i>NO CHAMPIONS CROWNED YET</p>`;
                 return;
             }
-            el.innerHTML = champions.map(d => {
-                const data = headToHeadDocs[d];
-                const winner = h2hPhoto(data.winnerId);
+            el.innerHTML = worldCupHistory.map(h => {
+                const winner = wcPhoto(h.championId);
                 if (!winner) return '';
                 const name = allProfiles[winner.authorId]?.name || 'UNKNOWN';
-                const votesA = data.votesA || 0, votesB = data.votesB || 0, total = votesA + votesB;
-                const winPct = total ? Math.round((Math.max(votesA, votesB) / total) * 100) : 0;
                 return `
                     <div class="flex-shrink-0 w-44 img-card rounded-3xl overflow-hidden aura-shadow cursor-pointer bg-white" onclick="openVision('${winner.id}')">
                         <div class="relative"><img src="${winner.url}" class="w-full h-32 object-cover"><span class="absolute top-2 left-2 px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 text-black text-[8px] font-black uppercase tracking-widest rounded-full">🏆 CHAMPION</span></div>
                         <div class="p-4">
                             <p class="text-[10px] font-black uppercase tracking-widest truncate">${escapeHtml(name)}</p>
-                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-1">${d} · ${winPct}%</p>
+                            <p class="text-[9px] font-bold text-gray-400 uppercase tracking-wider mt-1">${h.startDate}</p>
                         </div>
                     </div>`;
             }).join('');
@@ -1436,8 +1738,8 @@
         window.toggleFullscreen = () => {
             document.getElementById('visionImgWrap').classList.toggle('vision-fullscreen');
         };
-        document.getElementById('closeH2H').onclick = () => {
-            document.getElementById('h2hModal').classList.add('hidden');
+        document.getElementById('closeWC').onclick = () => {
+            document.getElementById('wcModal').classList.add('hidden');
         };
         function registerView(postId) {
             try {
@@ -1941,10 +2243,10 @@
             const nowKey = getLocalDateKey();
             if (nowKey !== lastKnownDateKey) {
                 lastKnownDateKey = nowKey;
-                syncHeadToHeadVote();
                 renderUI();
             }
         }, 60 * 1000);
+        startWCCountdown();
         switchTab('home');
     </script>
 </body>
